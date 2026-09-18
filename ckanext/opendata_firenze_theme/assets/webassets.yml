@@ -1,5 +1,8 @@
 opendata_firenze_theme-css:
-  filters: cssrewrite
+  # Niente filtro cssrewrite: richiede un public path registrato (add_public_path)
+  # per risolvere gli url() del CSS, assente per gli asset di un plugin. Questo
+  # foglio non referenzia immagini/font; se in futuro servisse, metti gli asset
+  # in public/ e usa URL assoluti, oppure registra un public path.
   output: opendata_firenze_theme/%(version)s-opendata_firenze_theme.css
   contents:
     - css/opendata_firenze_theme.css
