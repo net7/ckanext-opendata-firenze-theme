@@ -8,6 +8,10 @@ jobs:
       # the one of the container the tests run on.
       # You can switch this base image with a custom image tailored to your project
       image: ckan/ckan-dev:2.12
+      # L'immagine gira come utente "ckan" (non-root): actions/checkout
+      # scriverebbe nella workspace con uid diversi da quelli del runner e
+      # fallirebbe con "EACCES: permission denied" (actions/checkout#956).
+      options: --user root
     services:
       solr:
         image: ckan/ckan-solr:2.12-solr9
