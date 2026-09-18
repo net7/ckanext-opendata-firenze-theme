@@ -7,19 +7,15 @@ Scheletro iniziale. In CKAN un tema è un'estensione come le altre: registra una
 cartella di template (override via `{% ckan_extends %}`) e una di asset (CSS/JS
 via WebAssets).
 
-## Installazione (dev, dentro lo stack di `opendata-firenze-config`)
+## Installazione
 
-1. Clonare questa repo in `src/` del repo di configurazione:
+Il tema è già collegato dal repo di configurazione `opendata-firenze-config`:
+`opendata_firenze_theme` è in `CKAN__PLUGINS` (`.env.example`) e il pin è in
+`ckan/Dockerfile`. In dev `bin/clone_extensions` lo clona in `src/` se manca,
+quindi basta `make dev up` (ADR-0003/0004 del config).
 
-   ```bash
-   git clone <url> src/ckanext-opendata-firenze-theme
-   ```
-
-2. Aggiungere `opendata_firenze_theme` a `CKAN__PLUGINS` in `.env`.
-3. `make dev up`: in dev l'estensione viene installata a runtime da `src/`
-   (vedi ADR-0003 del repo di configurazione).
-
-In prod-style va invece aggiunta a `ckan/Dockerfile` (ADR-0004).
+Per usarlo in un altro ambiente: `pip install -e .` e aggiungere
+`opendata_firenze_theme` a `ckan.plugins`.
 
 ## Struttura
 
