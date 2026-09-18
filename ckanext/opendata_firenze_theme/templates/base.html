@@ -1,0 +1,13 @@
+{% ckan_extends %}
+
+{# Asset del tema, registrati in assets/webassets.yml (bundle "opendata_firenze_theme/<key>"). #}
+
+{% block styles %}
+  {{ super() }}
+  {% asset 'opendata_firenze_theme/opendata_firenze_theme-css' %}
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% asset 'opendata_firenze_theme/opendata_firenze_theme-js' %}
+{% endblock %}

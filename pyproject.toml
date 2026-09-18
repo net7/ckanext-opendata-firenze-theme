@@ -1,0 +1,45 @@
+[project]
+name = "ckanext-opendata-firenze-theme"
+version = "0.0.1"
+description = "Tema Open Data del Comune di Firenze"
+readme = "README.md"
+authors = [
+    {name = "Net7", email = "info@netseven.it"}
+]
+license = {text = "AGPL"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+keywords = [ "CKAN", "opendata", "firenze", ]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/net7/ckanext-opendata-firenze-theme"
+
+[project.entry-points."ckan.plugins"]
+opendata_firenze_theme = "ckanext.opendata_firenze_theme.plugin:OpendataFirenzeThemePlugin"
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+        "ignore::sqlalchemy.exc.SADeprecationWarning",
+        "ignore::sqlalchemy.exc.SAWarning",
+        "ignore::DeprecationWarning",
+]
+addopts = "--ckan-ini test.ini"
+
+[tool.ruff]
+line-length = 127
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+

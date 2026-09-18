@@ -1,0 +1,14 @@
+opendata_firenze_theme-css:
+  filters: cssrewrite
+  output: opendata_firenze_theme/%(version)s-opendata_firenze_theme.css
+  contents:
+    - css/opendata_firenze_theme.css
+
+opendata_firenze_theme-js:
+  filters: rjsmin
+  output: opendata_firenze_theme/%(version)s-opendata_firenze_theme.js
+  contents:
+    - js/opendata_firenze_theme.js
+  extra:
+    preload:
+      - base/main
