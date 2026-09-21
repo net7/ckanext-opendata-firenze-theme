@@ -1,10 +1,13 @@
 opendata_firenze_theme-css:
-  # Niente filtro cssrewrite: richiede un public path registrato (add_public_path)
-  # per risolvere gli url() del CSS, assente per gli asset di un plugin. Questo
-  # foglio non referenzia immagini/font; se in futuro servisse, metti gli asset
-  # in public/ e usa URL assoluti, oppure registra un public path.
+  # Niente filtro cssrewrite: i font self-hosted sono referenziati con URL
+  # assoluti (/fonts/...) e i token non referenziano immagini. Se in futuro
+  # servissero url() relativi, registrare un public path per gli asset.
   output: opendata_firenze_theme/%(version)s-opendata_firenze_theme.css
   contents:
+    - css/fonts.css
+    - css/tokens/fig-tokens.css
+    - css/tokens/semantic.css
+    - css/tokens/typography.css
     - css/opendata_firenze_theme.css
 
 opendata_firenze_theme-js:

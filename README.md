@@ -28,7 +28,7 @@ ckanext/opendata_firenze_theme/
 │   ├── webassets.yml         bundle CSS/JS
 │   ├── css/                  stili del tema
 │   └── js/                   moduli JS (sandbox CKAN)
-├── public/                   file statici non WebAssets (immagini, ...)
+├── public/                   file statici non WebAssets (immagini, font, ...)
 ├── tests/
 └── i18n/
 ```

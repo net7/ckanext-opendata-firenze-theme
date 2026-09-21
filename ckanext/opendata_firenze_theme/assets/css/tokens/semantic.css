@@ -1,0 +1,161 @@
+/* Length + effect aliases.
+   fig-tokens.css emits Figma FLOAT variables unitless; these give ready-to-use px values
+   plus the shadow, focus-ring and motion primitives read off the .fig. */
+:root{
+  --rtt-radius-none:0px;--rtt-radius-sm:2px;--rtt-radius:4px;--rtt-radius-md:10px;--rtt-radius-lg:12px;--rtt-radius-xl:12px;--rtt-radius-2xl:16px;--rtt-radius-3xl:24px;--rtt-radius-full:9999px;
+  --rtt-space-0:0px;--rtt-space-px:1px;--rtt-space-0-5:2px;--rtt-space-1:4px;--rtt-space-1-5:6px;--rtt-space-2:8px;--rtt-space-2-5:10px;--rtt-space-3:12px;--rtt-space-3-5:14px;--rtt-space-4:16px;--rtt-space-5:20px;--rtt-space-6:24px;--rtt-space-7:28px;--rtt-space-8:32px;--rtt-space-9:36px;--rtt-space-10:40px;--rtt-space-11:44px;--rtt-space-12:48px;--rtt-space-14:56px;--rtt-space-16:64px;--rtt-space-20:80px;--rtt-space-24:96px;--rtt-space-28:112px;--rtt-space-32:128px;--rtt-space-36:144px;--rtt-space-40:160px;--rtt-space-44:176px;--rtt-space-48:192px;--rtt-space-52:208px;--rtt-space-56:224px;--rtt-space-60:240px;--rtt-space-64:256px;--rtt-space-72:288px;--rtt-space-80:320px;--rtt-space-96:384px;
+  --rtt-bp-xs:376px; /* @kind other */
+  --rtt-bp-sm:640px; /* @kind other */
+  --rtt-bp-md:768px; /* @kind other */
+  --rtt-bp-lg:1024px; /* @kind other */
+  --rtt-bp-xl:1280px; /* @kind other */
+  --rtt-bp-2xl:1532px; /* @kind other */
+  --rtt-container:1440px; /* @kind spacing */ --rtt-gutter:64px; /* @kind spacing */
+  /* Elevation — transcribed from the .fig effect stacks */
+  --rtt-shadow-xs:0px 1px 2px 0px rgba(0,0,0,0.05);
+  --rtt-shadow-sm:0px 1px 3px 0px rgba(0,0,0,0.1),0px 1px 2px 0px rgba(0,0,0,0.06);
+  --rtt-shadow-md:0px 4px 6px -1px rgba(0,0,0,0.1),0px 2px 4px -1px rgba(0,0,0,0.06);
+  --rtt-shadow-lg:0px 10px 15px -3px rgba(0,0,0,0.1),0px 4px 6px -2px rgba(0,0,0,0.05);
+  --rtt-shadow-xl:0px 20px 25px -5px rgba(0,0,0,0.1),0px 10px 10px -5px rgba(0,0,0,0.04);
+  /* Focus — white inner ring + blue halo, exactly as the Button focus variants */
+  --rtt-focus-inner:inset 0 0 0 2px rgb(255,255,255); /* @kind shadow */
+  --rtt-focus-ring:0px 0px 0px 3px rgba(15,140,255,0.45); /* @kind shadow */
+  --rtt-focus:var(--rtt-focus-inner),var(--rtt-focus-ring); /* @kind shadow */
+  /* Motion — the kit has no authored motion; these are the conservative house defaults */
+  --rtt-ease:cubic-bezier(0.4,0,0.2,1); /* @kind other */
+  --rtt-duration-fast:120ms; /* @kind other */
+  --rtt-duration:180ms; /* @kind other */
+  --rtt-duration-slow:280ms; /* @kind other */
+  /* Convenience surface aliases */
+  --rtt-surface:var(--basics-white-100);
+  --rtt-surface-muted:var(--neutral-neutral-50);
+  --rtt-surface-sunken:var(--neutral-neutral-100);
+  --rtt-border:var(--neutral-neutral-300);
+  --rtt-border-strong:var(--neutral-neutral-400);
+  --rtt-text:var(--neutral-neutral-900);
+  --rtt-text-muted:var(--neutral-neutral-800);
+  --rtt-text-brand:var(--primary-primary-900);
+  --rtt-link:var(--primary-primary-700);
+  --rtt-link-hover:var(--primary-primary-800);
+  --rtt-link-visited:var(--primary-primary-900);
+  /* Lilac — secondary scale (greyish periwinkle). Extension proposal: categorie,
+     pulsanti secondari, superfici tonali, marker. Il rosso resta per primario /
+     stato attivo / marchio. */
+  --lilac-50:#F5F5F7;--lilac-100:#ECECEF;--lilac-200:#DEDEE3;--lilac-300:#C7C7CE;
+  --lilac-400:#A9A9B2;--lilac-500:#8A8A94;--lilac-600:#6E6E78;--lilac-700:#55555E;
+  --lilac-800:#3B3B42;--lilac-900:#28282D;
+  /* Gradienti leggeri: testata + sfondi delle sezioni grandi + hero */
+  --grad-header:linear-gradient(180deg,var(--lilac-50) 0%,var(--basics-white-100) 100%);
+  --grad-section:var(--lilac-50);
+  --grad-hero:linear-gradient(150deg,var(--primary-primary-700) 0%,var(--primary-primary-900) 100%);
+
+  /* Grigi ricalibrati: la rampa originale del .fig aveva 200->500 quasi
+     identici (bordi invisibili, "da wireframe"). Qui gradini reali e monotoni,
+     restando grigi neutri appena freddi. 50/100 = superfici, 200 = hairline
+     visibile, 400 = bordo forte / divisori / track delle tab. */
+  --neutral-neutral-100:#EDEDF0;
+  --neutral-neutral-200:#D9D9DF;
+  --neutral-neutral-300:#C4C4CC;
+  --neutral-neutral-400:#A2A2AC;
+  --neutral-neutral-500:#83838D;
+  --neutral-neutral-600:#61616A;
+  --neutral-neutral-700:#46464E;
+  --neutral-neutral-800:#333338;
+  --neutral-neutral-900:#232327;
+
+  /* Focus visibile: anello NERO, non il rosso di brand/errore. Contrasto molto
+     alto su bianco e sulle superfici tonali; offset di 2-3px e anello spesso
+     cosi resta percepibile anche sopra la CTA rossa e la testata scura.
+     WCAG 2.1 SC 2.4.7 / 1.4.11. */
+  --rtt-focus-visible:#232327;   /* anello: scuro su fondo chiaro */
+  --rtt-focus-halo:#ffffff;      /* linea di stacco: tono opposto */
+  --rtt-focus-ring:0 0 0 3px var(--rtt-focus-visible);
+  --rtt-focus:var(--rtt-focus-inner),0 0 0 4px var(--rtt-focus-visible);
+
+  /* ---- Hero, bande e superfici colorate --------------------------------
+     Valori dal Figma wYuOnvg9fALPDySvpci6P3 node 98:9219
+     ("Open Data · prototipo di portale"). */
+  --rtt-hero-grad:linear-gradient(169.8deg,#930316 7.7%,#59135A 92.3%);
+  --rtt-hero-photo-opacity:0.15;
+  /* sfondo pagina catalogo: grigio neutro come l'Annuario */
+  --grad-surface:var(--neutral-neutral-50);
+  /* Pill dei suggerimenti sotto la barra di ricerca nell'hero: scure su
+     gradiente scuro, per leggibilità. */
+  --rtt-hero-pill-bg:rgba(53,14,39,0.7);
+  /* "Violaceo" come accento: sfondo delle radio-card attive. */
+  --rtt-radio-active-bg:#EDE6F0;
+  --rtt-band-bg:linear-gradient(-14.4deg,#870015 19.1%,#710535 69.8%);
+  --rtt-band-photo-opacity:0.10;
+  --rtt-band-ink:#ffffff;
+  --rtt-band-ink-soft:rgba(255,255,255,0.92);
+  --rtt-consultati-bg:#EDE6F0;
+  --rtt-evidenza-macro-bg:linear-gradient(122.7deg,#F2EDF4 12%,#E6DEEA 70%);
+  --rtt-card-surface:var(--basics-white-100);
+  /* KPI: numero malva, etichetta rosso scuro. */
+  --rtt-kpi-number:#968AA9;
+  --rtt-kpi-label:#AA090B;
+  --rtt-kpi-desc:#333338;
+  /* Stato SELECTED / voce scelta (menu "Ordina per", opzioni di select, voce di
+     navigazione attiva…): lillino, non il rosa di brand. */
+  --rtt-selected-bg:#EDE6F0;
+}
+/* Focus da tastiera — anello a DUE TONI conforme WCAG 2.2.
+   - `outline` SOLIDO e visibile (non piu' `transparent`): non viene clippato da
+     un antenato con `overflow:hidden` (card, caroselli, mappa) e resta visibile
+     in Modalita' contrasto elevato / forced-colors.
+   - colore dell'anello via --rtt-focus-visible: scuro su fondo chiaro (default),
+     bianco sui contenitori che dichiarano [data-on-dark] (hero, barre scure).
+   - `box-shadow` nel tono opposto = sottile linea di stacco dal contenuto; e'
+     secondaria, se un contenitore la clippa l'`outline` garantisce comunque la
+     visibilita' e il contrasto >= 3:1.
+   WCAG 2.4.7 (Focus Visible), 1.4.11 (Non-text Contrast), 2.4.13 (Focus Appearance). */
+[data-on-dark]{ --rtt-focus-visible:#ffffff; --rtt-focus-halo:#232327; }
+
+:where(a,button,input,select,textarea,summary,[tabindex]:not([tabindex="-1"])):focus-visible{
+  outline:3px solid var(--rtt-focus-visible, #232327);
+  outline-offset:2px;
+  box-shadow:0 0 0 2px var(--rtt-focus-halo, #ffffff) !important;
+  transition:none !important;
+}
+@media (forced-colors: active){
+  :where(a,button,input,select,textarea,summary,[tabindex]:not([tabindex="-1"])):focus-visible{
+    outline-color:CanvasText;
+  }
+}
+
+/* Reveal-on-scroll. Un IntersectionObserver (in shell.jsx) aggiunge .is-revealed
+   agli elementi .rtt-reveal quando entrano in vista, e mette html.js-reveal a
+   conferma che lo script gira: SENZA quella classe .rtt-reveal resta pienamente
+   visibile (nessun contenuto nascosto se il JS non parte). Con
+   prefers-reduced-motion l'osservatore salta l'animazione e mostra tutto subito. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js-reveal .rtt-reveal {
+    opacity: 0;
+    transform: translateY(7px);
+    transition: opacity .62s cubic-bezier(0.16, 1, 0.3, 1), transform .62s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  html.js-reveal .rtt-reveal.is-revealed { opacity: 1; transform: none; }
+  /* elementi già in vista al caricamento: nessuna animazione d'ingresso */
+  html.js-reveal .rtt-reveal.reveal-instant,
+  html.js-reveal .rtt-stagger.reveal-instant > * { transition: none; }
+
+  /* Stagger: i figli diretti del contenitore entrano uno dopo l'altro quando
+     il contenitore arriva in vista. Stesso movimento del reveal, con un
+     ritardo progressivo. */
+  html.js-reveal .rtt-stagger > * {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .5s cubic-bezier(0.16, 1, 0.3, 1), transform .5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  html.js-reveal .rtt-stagger.is-revealed > * { opacity: 1; transform: none; }
+  html.js-reveal .rtt-stagger.is-revealed > :nth-child(1) { transition-delay: 0ms; }
+  html.js-reveal .rtt-stagger.is-revealed > :nth-child(2) { transition-delay: 55ms; }
+  html.js-reveal .rtt-stagger.is-revealed > :nth-child(3) { transition-delay: 110ms; }
+  html.js-reveal .rtt-stagger.is-revealed > :nth-child(4) { transition-delay: 165ms; }
+  html.js-reveal .rtt-stagger.is-revealed > :nth-child(5) { transition-delay: 220ms; }
+  html.js-reveal .rtt-stagger.is-revealed > :nth-child(6) { transition-delay: 275ms; }
+  html.js-reveal .rtt-stagger.is-revealed > :nth-child(n+7) { transition-delay: 320ms; }
+}
+a{color:var(--rtt-link);text-decoration:underline;text-underline-offset:2px}
+a:hover{color:var(--rtt-link-hover)}
+a:visited{color:var(--rtt-link-visited)}

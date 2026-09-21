@@ -1,0 +1,41 @@
+/* Type system.
+   The .fig defines NO named Figma text styles — the scale below is transcribed from the
+   literal font/size/line-height values that recur across the kit's frames and components. */
+:root{
+  --rtt-font-ui:"Titillium Web",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --rtt-font-text:"Titillium Web",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --rtt-font-action:"Titillium Web",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --rtt-text-xs:12px;--rtt-lh-xs:16px;
+  --rtt-text-sm:14px;--rtt-lh-sm:20px;
+  --rtt-text-base:16px;--rtt-lh-base:24px;
+  --rtt-text-lg:18px;--rtt-lh-lg:28px;
+  --rtt-text-xl:20px;--rtt-lh-xl:28px;
+  --rtt-text-2xl:24px;--rtt-lh-2xl:32px;
+  --rtt-text-3xl:30px;--rtt-lh-3xl:38px;
+  --rtt-text-4xl:36px;--rtt-lh-4xl:48px;
+  --rtt-text-5xl:48px;--rtt-lh-5xl:72px;
+}
+/* Display — page and section titles (Titillium Web SemiBold 600) */
+.rtt-display{font-family:var(--rtt-font-ui);font-weight:600;font-size:var(--rtt-text-5xl);line-height:var(--rtt-lh-5xl);color:var(--rtt-text)}
+.rtt-h1{font-family:var(--rtt-font-ui);font-weight:600;font-size:var(--rtt-text-4xl);line-height:var(--rtt-lh-4xl);color:var(--rtt-text)}
+.rtt-h2{font-family:var(--rtt-font-ui);font-weight:600;font-size:var(--rtt-text-3xl);line-height:var(--rtt-lh-3xl);color:var(--rtt-text)}
+.rtt-h3{font-family:var(--rtt-font-ui);font-weight:600;font-size:var(--rtt-text-2xl);line-height:var(--rtt-lh-2xl);color:var(--rtt-text)}
+.rtt-h4{font-family:var(--rtt-font-ui);font-weight:600;font-size:var(--rtt-text-xl);line-height:var(--rtt-lh-xl);color:var(--rtt-text)}
+.rtt-h5{font-family:var(--rtt-font-ui);font-weight:600;font-size:var(--rtt-text-base);line-height:var(--rtt-lh-base);color:var(--rtt-text)}
+/* Editorial display — Titillium Web Bold, for article headings inside content pages */
+.rtt-editorial{font-family:var(--rtt-font-action);font-weight:700;font-size:var(--rtt-text-4xl);line-height:var(--rtt-lh-4xl);color:rgb(21,21,22)}
+/* Body — Titillium Web Regular; 26px leading at 16px is the kit's reading measure */
+.rtt-body-lg{font-family:var(--rtt-font-text);font-weight:400;font-size:var(--rtt-text-lg);line-height:28px;color:var(--rtt-text-muted)}
+.rtt-body{font-family:var(--rtt-font-text);font-weight:400;font-size:var(--rtt-text-base);line-height:26px;color:var(--rtt-text-muted)}
+.rtt-body-sm{font-family:var(--rtt-font-text);font-weight:400;font-size:var(--rtt-text-sm);line-height:22px;color:var(--rtt-text-muted)}
+.rtt-body-strong{font-family:var(--rtt-font-text);font-weight:600;font-size:var(--rtt-text-base);line-height:22px;color:var(--rtt-text)}
+/* UI — the default for controls, labels and metadata */
+.rtt-ui-lg{font-family:var(--rtt-font-ui);font-weight:400;font-size:var(--rtt-text-lg);line-height:var(--rtt-lh-lg);color:var(--rtt-text)}
+.rtt-ui{font-family:var(--rtt-font-ui);font-weight:400;font-size:var(--rtt-text-base);line-height:var(--rtt-lh-base);color:var(--rtt-text)}
+.rtt-ui-sm{font-family:var(--rtt-font-ui);font-weight:400;font-size:var(--rtt-text-sm);line-height:var(--rtt-lh-sm);color:var(--rtt-text)}
+.rtt-ui-xs{font-family:var(--rtt-font-ui);font-weight:500;font-size:var(--rtt-text-xs);line-height:var(--rtt-lh-xs);color:var(--rtt-text)}
+.rtt-label{font-family:var(--rtt-font-ui);font-weight:600;font-size:var(--rtt-text-sm);line-height:var(--rtt-lh-sm);color:var(--rtt-text)}
+/* Overline / category — uppercase, dark brand red */
+.rtt-overline{font-family:var(--rtt-font-ui);font-weight:600;font-size:var(--rtt-text-sm);line-height:var(--rtt-lh-sm);letter-spacing:0;text-transform:uppercase;color:var(--primary-primary-900)}
+/* Action — buttons and CTAs only */
+.rtt-action{font-family:var(--rtt-font-action);font-weight:600;font-size:var(--rtt-text-lg);line-height:var(--rtt-lh-base)}
