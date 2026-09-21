@@ -1,0 +1,16 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% set current_path = request.path %}
+{% set tabs = [
+  {'label': _('Home'), 'href': h.url_for('home.index'), 'icon': 'home', 'match': '/'},
+  {'label': _('Catalogo'), 'href': h.url_for('dataset.search'), 'icon': 'catalog', 'match': '/dataset'},
+  {'label': _('Annuario'), 'href': h.url_for('/pages/annuario-statistico'), 'icon': 'chart', 'match': '/pages/annuario-statistico'},
+  {'label': _('API'), 'href': h.url_for('/pages/sviluppatori-e-lod'), 'icon': 'code', 'match': '/pages/sviluppatori-e-lod'}
+] %}
+<nav class="rtt-tabbar" aria-label="{{ _('Navigazione rapida') }}">
+  {% for tab in tabs %}
+  {% set is_active = current_path == tab.match if tab.match == '/' else current_path.startswith(tab.match) %}
+  <a class="rtt-tabbar__item{{ ' is-active' if is_active }}" href="{{ tab.href }}"{% if is_active %} aria-current="page"{% endif %}>
+    {{ icon(tab.icon, 24) }}<span>{{ tab.label }}</span>
+  </a>
+  {% endfor %}
+</nav>

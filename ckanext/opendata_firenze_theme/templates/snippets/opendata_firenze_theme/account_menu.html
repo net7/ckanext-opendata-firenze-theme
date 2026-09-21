@@ -1,0 +1,23 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+<details class="rtt-account">
+  <summary class="rtt-account__trigger">
+    {{ icon('user', 18) }}<span>{{ c.userobj.display_name if c.userobj else _('Accedi') }}</span>{{ icon('chevron-down', 16, 'rtt-account__chevron') }}
+  </summary>
+  <ul class="rtt-account__menu">
+    {% if c.userobj %}
+    <li><a class="rtt-account__item" href="{{ h.url_for('dashboard.datasets') }}">{{ _('Dashboard') }}</a></li>
+    <li><a class="rtt-account__item" href="{{ h.url_for('user.read', id=c.userobj.name) }}">{{ _('Profilo') }}</a></li>
+    <li>
+      <form action="{{ h.url_for('user.logout') }}" method="post">
+        {{ h.csrf_input() }}
+        <button class="rtt-account__item rtt-account__item--button" type="submit">{{ _('Esci') }}</button>
+      </form>
+    </li>
+    {% else %}
+    <li><a class="rtt-account__item" href="{{ h.url_for('user.login') }}">{{ _('Accedi') }}</a></li>
+    {% if h.check_access('user_create') %}
+    <li><a class="rtt-account__item" href="{{ h.url_for('user.register') }}">{{ _('Registrati') }}</a></li>
+    {% endif %}
+    {% endif %}
+  </ul>
+</details>

@@ -1,0 +1,62 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% set nav_items = [
+  {'label': _('Catalogo'), 'href': h.url_for('dataset.search')},
+  {'label': _('Annuario Statistico'), 'href': h.url_for('/pages/annuario-statistico')},
+  {'label': _('Sviluppatori & LOD'), 'href': h.url_for('/pages/sviluppatori-e-lod')},
+  {'label': _('Collaborazione'), 'href': h.url_for('/contact')}
+] %}
+{% set external_links = [
+  _('URP'),
+  _('Amministrazione Trasparente'),
+  _('Albo Pretorio'),
+  _('Firenze Patrimonio Mondiale'),
+  _('Posta Elettronica Certificata')
+] %}
+{% set legal_links = [
+  _('Redazione web'),
+  _('Privacy'),
+  _('Note legali'),
+  _('Dichiarazione di accessibilità'),
+  'CC BY 4.0 IT'
+] %}
+{% set social_links = [
+  {'label': 'Facebook', 'icon': 'social-facebook'},
+  {'label': 'Telegram', 'icon': 'social-telegram'},
+  {'label': 'LinkedIn', 'icon': 'social-linkedin'},
+  {'label': 'Instagram', 'icon': 'social-instagram'}
+] %}
+<footer class="rtt-footer">
+  <div class="rtt-container rtt-footer__main">
+    <div class="rtt-footer__brand">
+      <img class="rtt-footer__comune" src="{{ h.url_for_static('/brand/logo-comune-firenze-footer.png') }}" alt="{{ _('Comune di Firenze') }}" height="50">
+      <img class="rtt-footer__opendata" src="{{ h.url_for_static('/brand/open-data.svg') }}" alt="" height="40">
+      <p class="rtt-footer__desc">Comune di Firenze · Palazzo Vecchio<br>Piazza della Signoria, 50122 Firenze<br>P.IVA 01307110484 · tel. 055055</p>
+      <p class="rtt-footer__note">{{ _('I dati personali pubblicati sono riutilizzabili solo alle condizioni previste dalla direttiva comunitaria 2003/98/CE e dal d.lgs. 36/2006.') }}</p>
+      <ul class="rtt-footer__social" aria-label="{{ _('Canali social') }}">
+        {% for social in social_links %}
+        <li>
+          <a class="rtt-footer__social-link" href="#" aria-label="{{ social.label }}">{{ icon(social.icon, 20) }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <nav class="rtt-footer__columns" aria-label="{{ _('Collegamenti') }}">
+      <div class="rtt-footer__col">
+        {% for item in nav_items %}
+        <a class="rtt-footer__link" href="{{ item.href }}">{{ item.label }}</a>
+        {% endfor %}
+      </div>
+      <div class="rtt-footer__col">
+        {% for item in external_links %}
+        <a class="rtt-footer__link" href="#">{{ item }}</a>
+        {% endfor %}
+      </div>
+    </nav>
+  </div>
+  <div class="rtt-container rtt-footer__legal">
+    {% for item in legal_links %}
+    <a class="rtt-footer__legal-link" href="#">{{ item }}</a>
+    {% endfor %}
+  </div>
+</footer>
+{% include 'snippets/opendata_firenze_theme/tabbar.html' %}

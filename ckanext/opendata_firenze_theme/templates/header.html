@@ -1,0 +1,73 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% set current_path = request.path %}
+{% set home_url = h.url_for('home.index') %}
+{% set cta_url = h.url_for('/contact') %}
+{% set nav_items = [
+  {'label': _('Catalogo'), 'href': h.url_for('dataset.search'), 'match': '/dataset'},
+  {'label': _('Annuario Statistico'), 'href': h.url_for('/pages/annuario-statistico'), 'match': '/pages/annuario-statistico'},
+  {'label': _('Sviluppatori & LOD'), 'href': h.url_for('/pages/sviluppatori-e-lod'), 'match': '/pages/sviluppatori-e-lod'},
+  {'label': _('Collaborazione'), 'href': h.url_for('/contact'), 'match': '/contact'}
+] %}
+{% set social_links = [
+  {'label': 'Facebook', 'icon': 'social-facebook'},
+  {'label': 'Telegram', 'icon': 'social-telegram'},
+  {'label': 'LinkedIn', 'icon': 'social-linkedin'},
+  {'label': 'Instagram', 'icon': 'social-instagram'}
+] %}
+<header class="rtt-header" id="rtt-header" data-rtt-header>
+  <div class="rtt-header__top">
+    <div class="rtt-container rtt-header__top-inner">
+      <a class="rtt-header__institution" href="{{ home_url }}" aria-label="{{ _('Comune di Firenze') }}">
+        <img src="{{ h.url_for_static('/brand/stemma-comune-firenze.png') }}" alt="{{ _('Comune di Firenze') }}" height="34">
+      </a>
+      <div class="rtt-header__utilities">
+        <ul class="rtt-social" aria-label="{{ _('Canali social') }}">
+          {% for social in social_links %}
+          <li>
+            <a class="rtt-iconlink" href="#" aria-label="{{ social.label }}">{{ icon(social.icon, 16) }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% include 'snippets/opendata_firenze_theme/language_selector.html' %}
+        {% include 'snippets/opendata_firenze_theme/account_menu.html' %}
+        {% with id='rtt-header-search' %}{% include 'snippets/opendata_firenze_theme/search_form.html' %}{% endwith %}
+      </div>
+    </div>
+  </div>
+
+  <div class="rtt-header__main">
+    <div class="rtt-container rtt-header__main-inner">
+      <a class="rtt-header__brand" href="{{ home_url }}">
+        <img class="rtt-header__comune" src="{{ h.url_for_static('/brand/logo-comune-firenze.png') }}" alt="{{ g.site_title }}" height="46">
+        <span class="rtt-header__divider" aria-hidden="true"></span>
+        <img class="rtt-header__opendata" src="{{ h.url_for_static('/brand/open-data.svg') }}" alt="" height="40">
+      </a>
+      <nav class="rtt-nav" aria-label="{{ _('Navigazione principale') }}">
+        {% for item in nav_items %}
+        <a class="rtt-navlink{{ ' is-active' if current_path.startswith(item.match) }}" href="{{ item.href }}"{% if current_path.startswith(item.match) %} aria-current="page"{% endif %}>{{ item.label }}</a>
+        {% endfor %}
+      </nav>
+      <div class="rtt-header__actions">
+        <a class="rtt-btn rtt-btn--primary rtt-header__cta" href="{{ cta_url }}">{{ _('Segnala un dataset') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+        <button type="button" class="rtt-header__burger" data-rtt-menu-toggle aria-expanded="false" aria-controls="rtt-mobile-nav" aria-label="{{ _('Apri menu') }}" data-label-open="{{ _('Apri menu') }}" data-label-close="{{ _('Chiudi menu') }}">
+          <span class="rtt-header__burger-open" aria-hidden="true">{{ icon('menu', 24) }}</span>
+          <span class="rtt-header__burger-close" aria-hidden="true">{{ icon('close', 24) }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="rtt-mobile-nav" id="rtt-mobile-nav" data-rtt-mobile-nav aria-label="{{ _('Menu') }}">
+    <div class="rtt-mobile-nav__search">
+      {% with id='rtt-mobile-search' %}{% include 'snippets/opendata_firenze_theme/search_form.html' %}{% endwith %}
+    </div>
+    {% for item in nav_items %}
+    <a class="rtt-mobile-nav__link{{ ' is-active' if current_path.startswith(item.match) }}" href="{{ item.href }}"{% if current_path.startswith(item.match) %} aria-current="page"{% endif %}>{{ item.label }}</a>
+    {% endfor %}
+    <a class="rtt-btn rtt-btn--primary rtt-mobile-nav__cta" href="{{ cta_url }}">{{ _('Segnala un dataset') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+    <div class="rtt-mobile-nav__tools">
+      {% include 'snippets/opendata_firenze_theme/account_menu.html' %}
+      {% include 'snippets/opendata_firenze_theme/language_selector.html' %}
+    </div>
+  </nav>
+</header>

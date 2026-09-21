@@ -1,0 +1,16 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% set current_lang = request.environ.CKAN_LANG %}
+{% if h.get_available_locales()|length > 1 %}
+<details class="rtt-lang">
+  <summary class="rtt-lang__trigger" aria-label="{{ _('Cambia lingua') }}">
+    {{ icon('language', 20) }}<span>{{ current_lang|upper }}</span>{{ icon('chevron-down', 16, 'rtt-lang__chevron') }}
+  </summary>
+  <ul class="rtt-lang__menu">
+    {% for locale in h.get_available_locales() %}
+    <li>
+      <a class="rtt-lang__item{{ ' is-active' if locale.short_name == current_lang }}" href="{% url_for h.current_url(), locale=locale.short_name %}" lang="{{ locale.short_name.replace('_', '-') }}"{% if locale.short_name == current_lang %} aria-current="true"{% endif %}>{{ locale.short_name|upper }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</details>
+{% endif %}

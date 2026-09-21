@@ -1,0 +1,10 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% set field_id = id|default('rtt-search') %}
+<form class="rtt-search rtt-search--sm rtt-search--pill" role="search" action="{{ h.url_for('dataset.search') }}" method="get">
+  <label class="rtt-visually-hidden" for="{{ field_id }}">{{ _('Cerca nel catalogo') }}</label>
+  <div class="rtt-search__field">
+    <span class="rtt-search__icon" aria-hidden="true">{{ icon('search', 20) }}</span>
+    <input id="{{ field_id }}" type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _('Cerca dataset…') }}" autocomplete="off" enterkeyhint="search">
+    <button class="rtt-visually-hidden" type="submit">{{ _('Cerca') }}</button>
+  </div>
+</form>
