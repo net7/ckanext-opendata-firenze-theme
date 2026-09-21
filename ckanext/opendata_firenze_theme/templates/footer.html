@@ -1,4 +1,5 @@
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/open-data-logo.html' import open_data_logo %}
 {% set nav_items = [
   {'label': _('Catalogo'), 'href': h.url_for('dataset.search')},
   {'label': _('Annuario Statistico'), 'href': h.url_for('/pages/annuario-statistico')},
@@ -29,7 +30,7 @@
   <div class="rtt-container rtt-footer__main">
     <div class="rtt-footer__brand">
       <img class="rtt-footer__comune" src="{{ h.url_for_static('/brand/logo-comune-firenze-footer.png') }}" alt="{{ _('Comune di Firenze') }}" height="50">
-      <img class="rtt-footer__opendata" src="{{ h.url_for_static('/brand/open-data.svg') }}" alt="" height="40">
+      {{ open_data_logo('rtt-footer__opendata') }}
       <p class="rtt-footer__note">{{ _('I dati personali pubblicati sono riutilizzabili solo alle condizioni previste dalla direttiva comunitaria 2003/98/CE e dal d.lgs. 36/2006.') }}</p>
     </div>
     <nav class="rtt-footer__columns" aria-label="{{ _('Collegamenti') }}">

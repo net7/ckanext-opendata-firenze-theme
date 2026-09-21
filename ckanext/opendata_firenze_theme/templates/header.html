@@ -1,4 +1,5 @@
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/open-data-logo.html' import open_data_logo %}
 {% set current_path = request.path %}
 {% set home_url = h.url_for('home.index') %}
 {% set cta_url = h.url_for('/contact') %}
@@ -40,7 +41,7 @@
       <a class="rtt-header__brand" href="{{ home_url }}">
         <img class="rtt-header__comune" src="{{ h.url_for_static('/brand/logo-comune-firenze.png') }}" alt="{{ g.site_title }}" height="46">
         <span class="rtt-header__divider" aria-hidden="true"></span>
-        <img class="rtt-header__opendata" src="{{ h.url_for_static('/brand/open-data.svg') }}" alt="" height="40">
+        {{ open_data_logo('rtt-header__opendata') }}
       </a>
       <div class="rtt-header__right">
         <nav class="rtt-nav" aria-label="{{ _('Navigazione principale') }}">

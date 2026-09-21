@@ -69,3 +69,23 @@ def test_language_selector_offers_only_configured_locales(app, monkeypatch):
         body = body.decode("utf-8")
     assert 'href="/fr/about"' in body
     assert 'href="/de/about"' not in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_no_duplicate_ids(app):
+    """Nessun id duplicato nel DOM e wordmark reso 2x (header + footer).
+
+    Il wordmark è un <img> (niente SVG inline): questo test impedisce che
+    torni a essere inlinato due volte con id SVG duplicati.
+    """
+    import re
+    from collections import Counter
+
+    body = app.get("/about").body
+    if isinstance(body, bytes):
+        body = body.decode("utf-8")
+    assert body.count('class="rtt-od') == 2
+    ids = re.findall(r'\sid="([^"]+)"', body)
+    dupes = {i: n for i, n in Counter(ids).items() if n > 1}
+    assert not dupes, f"id duplicati nel DOM: {dupes}"

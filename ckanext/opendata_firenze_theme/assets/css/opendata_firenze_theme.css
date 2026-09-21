@@ -348,10 +348,38 @@ body {
   background: var(--neutral-neutral-300);
 }
 
-.rtt-header__opendata {
-  height: 40px;
-  width: auto;
+/* Wordmark Open Data: riproduce lo ScaledLogo del design system — l'SVG è
+   disegnato a 271x61 e scalato via transform (come <img> esterno, così non si
+   duplicano gli id SVG inline e l'asset resta cacheabile). La larghezza/altezza
+   del contenitore e la scale DEVONO restare coerenti: scale = larghezza/271
+   (208->0.767528, 196->0.723247, 124->0.457565, 150->0.553506). Cambiare una
+   width senza aggiornare la scale taglia il logo (overflow:hidden). */
+.rtt-od {
+  display: inline-block;
+  flex-shrink: 0;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.rtt-od__scale {
   display: block;
+  width: 271px;
+  height: 61px;
+  transform-origin: 0 0;
+  transform: scale(var(--od-k, 1));
+}
+
+.rtt-od__scale img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.rtt-header__opendata {
+  --od-w: 208px;
+  --od-k: 0.767528;
+  width: var(--od-w);
+  height: 47px;
 }
 
 .rtt-header__right {
@@ -560,10 +588,11 @@ body {
 }
 
 .rtt-footer__opendata {
-  height: 40px;
-  width: auto;
+  --od-w: 196px;
+  --od-k: 0.723247;
+  width: var(--od-w);
+  height: 44px;
   align-self: flex-start;
-  display: block;
   filter: brightness(0) invert(1);
 }
 
@@ -769,7 +798,10 @@ html.rtt-nav-open {
   }
 
   .rtt-header__opendata {
-    height: 30px;
+    --od-w: 124px;
+    --od-k: 0.457565;
+    width: var(--od-w);
+    height: 28px;
   }
 
   .rtt-footer__columns {
@@ -778,6 +810,13 @@ html.rtt-nav-open {
 
   .rtt-footer__comune {
     height: 40px;
+  }
+
+  .rtt-footer__opendata {
+    --od-w: 150px;
+    --od-k: 0.553506;
+    width: var(--od-w);
+    height: 34px;
   }
 
   .rtt-tabbar {
