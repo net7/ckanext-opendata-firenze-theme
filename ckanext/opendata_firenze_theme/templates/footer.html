@@ -30,15 +30,7 @@
     <div class="rtt-footer__brand">
       <img class="rtt-footer__comune" src="{{ h.url_for_static('/brand/logo-comune-firenze-footer.png') }}" alt="{{ _('Comune di Firenze') }}" height="50">
       <img class="rtt-footer__opendata" src="{{ h.url_for_static('/brand/open-data.svg') }}" alt="" height="40">
-      <p class="rtt-footer__desc">Comune di Firenze · Palazzo Vecchio<br>Piazza della Signoria, 50122 Firenze<br>P.IVA 01307110484 · tel. 055055</p>
       <p class="rtt-footer__note">{{ _('I dati personali pubblicati sono riutilizzabili solo alle condizioni previste dalla direttiva comunitaria 2003/98/CE e dal d.lgs. 36/2006.') }}</p>
-      <ul class="rtt-footer__social" aria-label="{{ _('Canali social') }}">
-        {% for social in social_links %}
-        <li>
-          <a class="rtt-footer__social-link" href="#" aria-label="{{ social.label }}">{{ icon(social.icon, 20) }}</a>
-        </li>
-        {% endfor %}
-      </ul>
     </div>
     <nav class="rtt-footer__columns" aria-label="{{ _('Collegamenti') }}">
       <div class="rtt-footer__col">
@@ -52,6 +44,16 @@
         {% endfor %}
       </div>
     </nav>
+    <div class="rtt-footer__contact">
+      <p class="rtt-footer__desc">Comune di Firenze · Palazzo Vecchio<br>Piazza della Signoria, 50122 Firenze<br>P.IVA 01307110484 · tel. 055055</p>
+      <ul class="rtt-footer__social" aria-label="{{ _('Canali social') }}">
+        {% for social in social_links %}
+        <li>
+          <a class="rtt-footer__social-link" href="#" aria-label="{{ social.label }}">{{ icon(social.icon, 20) }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
   </div>
   <div class="rtt-container rtt-footer__legal">
     {% for item in legal_links %}

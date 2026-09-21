@@ -144,7 +144,9 @@
       }
     });
 
-    var desktop = window.matchMedia("(min-width: 1024px)");
+    /* Soglia desktop condivisa con la CSS (max-width:1024px in
+       assets/css/opendata_firenze_theme.css): se cambia qui va cambiata anche lì. */
+    var desktop = window.matchMedia("(min-width: 1025px)");
     var onDesktop = function (event) {
       if (event.matches) {
         setMenu(false);
