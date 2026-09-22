@@ -6,11 +6,14 @@
    "Ordina per". I gruppi sono deduplicati per etichetta (theme/dcat_theme). #}
 {% set facets = search_facets or {} %}
 
+{# Criteri come il mockup. "Più scaricati"/"Più visualizzati" usano i campi
+   views_total/views_recent di CKAN: senza tracking attivo restano a 0. #}
 {% set sortings = [
   (_('Rilevanza'), 'score desc, metadata_modified desc'),
-  (_('Ultima modifica'), 'metadata_modified desc'),
-  (_('Nome A-Z'), 'title_string asc'),
-  (_('Nome Z-A'), 'title_string desc'),
+  (_('Più scaricati'), 'views_total desc'),
+  (_('Più visualizzati'), 'views_recent desc'),
+  (_('Ordine alfabetico'), 'title_string asc'),
+  (_('Data di aggiornamento'), 'metadata_modified desc'),
 ] %}
 
 {# Nomi leggibili dei gruppi faccette (i facet di CKAN espongono il nome tecnico). #}

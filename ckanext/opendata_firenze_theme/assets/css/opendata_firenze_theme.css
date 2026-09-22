@@ -1332,6 +1332,7 @@ html.rtt-nav-open {
   border-radius: 50%;
   background: var(--primary-primary-50);
   color: var(--primary-primary-600);
+  transition: background-color var(--rtt-duration) var(--rtt-ease);
 }
 
 .rtt-tema:hover .rtt-tema__icon {
@@ -1553,7 +1554,7 @@ html.rtt-nav-open {
 
 .rtt-catalog__search {
   max-width: 720px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .rtt-catalog__results {
@@ -1572,7 +1573,7 @@ html.rtt-nav-open {
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .rtt-facets__bar {
@@ -1644,6 +1645,7 @@ html.rtt-nav-open {
 .rtt-facets__sortrow {
   display: flex;
   justify-content: flex-end;
+  margin-top: 12px;
 }
 
 /* Gruppo faccetta a tendina (stile DS Facet) */
