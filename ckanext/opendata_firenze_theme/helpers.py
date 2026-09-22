@@ -8,7 +8,9 @@ pagina.
 
 import logging
 import json
+from urllib.parse import urlencode
 
+import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
@@ -67,6 +69,22 @@ def odf_package_theme(pkg):
         return None
     code = raw.rstrip("/").rsplit("/", 1)[-1]
     return code if code in THEME_CODES else None
+
+
+def odf_facet_all_url(facet, values):
+    """URL che seleziona TUTTI i valori di una faccetta.
+
+    Serve al link "Tutti" dei gruppi faccette: mantiene gli altri parametri
+    correnti e sostituisce i valori della faccetta con quelli passati (parametri
+    ripetuti, come fa CKAN). `h.add_url_param` non gestisce le liste.
+    """
+    from flask import request
+
+    args = [(key, value) for key, value in request.args.items(multi=True) if key not in (facet, "page")]
+    args.extend((facet, value) for value in values)
+    query = urlencode(args)
+    url = ckan_h.url_for("dataset.search")
+    return f"{url}?{query}" if query else url
 
 
 def _it(n):
@@ -171,6 +189,7 @@ def get_helpers():
     return {
         "odf_dataset_count": odf_dataset_count,
         "odf_package_theme": odf_package_theme,
+        "odf_facet_all_url": odf_facet_all_url,
         "odf_home_kpis": odf_home_kpis,
         "odf_themes": odf_themes,
         "odf_featured_datasets": odf_featured_datasets,

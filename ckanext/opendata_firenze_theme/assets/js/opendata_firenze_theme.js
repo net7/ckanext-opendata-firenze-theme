@@ -206,10 +206,41 @@
     });
   }
 
+  /* Chiude i menu a tendina delle faccette e dell'"Ordina per" quando si clicca
+     fuori o si preme Escape, come il mockup. La mutua esclusione tra faccette
+     e' gia' nativa (attributo `name` sui <details>). */
+  function initFacetDismiss() {
+    var closeAll = function () {
+      Array.prototype.forEach.call(
+        document.querySelectorAll(".rtt-facet[open], .rtt-sort[open]"),
+        function (dropdown) {
+          dropdown.open = false;
+        }
+      );
+    };
+    document.addEventListener("mousedown", function (event) {
+      var target = event.target;
+      if (!target || !target.closest) {
+        closeAll();
+        return;
+      }
+      if (target.closest("details[open].rtt-facet, details[open].rtt-sort")) {
+        return;
+      }
+      closeAll();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeAll();
+      }
+    });
+  }
+
   function init() {
     initReveal();
     initHeader();
     initChipRemove();
+    initFacetDismiss();
   }
 
   if (document.readyState === "loading") {

@@ -54,15 +54,18 @@
     {% if items %}
     {% set selected = items|selectattr('active')|list|length %}
     {% set title = FACET_LABELS.get(name, facets[name]['title']) %}
-    <details class="rtt-facet">
+    <details class="rtt-facet" name="rtt-facets">
       <summary class="rtt-facet__trigger{% if selected %} is-active{% endif %}" aria-label="{{ title }}">
         <span>{{ title }}</span>
         {% if selected %}<span class="rtt-facet__badge" aria-hidden="true">{{ selected }}</span>{% endif %}
         {{ icon('chevron-down', 18, 'rtt-facet__chevron') }}
       </summary>
-      <div class="rtt-facet__panel">
+      <div class="rtt-facet__panel" role="group" aria-label="{{ title }}">
         <div class="rtt-facet__head">
           <span class="rtt-facet__title">{{ title }}</span>
+          {% if items|length > 1 %}
+          <a class="rtt-facet__link" href="{{ h.odf_facet_all_url(name, items|map(attribute='name')|list) }}">{{ _('Tutti') }}</a>
+          {% endif %}
         </div>
         <div class="rtt-facet__items">
           {% for item in items %}

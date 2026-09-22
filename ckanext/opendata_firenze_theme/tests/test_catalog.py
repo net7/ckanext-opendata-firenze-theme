@@ -80,6 +80,51 @@ def test_catalog_facets_dedupe_labels(with_plugins, app):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_catalog_facets_tutti_and_single_open(with_plugins, app):
+    """ "Tutti" solo con piu' di un valore; i gruppi sono a singola apertura."""
+    from flask import render_template_string
+
+    src = "{% include 'snippets/opendata_firenze_theme/catalog/facets.html' %}"
+    two = {
+        "res_format": {
+            "title": "res_format",
+            "items": [
+                {"name": "CSV", "display_name": "CSV", "count": 2},
+                {"name": "SHP", "display_name": "SHP", "count": 1},
+            ],
+        }
+    }
+    one = {
+        "organization": {
+            "title": "organization",
+            "items": [{"name": "org", "display_name": "Org", "count": 1}],
+        }
+    }
+    with app.flask_app.test_request_context("/dataset"):
+        html_two = render_template_string(src, search_facets=two, q="", sort_by_selected="")
+        html_one = render_template_string(src, search_facets=one, q="", sort_by_selected="")
+    assert "Tutti" in html_two
+    assert 'name="rtt-facets"' in html_two
+    assert "Tutti" not in html_one
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_facet_all_url_helper(with_plugins, app):
+    """odf_facet_all_url sostituisce i valori della faccetta e mantiene il resto."""
+    from urllib.parse import parse_qs, urlparse
+
+    from ckanext.opendata_firenze_theme import helpers
+
+    with app.flask_app.test_request_context("/dataset?q=aria&res_format=CSV&page=3"):
+        url = helpers.odf_facet_all_url("res_format", ["CSV", "SHP"])
+    assert url.startswith("/dataset")
+    query = parse_qs(urlparse(url).query)
+    assert query["q"] == ["aria"]
+    assert query["res_format"] == ["CSV", "SHP"]
+    assert "page" not in query
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.usefixtures("with_plugins")
 def test_catalog_no_add_button_anonymous(app):
     """Il pulsante "Aggiungi dataset" non compare agli anonimi (guard check_access).
