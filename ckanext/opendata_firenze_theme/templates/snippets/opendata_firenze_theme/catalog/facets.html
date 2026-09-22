@@ -1,9 +1,9 @@
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 
-{# Faccette del catalogo dai `search_facets` di CKAN (nessuna HTMX: link GET).
-   `h.get_facet_items_dict` aggiunge il flag `active` (dai parametri in URL) e
-   ordina per conteggio. Layout "barra": filtri attivi + gruppi a tendina.
-   I gruppi sono deduplicati per etichetta (es. `theme`/`dcat_theme` = "Temi"). #}
+{# Faccette del catalogo dai `search_facets` di CKAN (link GET, nessuna HTMX).
+   `h.get_facet_items_dict` aggiunge il flag `active` (dai parametri in URL).
+   Struttura come il DS: barra di trigger a tendina, poi filtri attivi, poi
+   "Ordina per". I gruppi sono deduplicati per etichetta (theme/dcat_theme). #}
 {% set facets = search_facets or {} %}
 
 {% set sortings = [
@@ -39,52 +39,74 @@
 {% endfor %}
 {% endfor %}
 
-{# Etichetta dell'ordinamento corrente (default: Rilevanza). #}
 {% set current_sort = namespace(label=sortings[0][0]) %}
 {% for label, value in sortings %}
 {% if sort_by_selected == value %}{% set current_sort.label = label %}{% endif %}
 {% endfor %}
 
 <div class="rtt-facets">
-  <div class="rtt-facets__toolbar">
-    <div class="rtt-facets__active">
-      {# I chip dei filtri attivi coprono TUTTI i facet (anche quelli con
-         etichetta duplicata e quindi non mostrati nella barra). #}
-      {% for name in facets %}
-      {% for item in h.get_facet_items_dict(name, facets) %}
-      {% if item.active %}
-      <a class="rtt-chip rtt-chip--md rtt-chip--dismissible is-selected" href="{{ h.remove_url_param(name, item.name) }}" aria-label="{{ _('Rimuovi filtro') }}: {{ item.display_name }}">{{ item.display_name }}<span class="rtt-chip__remove" aria-hidden="true">{{ icon('close', 20) }}</span></a>
-      {% endif %}
-      {% endfor %}
-      {% endfor %}
-      {% if ns.active %}
-      <a class="rtt-facets__clear" href="{{ h.url_for('dataset.search', q=q) if q else h.url_for('dataset.search') }}">{{ _('Azzera tutto') }}</a>
-      {% endif %}
-    </div>
-    <details class="rtt-sort">
-      <summary class="rtt-sort__summary">{{ _('Ordina per') }}<span class="rtt-sort__value">{{ current_sort.label }}</span>{{ icon('chevron-down', 20, 'rtt-sort__chevron') }}</summary>
-      <div class="rtt-sort__panel">
-        {% for label, value in sortings %}
-        <a class="rtt-facet__item{% if sort_by_selected == value %} is-active{% endif %}" href="{{ h.add_url_param(new_params={'sort': value}) }}">{{ label }}</a>
-        {% endfor %}
-      </div>
-    </details>
-  </div>
-
-  <div class="rtt-facets__bar">
+  <div class="rtt-facets__bar" role="group" aria-label="{{ _('Filtri di ricerca') }}">
     {% for name in ns.names %}
     {% set items = h.get_facet_items_dict(name, facets) %}
     {% if items %}
+    {% set selected = items|selectattr('active')|list|length %}
+    {% set title = FACET_LABELS.get(name, facets[name]['title']) %}
     <details class="rtt-facet">
-      <summary class="rtt-facet__summary">{{ FACET_LABELS.get(name, facets[name]['title']) }}{{ icon('chevron-down', 20, 'rtt-facet__chevron') }}</summary>
+      <summary class="rtt-facet__trigger{% if selected %} is-active{% endif %}" aria-label="{{ title }}">
+        <span>{{ title }}</span>
+        {% if selected %}<span class="rtt-facet__badge" aria-hidden="true">{{ selected }}</span>{% endif %}
+        {{ icon('chevron-down', 18, 'rtt-facet__chevron') }}
+      </summary>
       <div class="rtt-facet__panel">
-        {% for item in items %}
-        {% set href = h.remove_url_param(name, item.name) if item.active else h.add_url_param(new_params={name: item.name}) %}
-        <a class="rtt-facet__item{% if item.active %} is-active{% endif %}" href="{{ href }}" aria-label="{{ _('Filtra per') }} {{ FACET_LABELS.get(name, facets[name]['title']) }}: {{ item.display_name }}">{{ item.display_name }}<span class="rtt-facet__count">{{ item.count }}</span></a>
-        {% endfor %}
+        <div class="rtt-facet__head">
+          <span class="rtt-facet__title">{{ title }}</span>
+        </div>
+        <div class="rtt-facet__items">
+          {% for item in items %}
+          {% set href = h.remove_url_param(name, item.name) if item.active else h.add_url_param(new_params={name: item.name}) %}
+          <a class="rtt-facet__item{% if item.active %} is-active{% endif %}" href="{{ href }}" aria-label="{{ _('Filtra per') }} {{ title }}: {{ item.display_name }}">
+            <span class="rtt-facet__box" aria-hidden="true">{% if item.active %}{{ icon('check', 10) }}{% endif %}</span>
+            <span class="rtt-facet__label">{{ item.display_name }}</span>
+            <span class="rtt-facet__count" aria-hidden="true">{{ item.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% if selected %}
+        <div class="rtt-facet__foot">
+          <a class="rtt-facet__link" href="{{ h.remove_url_param(name) }}">{{ _('Azzera') }}</a>
+        </div>
+        {% endif %}
       </div>
     </details>
     {% endif %}
     {% endfor %}
+  </div>
+
+  {% if ns.active %}
+  <div class="rtt-facets__applied">
+    <span class="rtt-facets__applied-label">{{ _('Filtri attivi:') }}</span>
+    {% for name in facets %}
+    {% for item in h.get_facet_items_dict(name, facets) %}
+    {% if item.active %}
+    <span class="rtt-facets__chip">{{ FACET_LABELS.get(name, facets[name]['title']) }}: {{ item.display_name }}<a class="rtt-facets__remove" href="{{ h.remove_url_param(name, item.name) }}" aria-label="{{ _('Rimuovi filtro') }}: {{ item.display_name }}">{{ icon('close', 16) }}</a></span>
+    {% endif %}
+    {% endfor %}
+    {% endfor %}
+    <a class="rtt-facets__clear" href="{{ h.url_for('dataset.search', q=q) if q else h.url_for('dataset.search') }}">{{ _('Cancella tutto') }}</a>
+  </div>
+  {% endif %}
+
+  <div class="rtt-facets__sortrow">
+    <details class="rtt-sort">
+      <summary class="rtt-sort__summary">
+        <span class="rtt-sort__label">{{ _('Ordina per') }}</span>
+        <span class="rtt-sort__control">{{ current_sort.label }}{{ icon('chevron-down', 20, 'rtt-sort__chevron') }}</span>
+      </summary>
+      <div class="rtt-sort__panel">
+        {% for label, value in sortings %}
+        <a class="rtt-facet__item{% if sort_by_selected == value %} is-active{% endif %}" href="{{ h.add_url_param(new_params={'sort': value}) }}"><span class="rtt-facet__label">{{ label }}</span></a>
+        {% endfor %}
+      </div>
+    </details>
   </div>
 </div>

@@ -58,7 +58,7 @@ def test_catalog_facets_active_and_sort(with_plugins, app):
     with app.flask_app.test_request_context("/dataset?res_format=CSV"):
         html = render_template_string(src, search_facets=facets, q="", sort_by_selected="")
     assert "Formato dei file" in html
-    assert "rtt-chip rtt-chip--md rtt-chip--dismissible is-selected" in html
+    assert "rtt-facets__chip" in html
     assert "rtt-facets__clear" in html
     assert "rtt-sort" in html
 
@@ -76,7 +76,7 @@ def test_catalog_facets_dedupe_labels(with_plugins, app):
     src = "{% include 'snippets/opendata_firenze_theme/catalog/facets.html' %}"
     with app.flask_app.test_request_context("/dataset"):
         html = render_template_string(src, search_facets=facets, q="", sort_by_selected="")
-    assert html.count("rtt-facet__summary") == 1
+    assert html.count("rtt-facet__trigger") == 1
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
