@@ -85,7 +85,8 @@ def test_no_duplicate_ids(app):
     body = app.get("/about").body
     if isinstance(body, bytes):
         body = body.decode("utf-8")
-    assert body.count('class="rtt-od') == 2
+    # Un'immagine per wordmark (header + footer); l'SVG inline avrebbe dato 0.
+    assert body.count("/brand/open-data.svg") == 2
     ids = re.findall(r'\sid="([^"]+)"', body)
     dupes = {i: n for i, n in Counter(ids).items() if n > 1}
     assert not dupes, f"id duplicati nel DOM: {dupes}"
