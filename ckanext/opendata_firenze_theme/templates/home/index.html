@@ -1,4 +1,5 @@
 {% extends "page.html" %}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% from 'snippets/opendata_firenze_theme/section.html' import section %}
 {% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
 
@@ -13,12 +14,26 @@
   {% snippet 'snippets/opendata_firenze_theme/home/hero.html' %}
   {% snippet 'snippets/opendata_firenze_theme/home/kpi.html' %}
 
-  {% set featured = h.odf_featured_datasets(3) %}
+  {% set featured = h.odf_featured_datasets(4) %}
   {% if featured %}
   {% set vedi_tutti %}<a class="rtt-action" href="{{ h.url_for('dataset.search') }}">{{ _('Vedi tutti') }}</a>{% endset %}
   {% call section(title=_('In evidenza'), action=vedi_tutti) %}
-    <div class="rtt-grid rtt-grid--3 rtt-stagger">
-      {% for pkg in featured %}{{ dataset_card(pkg) }}{% endfor %}
+    {% set hero_ds = featured[0] %}
+    <div class="rtt-evidenza">
+      <div class="rtt-evidenza__feature rtt-reveal">
+        <img class="rtt-evidenza__img" src="{{ h.url_for_static('/evidenza-illustrazione.jpg') }}" alt="" aria-hidden="true">
+        <div class="rtt-evidenza__card">
+          <span class="rtt-evidenza__overline">{{ _('In evidenza') }}</span>
+          <h3 class="rtt-evidenza__title">{{ hero_ds.title or hero_ds.name }}</h3>
+          {% if hero_ds.notes %}<p class="rtt-evidenza__text">{{ hero_ds.notes|striptags|truncate(180) }}</p>{% endif %}
+          <a class="rtt-btn rtt-btn--primary" href="{{ h.url_for('dataset.read', id=hero_ds.name) }}">{{ _('Apri il dataset') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+        </div>
+      </div>
+      {% if featured|length > 1 %}
+      <div class="rtt-grid rtt-grid--3 rtt-stagger rtt-evidenza__others">
+        {% for pkg in featured[1:4] %}{{ dataset_card(pkg) }}{% endfor %}
+      </div>
+      {% endif %}
     </div>
   {% endcall %}
   {% endif %}
@@ -33,7 +48,7 @@
   {% set tutto_catalogo %}<a class="rtt-action" href="{{ h.url_for('dataset.search') }}">{{ _('Tutto il catalogo') }}</a>{% endset %}
   {% call section(title=_('I più consultati'), tone='consultati', action=tutto_catalogo) %}
     <div class="rtt-grid rtt-grid--2 rtt-stagger">
-      {% for pkg in viewed %}{{ dataset_card(pkg) }}{% endfor %}
+      {% for pkg in viewed %}{{ dataset_card(pkg, compact=True) }}{% endfor %}
     </div>
   {% endcall %}
   {% endif %}

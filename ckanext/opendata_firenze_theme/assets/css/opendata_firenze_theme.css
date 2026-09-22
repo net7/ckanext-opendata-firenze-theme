@@ -1345,11 +1345,15 @@ html.rtt-nav-open {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: var(--basics-white-100);
+  background: var(--rtt-card-surface, var(--basics-white-100));
   border: 1px solid var(--neutral-neutral-200);
   border-radius: var(--rtt-radius-xl);
   padding: 22px;
   transition: box-shadow var(--rtt-duration) var(--rtt-ease), transform var(--rtt-duration) var(--rtt-ease);
+}
+
+.rtt-dcard--compact {
+  gap: 8px;
 }
 
 .rtt-dcard__arrow {
@@ -1434,6 +1438,89 @@ html.rtt-nav-open {
   font-size: 13px;
   line-height: 20px;
   color: var(--neutral-neutral-600);
+}
+
+/* "In evidenza": card con illustrazione + riquadro di vetro */
+.rtt-evidenza {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rtt-evidenza__others {
+  --rtt-card-surface: #f2edf4;
+}
+
+.rtt-evidenza__feature {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  overflow: hidden;
+  padding: 32px;
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: 16px;
+  background: var(--neutral-neutral-100);
+}
+
+.rtt-evidenza__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+.rtt-evidenza__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  max-width: 600px;
+  padding: 32px;
+  border-radius: 20px;
+  background: rgba(248, 246, 250, 0.92);
+  box-shadow: 0 16px 40px -16px rgba(35, 35, 39, 0.18), 0 3px 10px -6px rgba(35, 35, 39, 0.08);
+}
+
+.rtt-evidenza__overline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--rtt-font-ui);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  text-transform: uppercase;
+  color: var(--lilac-700);
+}
+
+.rtt-evidenza__overline::before {
+  content: "";
+  width: 15px;
+  height: 1px;
+  background: var(--lilac-500);
+}
+
+.rtt-evidenza__title {
+  margin: 0;
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 38px;
+  color: var(--neutral-neutral-900);
+  text-wrap: pretty;
+}
+
+.rtt-evidenza__text {
+  margin: 0;
+  font-family: var(--rtt-font-text);
+  font-size: 16px;
+  line-height: 28px;
+  color: var(--neutral-neutral-800);
 }
 
 /* Card news */
@@ -2060,6 +2147,20 @@ html.rtt-nav-open {
   .rtt-dcard__title {
     font-size: 18px;
     line-height: 26px;
+  }
+
+  .rtt-evidenza__feature {
+    padding: 16px;
+  }
+
+  .rtt-evidenza__card {
+    max-width: none;
+    padding: 24px;
+  }
+
+  .rtt-evidenza__title {
+    font-size: 24px;
+    line-height: 32px;
   }
 
   .rtt-section {
