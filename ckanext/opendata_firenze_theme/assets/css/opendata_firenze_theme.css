@@ -722,7 +722,7 @@ html.rtt-nav-open {
 }
 
 .rtt-tabbar__item.is-active:visited {
-  color: var(--primary-primary-700);
+  color: var(--primary-primary-500-base);
 }
 
 .rtt-btn--primary:visited {
@@ -1239,35 +1239,52 @@ html.rtt-nav-open {
     justify-content: space-around;
     width: 100%;
     box-sizing: border-box;
-    padding: 8px 4px;
+    padding: 12px 4px 10px;
     background: var(--basics-white-100);
     box-shadow: 0 -1px 0 0 var(--neutral-neutral-300);
   }
 
   .rtt-tabbar__item {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     flex: 1;
     min-height: 44px;
     padding: 4px 2px;
     text-align: center;
     text-decoration: none;
     font-family: var(--rtt-font-ui);
-    font-weight: 400;
-    font-size: 12px;
+    font-weight: 500;
+    font-size: 11.5px;
     line-height: 16px;
     color: var(--neutral-neutral-800);
   }
 
+  /* Barretta dell'indicatore attivo (specchia il mockup: 32x3, in cima). */
+  .rtt-tabbar__item::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    width: 32px;
+    height: 3px;
+    border-radius: var(--rtt-radius-full);
+    background: var(--primary-primary-500-base);
+    opacity: 0;
+  }
+
   .rtt-tabbar__item.is-active {
-    color: var(--primary-primary-700);
-    font-weight: 600;
+    color: var(--primary-primary-500-base);
+    font-weight: 700;
+  }
+
+  .rtt-tabbar__item.is-active::before {
+    opacity: 1;
   }
 
   body {
-    padding-bottom: 64px;
+    padding-bottom: 76px;
   }
 }
 
