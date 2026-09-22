@@ -1,0 +1,11 @@
+<div class="rtt-container rtt-kpistrip">
+  <div class="rtt-kpistrip__grid rtt-stagger">
+    {% for k in h.odf_home_kpis() %}
+    <div class="rtt-kpi">
+      <span class="rtt-kpi__value">{{ k.value }}</span>
+      <span class="rtt-kpi__label">{{ k.label }}</span>
+      <span class="rtt-kpi__desc">{{ k.delta }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>

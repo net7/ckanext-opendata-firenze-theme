@@ -1088,6 +1088,367 @@ html.rtt-nav-open {
   color: inherit;
 }
 
+/* ---- Home ------------------------------------------------------------ */
+
+/* Hero */
+.rtt-hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--rtt-hero-grad);
+  color: var(--basics-white-100);
+  padding: 80px 0 72px;
+}
+
+.rtt-hero__photo {
+  position: absolute;
+  inset: 0;
+  background-image: url("/firenze-tramonto.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: var(--rtt-hero-photo-opacity);
+  pointer-events: none;
+}
+
+.rtt-hero__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  text-align: center;
+}
+
+.rtt-hero__title {
+  margin: 0;
+  font-size: 68px;
+  line-height: 74px;
+  max-width: 1120px;
+  color: var(--basics-white-100);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.rtt-hero__title-alt {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.rtt-hero__lead {
+  margin: 0;
+  max-width: 880px;
+  color: var(--basics-white-100);
+  text-wrap: pretty;
+}
+
+.rtt-hero__search {
+  width: 100%;
+  max-width: 920px;
+}
+
+.rtt-hero__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.rtt-hero__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--rtt-radius-full);
+  background: var(--rtt-hero-pill-bg);
+  color: var(--basics-white-100);
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 20px;
+  text-decoration: none;
+}
+
+.rtt-hero__pill:hover {
+  background: rgba(53, 14, 39, 0.9);
+  color: var(--basics-white-100);
+}
+
+.rtt-hero__pill:visited {
+  color: var(--basics-white-100);
+}
+
+.rtt-hero__pill-icon {
+  color: currentColor;
+}
+
+/* Ricerca grande dell'hero */
+.rtt-search--lg .rtt-search__field {
+  height: 56px;
+}
+
+.rtt-search--lg .rtt-search__submit {
+  height: 44px;
+  min-width: 44px;
+  width: 44px;
+}
+
+.rtt-search--lg .rtt-search__field input {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/* KPI strip (scavalca il bordo inferiore dell'hero) */
+.rtt-kpistrip {
+  position: relative;
+  z-index: 2;
+  margin-top: -40px;
+}
+
+.rtt-kpistrip__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.rtt-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--basics-white-100);
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: var(--rtt-radius-xl);
+  padding: 24px;
+}
+
+.rtt-kpi__value {
+  font-family: var(--rtt-font-ui);
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 44px;
+  color: var(--rtt-kpi-number);
+}
+
+.rtt-kpi__label {
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--rtt-kpi-label);
+}
+
+.rtt-kpi__desc {
+  font-family: var(--rtt-font-text);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--rtt-kpi-desc);
+}
+
+/* Paragrafo introduttivo di sezione (es. "Esplora per tema") */
+.rtt-section__intro {
+  margin: -12px 0 0;
+  max-width: 760px;
+}
+
+.rtt-section--band .rtt-section__intro {
+  color: var(--rtt-band-ink-soft);
+}
+
+/* Griglie */
+.rtt-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.rtt-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rtt-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Card dei temi */
+.rtt-temi {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.rtt-tema {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 96px;
+  padding: 18px 20px;
+  box-sizing: border-box;
+  background: var(--basics-white-100);
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: var(--rtt-radius-xl);
+  text-decoration: none;
+  transition: background-color var(--rtt-duration) var(--rtt-ease), box-shadow var(--rtt-duration) var(--rtt-ease), transform var(--rtt-duration) var(--rtt-ease);
+}
+
+.rtt-tema:hover {
+  background: var(--primary-primary-50);
+  box-shadow: var(--rtt-shadow-md);
+  transform: translateY(-2px);
+}
+
+.rtt-tema:visited {
+  color: inherit;
+}
+
+.rtt-tema__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.rtt-tema__name {
+  font-family: var(--rtt-font-ui);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 24px;
+  color: var(--neutral-neutral-900);
+  text-wrap: pretty;
+}
+
+.rtt-tema__count {
+  font-family: var(--rtt-font-text);
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--neutral-neutral-600);
+}
+
+.rtt-tema__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary-primary-50);
+  color: var(--primary-primary-600);
+}
+
+.rtt-tema:hover .rtt-tema__icon {
+  background: var(--basics-white-100);
+}
+
+/* Card dataset */
+.rtt-dcard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--basics-white-100);
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: var(--rtt-radius-lg);
+  padding: 20px;
+}
+
+.rtt-dcard__title {
+  margin: 0;
+  font-family: var(--rtt-font-ui);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 25px;
+}
+
+.rtt-dcard__title a,
+.rtt-dcard__title a:visited {
+  color: var(--neutral-neutral-900);
+  text-decoration: none;
+}
+
+.rtt-dcard__title a:hover {
+  text-decoration: underline;
+}
+
+.rtt-dcard__desc {
+  margin: 0;
+  font-family: var(--rtt-font-text);
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--neutral-neutral-700);
+}
+
+.rtt-dcard__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* Card news */
+.rtt-ncard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--basics-white-100);
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: var(--rtt-radius-lg);
+  padding: 20px;
+}
+
+.rtt-ncard__date {
+  margin: 0;
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 12.5px;
+  line-height: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--neutral-neutral-600);
+}
+
+.rtt-ncard__title {
+  margin: 0;
+  font-family: var(--rtt-font-ui);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 24px;
+}
+
+.rtt-ncard__title a {
+  color: var(--neutral-neutral-900);
+  text-decoration: none;
+}
+
+.rtt-ncard__title a:hover {
+  text-decoration: underline;
+}
+
+.rtt-ncard__desc {
+  margin: 0;
+  font-family: var(--rtt-font-text);
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--neutral-neutral-700);
+}
+
+/* Azione di sezione ("Vedi tutti", "Tutto il catalogo"…) */
+.rtt-action {
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--primary-primary-700);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.rtt-action:hover {
+  color: var(--primary-primary-800);
+  text-decoration: underline;
+}
+
+.rtt-action:visited {
+  color: var(--primary-primary-700);
+}
+
 /* ---- Responsive ------------------------------------------------------ */
 
 @media (max-width: 1120px) {
@@ -1114,6 +1475,53 @@ html.rtt-nav-open {
    assets/js/opendata_firenze_theme.js, per chiudere il menu mobile): se cambia
    qui va cambiata anche lì. */
 @media (max-width: 1024px) {
+  .rtt-hero {
+    padding: 40px 0 48px;
+  }
+
+  .rtt-hero__inner {
+    gap: 20px;
+  }
+
+  .rtt-hero__title {
+    font-size: 34px;
+    line-height: 42px;
+  }
+
+  .rtt-kpistrip {
+    margin-top: -24px;
+  }
+
+  .rtt-kpistrip__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .rtt-kpi {
+    padding: 16px;
+  }
+
+  .rtt-kpi__value {
+    font-size: 28px;
+    line-height: 34px;
+  }
+
+  .rtt-kpi__label {
+    font-size: 14px;
+    line-height: 19px;
+  }
+
+  .rtt-kpi__desc {
+    font-size: 12px;
+    line-height: 17px;
+  }
+
+  .rtt-grid--2,
+  .rtt-grid--3 {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
   .rtt-section {
     padding: 32px 0;
   }

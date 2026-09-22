@@ -1,0 +1,16 @@
+{% from 'snippets/opendata_firenze_theme/tema-overline.html' import tema_overline %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import format_chip %}
+
+{# Card di un dataset (risultato di package_search). Il tema arriva dal
+   vocabolario dcatapit (codice o URI); TemaOverline lo risolve in label+icona. #}
+{% macro dataset_card(pkg) %}
+{%- set tema = pkg.theme if pkg.theme is string else (pkg.theme[0] if pkg.theme else None) -%}
+<article class="rtt-dcard rtt-reveal">
+  {% if tema %}<div class="rtt-dcard__overline">{{ tema_overline(tema) }}</div>{% endif %}
+  <h3 class="rtt-dcard__title"><a href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ pkg.title or pkg.name }}</a></h3>
+  {% if pkg.notes %}<p class="rtt-dcard__desc">{{ pkg.notes|striptags|truncate(160) }}</p>{% endif %}
+  <div class="rtt-dcard__meta">
+    {% for f in (pkg.res_format or [])[:3] %}{{ format_chip(f, 'geo' if f in ['GeoJSON', 'SHP', 'KML', 'WMS', 'WFS'] else 'neutral') }}{% endfor %}
+  </div>
+</article>
+{% endmacro %}

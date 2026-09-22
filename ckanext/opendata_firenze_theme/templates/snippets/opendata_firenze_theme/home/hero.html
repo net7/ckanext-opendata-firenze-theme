@@ -1,0 +1,25 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% set suggestions = ['pulizia strade', 'parcheggi in tempo reale', 'zone 30', 'buchette del vino'] %}
+{% set dataset_count = h.odf_dataset_count() %}
+<section class="rtt-hero" data-on-dark>
+  <div class="rtt-hero__photo" aria-hidden="true"></div>
+  <div class="rtt-container rtt-hero__inner">
+    <h1 class="rtt-display rtt-hero__title">{{ _('I dati aperti del') }} <span class="rtt-hero__title-alt">{{ _('Comune di Firenze') }}</span></h1>
+    <p class="rtt-body-lg rtt-hero__lead">{{ _('Esplora') }} {{ dataset_count }} {{ _('dataset aperti e riutilizzabili, con licenza CC BY 4.0.') }}</p>
+    <div class="rtt-hero__search">
+      <form class="rtt-search rtt-search--lg rtt-search--pill" role="search" action="{{ h.url_for('dataset.search') }}" method="get">
+        <label class="rtt-visually-hidden" for="home-search">{{ _('Cerca nel catalogo') }}</label>
+        <div class="rtt-search__field">
+          <span class="rtt-search__icon" aria-hidden="true">{{ icon('search', 20) }}</span>
+          <input id="home-search" type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _("Cerca un dataset, un tema, un'organizzazione…") }}" autocomplete="off">
+          <button class="rtt-search__submit" type="submit" aria-label="{{ _('Avvia la ricerca') }}">{{ icon('search', 20) }}</button>
+        </div>
+      </form>
+      <div class="rtt-hero__suggestions">
+        {% for s in suggestions %}
+        <a class="rtt-hero__pill" href="{{ h.url_for('dataset.search', q=s) }}">{{ icon('search', 14, 'rtt-hero__pill-icon') }}{{ s }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>

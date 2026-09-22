@@ -6,7 +6,8 @@
    Fonte unica: (codice EU, label italiana, icona). `tema_overline` accetta
    indifferentemente la label ("Ambiente"), il codice dcatapit ("ENVI") o l'URI
    (".../data-theme/ENVI"); il testo mostrato è la label italiana, salvo
-   override esplicito con `label`. #}
+   override esplicito con `label`. `tema_label`/`tema_icon` espongono le due
+   parti separatamente (es. card dei temi). #}
 {% set TEMA_THEMES = [
   ('AGRI', 'Agricoltura, pesca, silvicoltura e prodotti alimentari', 'tema-agricoltura'),
   ('ECON', 'Economia e finanze', 'tema-economia'),
@@ -23,17 +24,29 @@
   ('TRAN', 'Trasporti', 'tema-trasporti'),
 ] %}
 
-{% macro tema_overline(tema, size='sm', label=None) -%}
-{%- set ns = namespace(icon='grid', text=label or tema) -%}
+{# Indice del tema in TEMA_THEMES, oppure -1. #}
+{% macro tema_index(tema) -%}
+{%- set ns = namespace(i=-1) -%}
 {%- set tail = tema.rstrip('/').rsplit('/', 1)[-1] if tema is string and '/' in tema else tema -%}
 {%- for code, name, icon_key in TEMA_THEMES -%}
-{%- if tema == code or tema == name or tail == code -%}
-{%- set ns.icon = icon_key -%}
-{%- if not label -%}{%- set ns.text = name -%}{%- endif -%}
-{%- endif -%}
+{%- if ns.i == -1 and (tema == code or tema == name or tail == code) -%}{%- set ns.i = loop.index0 -%}{%- endif -%}
 {%- endfor -%}
+{{- ns.i -}}
+{%- endmacro %}
+
+{% macro tema_label(tema) -%}
+{%- set i = tema_index(tema)|int -%}
+{{- TEMA_THEMES[i][1] if i >= 0 else tema -}}
+{%- endmacro %}
+
+{% macro tema_icon(tema, size=20) -%}
+{%- set i = tema_index(tema)|int -%}
+{{- icon(TEMA_THEMES[i][2] if i >= 0 else 'grid', size) -}}
+{%- endmacro %}
+
+{% macro tema_overline(tema, size='sm', label=None) -%}
 <span class="rtt-overline rtt-overline--{{ size }}">
-  <span class="rtt-overline__icon" aria-hidden="true">{{ icon(ns.icon, 20 if size == 'md' else 16) }}</span>
-  <span class="rtt-overline__text">{{ ns.text }}</span>
+  <span class="rtt-overline__icon" aria-hidden="true">{{ tema_icon(tema, 20 if size == 'md' else 16) }}</span>
+  <span class="rtt-overline__text">{{ label or tema_label(tema) }}</span>
 </span>
 {%- endmacro %}

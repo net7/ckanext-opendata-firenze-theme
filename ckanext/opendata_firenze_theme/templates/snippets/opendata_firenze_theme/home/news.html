@@ -1,0 +1,10 @@
+{# News dal blog di ckanext-pages. `news` è impostata da home/index.html. #}
+<div class="rtt-stagger rtt-grid rtt-grid--3">
+  {% for n in news %}
+  <article class="rtt-ncard rtt-reveal">
+    {% if n.publish_date %}<p class="rtt-ncard__date">{{ h.render_datetime(n.publish_date, date_format='%d/%m/%Y') }}</p>{% endif %}
+    <h3 class="rtt-ncard__title"><a href="{{ h.url_for('/blog/' ~ n.name) }}">{{ n.title }}</a></h3>
+    {% if n.content %}<p class="rtt-ncard__desc">{{ n.content|striptags|truncate(160) }}</p>{% endif %}
+  </article>
+  {% endfor %}
+</div>

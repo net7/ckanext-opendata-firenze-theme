@@ -1,0 +1,49 @@
+{% extends "page.html" %}
+{% from 'snippets/opendata_firenze_theme/section.html' import section %}
+{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
+
+{% block subtitle %}{{ _('Home') }}{% endblock %}
+
+{% block content %}
+<main class="rtt-home">
+  {% for category, message in h.get_flashed_messages(with_categories=true) %}
+  <div class="alert alert-dismissible fade show {{ category }}">{{ h.literal(message) }}</div>
+  {% endfor %}
+
+  {% include 'snippets/opendata_firenze_theme/home/hero.html' %}
+  {% include 'snippets/opendata_firenze_theme/home/kpi.html' %}
+
+  {% set featured = h.odf_featured_datasets(3) %}
+  {% if featured %}
+  {% set vedi_tutti %}<a class="rtt-action" href="{{ h.url_for('dataset.search') }}">{{ _('Vedi tutti') }}</a>{% endset %}
+  {% call section(title=_('In evidenza'), action=vedi_tutti) %}
+    <div class="rtt-grid rtt-grid--3 rtt-stagger">
+      {% for pkg in featured %}{{ dataset_card(pkg) }}{% endfor %}
+    </div>
+  {% endcall %}
+  {% endif %}
+
+  {% call section(title=_('Esplora per tema'), band=True) %}
+    <p class="rtt-body rtt-section__intro">{{ _('Sfoglia i dati per argomento: 13 temi che seguono lo standard italiano per i dati aperti (DCAT-AP_IT).') }}</p>
+    {% include 'snippets/opendata_firenze_theme/home/temi.html' %}
+  {% endcall %}
+
+  {% set viewed = h.odf_most_viewed(4) %}
+  {% if viewed %}
+  {% set tutto_catalogo %}<a class="rtt-action" href="{{ h.url_for('dataset.search') }}">{{ _('Tutto il catalogo') }}</a>{% endset %}
+  {% call section(title=_('I più consultati'), tone='consultati', action=tutto_catalogo) %}
+    <div class="rtt-grid rtt-grid--2 rtt-stagger">
+      {% for pkg in viewed %}{{ dataset_card(pkg) }}{% endfor %}
+    </div>
+  {% endcall %}
+  {% endif %}
+
+  {% set news = h.odf_news(3) %}
+  {% if news %}
+  {% set archivio %}<a class="rtt-action" href="{{ h.url_for('/blog') }}">{{ _('Archivio') }}</a>{% endset %}
+  {% call section(title=_('News'), muted=True, action=archivio) %}
+    {% include 'snippets/opendata_firenze_theme/home/news.html' %}
+  {% endcall %}
+  {% endif %}
+</main>
+{% endblock %}

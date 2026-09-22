@@ -1,0 +1,12 @@
+{% from 'snippets/opendata_firenze_theme/tema-overline.html' import tema_icon %}
+<div class="rtt-stagger rtt-temi">
+  {% for t in h.odf_themes() %}
+  <a class="rtt-tema" href="{{ h.url_for('dataset.search', theme=t.code) }}">
+    <span class="rtt-tema__body">
+      <span class="rtt-tema__name">{{ t.label }}</span>
+      <span class="rtt-tema__count">{{ t.count }} dataset</span>
+    </span>
+    <span class="rtt-tema__icon" aria-hidden="true">{{ tema_icon(t.code, 24) }}</span>
+  </a>
+  {% endfor %}
+</div>

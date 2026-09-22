@@ -1,0 +1,34 @@
+"""Rendering della home e helper del tema."""
+
+import pytest
+
+PLUGIN = "opendata_firenze_theme"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_home_renders(app):
+    response = app.get("/")
+    assert response.status_code == 200
+    body = response.body
+    if isinstance(body, bytes):
+        body = body.decode("utf-8")
+    assert 'class="rtt-hero"' in body
+    assert "rtt-kpistrip" in body
+    assert "Esplora per tema" in body
+    assert 'class="rtt-action"' in body
+    # l'azione di sezione e' markup, non deve finire escapata nel DOM
+    assert '&lt;a class="rtt-action"' not in body
+    # i 13 temi DCAT-AP_IT sono sempre elencati
+    assert body.count("rtt-tema__name") == 13
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_home_helpers(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    themes = helpers.odf_themes()
+    assert len(themes) == 13
+    assert {t["code"] for t in themes} == {code for code, _ in helpers.THEMES}
+    assert len(helpers.odf_home_kpis()) == 4
+    assert helpers.odf_dataset_count() >= 0
