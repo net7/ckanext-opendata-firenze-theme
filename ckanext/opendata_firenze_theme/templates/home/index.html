@@ -10,8 +10,8 @@
   <div class="alert alert-dismissible fade show {{ category }}">{{ h.literal(message) }}</div>
   {% endfor %}
 
-  {% include 'snippets/opendata_firenze_theme/home/hero.html' %}
-  {% include 'snippets/opendata_firenze_theme/home/kpi.html' %}
+  {% snippet 'snippets/opendata_firenze_theme/home/hero.html' %}
+  {% snippet 'snippets/opendata_firenze_theme/home/kpi.html' %}
 
   {% set featured = h.odf_featured_datasets(3) %}
   {% if featured %}
@@ -25,7 +25,7 @@
 
   {% call section(title=_('Esplora per tema'), band=True) %}
     <p class="rtt-body rtt-section__intro">{{ _('Sfoglia i dati per argomento: 13 temi che seguono lo standard italiano per i dati aperti (DCAT-AP_IT).') }}</p>
-    {% include 'snippets/opendata_firenze_theme/home/temi.html' %}
+    {% snippet 'snippets/opendata_firenze_theme/home/temi.html' %}
   {% endcall %}
 
   {% set viewed = h.odf_most_viewed(4) %}
@@ -42,7 +42,7 @@
   {% if news %}
   {% set archivio %}<a class="rtt-action" href="{{ h.url_for('/blog') }}">{{ _('Archivio') }}</a>{% endset %}
   {% call section(title=_('News'), muted=True, action=archivio) %}
-    {% include 'snippets/opendata_firenze_theme/home/news.html' %}
+    {% snippet 'snippets/opendata_firenze_theme/home/news.html', news=news %}
   {% endcall %}
   {% endif %}
 </main>

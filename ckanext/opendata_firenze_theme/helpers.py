@@ -7,6 +7,7 @@ pagina.
 """
 
 import logging
+import json
 
 import ckan.plugins.toolkit as toolkit
 
@@ -32,6 +33,40 @@ THEMES = (
 
 # Formati con anteprima su mappa (per il chip "geo").
 GEO_FORMATS = frozenset(("GeoJSON", "SHP", "KML", "WMS", "WFS"))
+
+THEME_CODES = frozenset(code for code, _ in THEMES)
+
+
+def odf_package_theme(pkg):
+    """Codice del tema DCAT-AP_IT di un package, o None.
+
+    Il tema arriva come URI (spesso una lista JSON) nel campo `theme` o
+    nell'extra omonimo; si tiene solo se corrisponde a uno dei 13 temi
+    (dcatapit usa `OP_DATPRO` = "Other" come default, che non mostriamo).
+    """
+    raw = pkg.get("theme")
+    if not raw:
+        extras = pkg.get("extras") or []
+        if isinstance(extras, dict):
+            raw = extras.get("theme")
+        else:
+            for extra in extras:
+                if extra.get("key") == "theme":
+                    raw = extra.get("value")
+                    break
+    if not raw:
+        return None
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except ValueError:
+            raw = [raw]
+    if isinstance(raw, (list, tuple)):
+        raw = raw[0] if raw else None
+    if not isinstance(raw, str) or not raw:
+        return None
+    code = raw.rstrip("/").rsplit("/", 1)[-1]
+    return code if code in THEME_CODES else None
 
 
 def _it(n):
@@ -135,6 +170,7 @@ def odf_news(limit=3):
 def get_helpers():
     return {
         "odf_dataset_count": odf_dataset_count,
+        "odf_package_theme": odf_package_theme,
         "odf_home_kpis": odf_home_kpis,
         "odf_themes": odf_themes,
         "odf_featured_datasets": odf_featured_datasets,

@@ -1449,6 +1449,271 @@ html.rtt-nav-open {
   color: var(--primary-primary-700);
 }
 
+/* ---- Catalogo -------------------------------------------------------- */
+
+.rtt-catalog {
+  background: var(--grad-surface);
+  min-height: 600px;
+}
+
+.rtt-catalog__inner {
+  padding-top: 24px;
+  padding-bottom: 72px;
+}
+
+.rtt-catalog .rtt-breadcrumbs {
+  margin-bottom: 16px;
+}
+
+.rtt-catalog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 8px;
+  flex-wrap: wrap;
+}
+
+.rtt-catalog__titles {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rtt-catalog__add {
+  flex-shrink: 0;
+}
+
+.rtt-catalog__title {
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.rtt-catalog__count {
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--neutral-neutral-600);
+}
+
+.rtt-catalog__search {
+  max-width: 720px;
+  margin-bottom: 24px;
+}
+
+.rtt-catalog__results {
+  margin-top: 4px;
+}
+
+.rtt-catalog__pager {
+  display: flex;
+  justify-content: center;
+  padding-top: 24px;
+}
+
+/* Faccette */
+.rtt-facets {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.rtt-facets__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rtt-facets__active {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 30px;
+}
+
+.rtt-facets__clear {
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--primary-primary-700);
+  text-decoration: underline;
+}
+
+.rtt-facets__bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Tendina generica (gruppi faccette + "Ordina per") */
+.rtt-facet,
+.rtt-sort {
+  position: relative;
+}
+
+.rtt-facet__summary,
+.rtt-sort__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--rtt-radius-full);
+  background: var(--basics-white-100);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-300);
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-facet__summary::-webkit-details-marker,
+.rtt-sort__summary::-webkit-details-marker {
+  display: none;
+}
+
+.rtt-facet[open] .rtt-facet__chevron,
+.rtt-sort[open] .rtt-sort__chevron {
+  transform: rotate(180deg);
+}
+
+.rtt-facet__panel,
+.rtt-sort__panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 240px;
+  max-width: calc(100vw - 32px);
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: var(--rtt-radius-lg);
+  background: var(--basics-white-100);
+  box-shadow: var(--rtt-shadow-lg);
+}
+
+.rtt-sort__value {
+  color: var(--neutral-neutral-600);
+  font-weight: 400;
+}
+
+.rtt-facet__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: var(--rtt-radius);
+  font-family: var(--rtt-font-ui);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--neutral-neutral-800);
+  text-decoration: none;
+}
+
+.rtt-facet__item:hover {
+  background: var(--neutral-neutral-100);
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-facet__item.is-active {
+  background: var(--rtt-selected-bg);
+  color: var(--neutral-neutral-900);
+  font-weight: 600;
+}
+
+.rtt-facet__count {
+  color: var(--neutral-neutral-500);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Nessun risultato */
+.rtt-noresults {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  padding: 64px 24px;
+  background: var(--basics-white-100);
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: var(--rtt-radius-lg);
+}
+
+.rtt-noresults__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--rtt-radius-full);
+  background: var(--neutral-neutral-100);
+  color: var(--neutral-neutral-700);
+}
+
+.rtt-noresults h2,
+.rtt-noresults p {
+  margin: 0;
+}
+
+/* Paginazione di CKAN */
+.rtt-catalog .pagination {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rtt-catalog .pagination .page-item .page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: var(--rtt-radius-md);
+  background: var(--basics-white-100);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-300);
+  color: var(--neutral-neutral-800);
+  text-decoration: none;
+  font-family: var(--rtt-font-ui);
+  font-size: 14px;
+}
+
+.rtt-catalog .pagination .page-item.active .page-link {
+  background: var(--primary-primary-500-base);
+  color: var(--basics-white-100);
+  box-shadow: none;
+}
+
+/* CKAN rende la pagina corrente come <span class="page-item active"> (senza
+   .page-link): la si stila come le altre per non lasciarla "nuda". */
+.rtt-catalog .pagination .page-item.active {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: var(--rtt-radius-md);
+  background: var(--primary-primary-500-base);
+  color: var(--basics-white-100);
+  font-family: var(--rtt-font-ui);
+  font-size: 14px;
+}
+
 /* ---- Responsive ------------------------------------------------------ */
 
 @media (max-width: 1120px) {

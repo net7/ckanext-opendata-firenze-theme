@@ -1,10 +1,19 @@
+{#
+  Form di ricerca (GET verso il catalogo), autonomo (funziona senza JS).
+
+  id          - id del campo di input (default 'rtt-search')
+  size        - 'sm' (default), 'md' o 'lg'
+  placeholder - testo del placeholder (default "Cerca nel sito…")
+#}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% set field_id = id|default('rtt-search') %}
-<form class="rtt-search rtt-search--sm rtt-search--pill" role="search" action="{{ h.url_for('dataset.search') }}" method="get">
+{% set size = size|default('sm') %}
+{% set placeholder_text = placeholder|default(_('Cerca nel sito…')) %}
+<form class="rtt-search{% if size == 'sm' %} rtt-search--sm{% elif size == 'lg' %} rtt-search--lg{% endif %} rtt-search--pill" role="search" action="{{ h.url_for('dataset.search') }}" method="get">
   <label class="rtt-visually-hidden" for="{{ field_id }}">{{ _('Cerca nel sito') }}</label>
   <div class="rtt-search__field">
     <span class="rtt-search__icon" aria-hidden="true">{{ icon('search', 20) }}</span>
-    <input id="{{ field_id }}" type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _('Cerca nel sito…') }}" autocomplete="off" enterkeyhint="search">
+    <input id="{{ field_id }}" type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ placeholder_text }}" autocomplete="off" enterkeyhint="search">
     <button class="rtt-search__submit" type="submit" aria-label="{{ _('Avvia la ricerca') }}">{{ icon('search', 20) }}</button>
   </div>
 </form>

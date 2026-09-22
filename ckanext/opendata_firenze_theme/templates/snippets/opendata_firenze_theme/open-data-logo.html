@@ -1,3 +1,9 @@
+{#
+  Macro `open_data_logo(class_name='')` — wordmark Open Data (ScaledLogo del DS).
+
+  class_name - classi extra sul contenitore (es. 'rtt-header__opendata');
+               la taglia si imposta via CSS (--od-w/--od-k) sulla classe.
+#}
 {% macro open_data_logo(class_name='') %}
 <span class="rtt-od{% if class_name %} {{ class_name }}{% endif %}"><span class="rtt-od__scale"><img src="{{ h.url_for_static('/brand/open-data.svg') }}" alt=""></span></span>
 {% endmacro %}

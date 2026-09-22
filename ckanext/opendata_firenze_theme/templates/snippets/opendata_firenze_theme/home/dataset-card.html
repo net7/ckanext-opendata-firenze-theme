@@ -1,16 +1,23 @@
 {% from 'snippets/opendata_firenze_theme/tema-overline.html' import tema_overline %}
 {% from 'snippets/opendata_firenze_theme/chip.html' import format_chip %}
 
-{# Card di un dataset (risultato di package_search). Il tema arriva dal
-   vocabolario dcatapit (codice o URI); TemaOverline lo risolve in label+icona. #}
+{# Card di un dataset (da package_search). Nel risultato di ricerca il tema non
+   e' un campo diretto (sta negli extras: vedi h.odf_package_theme) e i formati
+   stanno nelle risorse, non in res_format. #}
 {% macro dataset_card(pkg) %}
-{%- set tema = pkg.theme if pkg.theme is string else (pkg.theme[0] if pkg.theme else None) -%}
+{%- set tema = h.odf_package_theme(pkg) -%}
+{%- set rf = pkg.res_format if pkg.res_format is not string else [pkg.res_format] -%}
+{%- set formats = [] -%}
+{%- for f in (rf or []) -%}{%- if f and f not in formats -%}{%- set _ = formats.append(f) -%}{%- endif -%}{%- endfor -%}
+{%- for res in (pkg.resources or []) -%}{%- if res.format and res.format not in formats -%}{%- set _ = formats.append(res.format) -%}{%- endif -%}{%- endfor -%}
 <article class="rtt-dcard rtt-reveal">
   {% if tema %}<div class="rtt-dcard__overline">{{ tema_overline(tema) }}</div>{% endif %}
   <h3 class="rtt-dcard__title"><a href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ pkg.title or pkg.name }}</a></h3>
   {% if pkg.notes %}<p class="rtt-dcard__desc">{{ pkg.notes|striptags|truncate(160) }}</p>{% endif %}
+  {% if formats %}
   <div class="rtt-dcard__meta">
-    {% for f in (pkg.res_format or [])[:3] %}{{ format_chip(f, 'geo' if f in ['GeoJSON', 'SHP', 'KML', 'WMS', 'WFS'] else 'neutral') }}{% endfor %}
+    {% for f in formats[:3] %}{{ format_chip(f, 'geo' if f in ['GeoJSON', 'SHP', 'KML', 'WMS', 'WFS'] else 'neutral') }}{% endfor %}
   </div>
+  {% endif %}
 </article>
 {% endmacro %}

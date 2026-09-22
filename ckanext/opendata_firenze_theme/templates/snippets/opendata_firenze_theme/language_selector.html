@@ -1,3 +1,7 @@
+{#
+  Selettore lingua (mostrato solo se c'e' piu' di una lingua offerta).
+  Nessun parametro.
+#}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% set current_lang = request.environ.CKAN_LANG %}
 {% if h.get_available_locales()|length > 1 %}

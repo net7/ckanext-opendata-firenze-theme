@@ -1,0 +1,10 @@
+{#
+  Stato "nessun risultato" del catalogo. Nessun parametro.
+#}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+<div class="rtt-noresults">
+  <span class="rtt-noresults__icon" aria-hidden="true">{{ icon('search-lg', 32) }}</span>
+  <h2 class="rtt-h3">{{ _('Nessun dataset trovato') }}</h2>
+  <p class="rtt-body">{{ _('Prova a cambiare i filtri o i termini di ricerca.') }}</p>
+  <a class="rtt-btn rtt-btn--primary" href="{{ h.url_for('dataset.search') }}">{{ _('Azzera i filtri') }}</a>
+</div>

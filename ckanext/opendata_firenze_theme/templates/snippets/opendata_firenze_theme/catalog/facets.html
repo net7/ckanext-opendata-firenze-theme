@@ -1,0 +1,90 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{# Faccette del catalogo dai `search_facets` di CKAN (nessuna HTMX: link GET).
+   `h.get_facet_items_dict` aggiunge il flag `active` (dai parametri in URL) e
+   ordina per conteggio. Layout "barra": filtri attivi + gruppi a tendina.
+   I gruppi sono deduplicati per etichetta (es. `theme`/`dcat_theme` = "Temi"). #}
+{% set facets = search_facets or {} %}
+
+{% set sortings = [
+  (_('Rilevanza'), 'score desc, metadata_modified desc'),
+  (_('Ultima modifica'), 'metadata_modified desc'),
+  (_('Nome A-Z'), 'title_string asc'),
+  (_('Nome Z-A'), 'title_string desc'),
+] %}
+
+{# Nomi leggibili dei gruppi faccette (i facet di CKAN espongono il nome tecnico). #}
+{% set FACET_LABELS = {
+  'theme': _('Temi'),
+  'dcat_theme': _('Temi'),
+  'res_format': _('Formato dei file'),
+  'frequency': _('Aggiornamento'),
+  'organization': _('Chi pubblica'),
+  'spatial': _('Classificazione geografica'),
+  'groups': _('Gruppi'),
+  'tags': _('Parole chiave'),
+  'license_id': _('Licenza'),
+  'hvd': _('Caratteristiche'),
+} %}
+
+{% set ns = namespace(active=false, seen=[], names=[]) %}
+{% for name in facets %}
+{% set label = FACET_LABELS.get(name, facets[name]['title']) %}
+{% if label not in ns.seen %}
+{% set _ = ns.seen.append(label) %}
+{% set _ = ns.names.append(name) %}
+{% endif %}
+{% for item in h.get_facet_items_dict(name, facets) %}
+{% if item.active %}{% set ns.active = true %}{% endif %}
+{% endfor %}
+{% endfor %}
+
+{# Etichetta dell'ordinamento corrente (default: Rilevanza). #}
+{% set current_sort = namespace(label=sortings[0][0]) %}
+{% for label, value in sortings %}
+{% if sort_by_selected == value %}{% set current_sort.label = label %}{% endif %}
+{% endfor %}
+
+<div class="rtt-facets">
+  <div class="rtt-facets__toolbar">
+    <div class="rtt-facets__active">
+      {# I chip dei filtri attivi coprono TUTTI i facet (anche quelli con
+         etichetta duplicata e quindi non mostrati nella barra). #}
+      {% for name in facets %}
+      {% for item in h.get_facet_items_dict(name, facets) %}
+      {% if item.active %}
+      <a class="rtt-chip rtt-chip--md rtt-chip--dismissible is-selected" href="{{ h.remove_url_param(name, item.name) }}" aria-label="{{ _('Rimuovi filtro') }}: {{ item.display_name }}">{{ item.display_name }}<span class="rtt-chip__remove" aria-hidden="true">{{ icon('close', 20) }}</span></a>
+      {% endif %}
+      {% endfor %}
+      {% endfor %}
+      {% if ns.active %}
+      <a class="rtt-facets__clear" href="{{ h.url_for('dataset.search', q=q) if q else h.url_for('dataset.search') }}">{{ _('Azzera tutto') }}</a>
+      {% endif %}
+    </div>
+    <details class="rtt-sort">
+      <summary class="rtt-sort__summary">{{ _('Ordina per') }}<span class="rtt-sort__value">{{ current_sort.label }}</span>{{ icon('chevron-down', 20, 'rtt-sort__chevron') }}</summary>
+      <div class="rtt-sort__panel">
+        {% for label, value in sortings %}
+        <a class="rtt-facet__item{% if sort_by_selected == value %} is-active{% endif %}" href="{{ h.add_url_param(new_params={'sort': value}) }}">{{ label }}</a>
+        {% endfor %}
+      </div>
+    </details>
+  </div>
+
+  <div class="rtt-facets__bar">
+    {% for name in ns.names %}
+    {% set items = h.get_facet_items_dict(name, facets) %}
+    {% if items %}
+    <details class="rtt-facet">
+      <summary class="rtt-facet__summary">{{ FACET_LABELS.get(name, facets[name]['title']) }}{{ icon('chevron-down', 20, 'rtt-facet__chevron') }}</summary>
+      <div class="rtt-facet__panel">
+        {% for item in items %}
+        {% set href = h.remove_url_param(name, item.name) if item.active else h.add_url_param(new_params={name: item.name}) %}
+        <a class="rtt-facet__item{% if item.active %} is-active{% endif %}" href="{{ href }}" aria-label="{{ _('Filtra per') }} {{ FACET_LABELS.get(name, facets[name]['title']) }}: {{ item.display_name }}">{{ item.display_name }}<span class="rtt-facet__count">{{ item.count }}</span></a>
+        {% endfor %}
+      </div>
+    </details>
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
