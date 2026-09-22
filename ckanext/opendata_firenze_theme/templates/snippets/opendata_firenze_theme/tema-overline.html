@@ -1,0 +1,39 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{# Overline di categoria per un tema DCAT-AP_IT: mostra SEMPRE l'icona del tema
+   (fallback a una griglia generica per temi non mappati).
+
+   Fonte unica: (codice EU, label italiana, icona). `tema_overline` accetta
+   indifferentemente la label ("Ambiente"), il codice dcatapit ("ENVI") o l'URI
+   (".../data-theme/ENVI"); il testo mostrato è la label italiana, salvo
+   override esplicito con `label`. #}
+{% set TEMA_THEMES = [
+  ('AGRI', 'Agricoltura, pesca, silvicoltura e prodotti alimentari', 'tema-agricoltura'),
+  ('ECON', 'Economia e finanze', 'tema-economia'),
+  ('EDUC', 'Istruzione, cultura e sport', 'tema-istruzione'),
+  ('ENER', 'Energia', 'tema-energia'),
+  ('ENVI', 'Ambiente', 'tema-ambiente'),
+  ('GOVE', 'Governo e settore pubblico', 'tema-governo'),
+  ('HEAL', 'Salute', 'tema-salute'),
+  ('INTR', 'Tematiche internazionali', 'tema-internazionali'),
+  ('JUST', 'Giustizia, sistema giuridico e sicurezza pubblica', 'tema-giustizia'),
+  ('REGI', 'Regioni e città', 'tema-regioni'),
+  ('SOCI', 'Popolazione e società', 'tema-popolazione'),
+  ('TECH', 'Scienza e tecnologia', 'tema-scienza'),
+  ('TRAN', 'Trasporti', 'tema-trasporti'),
+] %}
+
+{% macro tema_overline(tema, size='sm', label=None) -%}
+{%- set ns = namespace(icon='grid', text=label or tema) -%}
+{%- set tail = tema.rstrip('/').rsplit('/', 1)[-1] if tema is string and '/' in tema else tema -%}
+{%- for code, name, icon_key in TEMA_THEMES -%}
+{%- if tema == code or tema == name or tail == code -%}
+{%- set ns.icon = icon_key -%}
+{%- if not label -%}{%- set ns.text = name -%}{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+<span class="rtt-overline rtt-overline--{{ size }}">
+  <span class="rtt-overline__icon" aria-hidden="true">{{ icon(ns.icon, 20 if size == 'md' else 16) }}</span>
+  <span class="rtt-overline__text">{{ ns.text }}</span>
+</span>
+{%- endmacro %}

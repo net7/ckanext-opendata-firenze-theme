@@ -1,0 +1,58 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{# Intestazione di pagina interna: breadcrumb (desktop) / kicker (mobile),
+   titolo e testo guida. `crumbs` = lista di {label, href}; l'ultima voce è la
+   pagina corrente. `aside` e il contenuto (via `{% call %}`) sono opzionali. #}
+
+{% macro breadcrumbs(crumbs) -%}
+{%- if crumbs %}
+<nav class="rtt-breadcrumbs" aria-label="{{ _('Percorso') }}">
+  {%- for c in crumbs %}
+  {%- if not loop.last %}
+  <a class="rtt-breadcrumbs__link" href="{{ c.href or '#' }}">{{ c.label }}</a>
+  {{ icon('chevron-right', 16, 'rtt-breadcrumbs__sep') }}
+  {%- else %}
+  <span class="rtt-breadcrumbs__current" aria-current="page">{{ c.label }}</span>
+  {%- endif %}
+  {%- endfor %}
+</nav>
+{%- endif %}
+{%- endmacro %}
+
+{# Su mobile il breadcrumb completo diventa un piccolo kicker (le voci intermedie)
+   appena sopra l'H1, invece di una riga di link minuscoli. #}
+{% macro crumb_kicker(crumbs) -%}
+{%- set middle = crumbs[1:-1] if crumbs and crumbs|length > 2 else [] -%}
+{%- if middle %}
+<div class="rtt-crumb-kicker">
+  {%- for c in middle %}
+  {%- if not loop.first %}<span class="rtt-crumb-kicker__sep" aria-hidden="true">/</span>{% endif %}
+  <a class="rtt-crumb-kicker__link" href="{{ c.href or '#' }}">{{ c.label }}</a>
+  {%- endfor %}
+</div>
+{%- endif %}
+{%- endmacro %}
+
+{% macro page_head(title, crumbs=None, lead=None, aside=None) -%}
+<div class="rtt-page-head">
+  <div class="rtt-container rtt-page-head__inner">
+    {{ breadcrumbs(crumbs or []) }}
+    <div class="rtt-page-head__head">
+      <div class="rtt-page-head__body">
+        {{ crumb_kicker(crumbs or []) }}
+        <h1 class="rtt-h1 rtt-page-head__title">{{ title }}</h1>
+        {%- if lead %}
+        <p class="rtt-body-lg rtt-page-head__lead">{{ lead }}</p>
+        {%- endif %}
+      </div>
+      {%- if aside %}
+      {# l'aside è markup composto dal template chiamante, non testo utente #}
+      <div class="rtt-page-head__aside">{{ aside|safe }}</div>
+      {%- endif %}
+    </div>
+    {%- if caller is defined %}
+    <div class="rtt-page-head__children">{{ caller() }}</div>
+    {%- endif %}
+  </div>
+</div>
+{%- endmacro %}

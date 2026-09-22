@@ -1,0 +1,31 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{# Chip del design system: pill con icona opzionale e, se `dismissible`, un
+   bottone/link di rimozione. Taglie sm/md/lg, stati default/selected/disabled.
+   Uso tipico: filtri attivi del catalogo (state="selected", dismissible). #}
+{% macro chip(label, size='md', state='default', icon_name=None, dismissible=False, remove_href=None, remove_label=None) -%}
+<span class="rtt-chip rtt-chip--{{ size }}{% if dismissible %} rtt-chip--dismissible{% endif %}{% if state == 'selected' %} is-selected{% elif state == 'disabled' %} is-disabled{% endif %}">
+  {%- if icon_name %}
+  <span class="rtt-chip__icon" aria-hidden="true">{{ icon(icon_name, 16) }}</span>
+  {%- endif %}
+  <span class="rtt-chip__label">{{ label }}</span>
+  {%- if dismissible %}
+  {%- if remove_href %}
+  <a class="rtt-chip__remove" href="{{ remove_href }}" aria-label="{{ remove_label or _('Rimuovi') }}">{{ icon('close', 16 if size == 'sm' else 20) }}</a>
+  {%- else %}
+  <button class="rtt-chip__remove" type="button" aria-label="{{ remove_label or _('Rimuovi') }}" data-rtt-chip-remove>{{ icon('close', 16 if size == 'sm' else 20) }}</button>
+  {%- endif %}
+  {%- endif %}
+</span>
+{%- endmacro %}
+
+{# Chip del formato di una risorsa (CSV, GeoJSON…). #}
+{% macro format_chip(label, tone='neutral') -%}
+<span class="rtt-format-chip rtt-format-chip--{{ tone }}">{{ label }}</span>
+{%- endmacro %}
+
+{# Chip di stato. Il design system ignora di fatto `tone` (tutti gli stati hanno
+   lo stesso aspetto): il tono resta nel DOM come data-tone per usi futuri. #}
+{% macro status_chip(label, tone='aperto') -%}
+<span class="rtt-status-chip" data-tone="{{ tone }}">{{ label }}</span>
+{%- endmacro %}

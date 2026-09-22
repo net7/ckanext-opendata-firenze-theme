@@ -157,9 +157,59 @@
     }
   }
 
+  /* Chip dismissibili: un click su [data-rtt-chip-remove] rimuove il chip dal
+     DOM e notifica i consumer con un evento "rtt-chip-remove" (bubbling,
+     cancelable: `preventDefault()` annulla la rimozione), emesso prima della
+     rimozione. Dopo la rimozione il focus passa al chip rimovibile successivo
+     (o al precedente), così la navigazione da tastiera non torna a <body>.
+     Per i filtri che devono aggiornare l'URL si usa la variante <a href> del
+     macro (remove_href), che funziona anche senza JS. */
+  function initChipRemove() {
+    document.addEventListener("click", function (event) {
+      var target = event.target;
+      var button =
+        target && target.closest
+          ? target.closest("[data-rtt-chip-remove]")
+          : null;
+      if (!button) {
+        return;
+      }
+      var chip = button.closest(".rtt-chip");
+      if (!chip || !chip.parentNode) {
+        return;
+      }
+      event.preventDefault();
+      var buttons = Array.prototype.slice.call(
+        chip.parentNode.querySelectorAll("[data-rtt-chip-remove]")
+      );
+      var index = buttons.indexOf(button);
+      var next =
+        index > -1 ? buttons[index + 1] || buttons[index - 1] || null : null;
+      var labelNode = chip.querySelector(".rtt-chip__label");
+      var remove = chip.dispatchEvent(
+        new CustomEvent("rtt-chip-remove", {
+          bubbles: true,
+          cancelable: true,
+          detail: {
+            label: labelNode ? labelNode.textContent.trim() : "",
+            chip: chip,
+          },
+        })
+      );
+      if (!remove || !chip.parentNode) {
+        return;
+      }
+      chip.parentNode.removeChild(chip);
+      if (next && next.isConnected && next.focus) {
+        next.focus();
+      }
+    });
+  }
+
   function init() {
     initReveal();
     initHeader();
+    initChipRemove();
   }
 
   if (document.readyState === "loading") {

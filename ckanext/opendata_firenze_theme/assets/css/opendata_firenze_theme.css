@@ -741,6 +741,353 @@ html.rtt-nav-open {
   color: var(--primary-primary-100);
 }
 
+/* ---- Snippet base: Section, PageHead, breadcrumb, overline, chip ------ */
+
+/* Section: contenitore con titolo (+ azione) e contenuto. L'azione è resa una
+   sola volta: su desktop sta sulla riga del titolo, su mobile scende sotto il
+   contenuto (riordino via `order`). Flex invece di grid così, se titolo e
+   azione mancano, il contenuto non lascia righe/tracce vuote con gap. */
+.rtt-section {
+  padding: 56px 0;
+}
+
+.rtt-section__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: 24px;
+  row-gap: 28px;
+}
+
+.rtt-section__title {
+  flex: 1 1 auto;
+  margin: 0;
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-section__action {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.rtt-section__body {
+  flex: 1 0 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+}
+
+.rtt-section--muted {
+  background: var(--grad-section);
+}
+
+.rtt-section--consultati {
+  background: var(--rtt-consultati-bg);
+}
+
+.rtt-section--band,
+.rtt-section--texture {
+  position: relative;
+  overflow: hidden;
+}
+
+.rtt-section--band {
+  background: var(--rtt-band-bg);
+  color: var(--rtt-band-ink);
+}
+
+.rtt-section--band .rtt-section__title {
+  color: var(--rtt-band-ink);
+}
+
+.rtt-section--band .rtt-section__inner,
+.rtt-section--texture .rtt-section__inner {
+  position: relative;
+}
+
+.rtt-section__overlay {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+.rtt-section--band .rtt-section__overlay {
+  background-image: url("/firenze-tetti.jpg");
+  opacity: var(--rtt-band-photo-opacity);
+}
+
+.rtt-section--texture .rtt-section__overlay {
+  background-image: url("/hero-mesh.png");
+  opacity: 0.2;
+}
+
+/* PageHead: intestazione di pagina interna (breadcrumb + titolo + lead). */
+.rtt-page-head {
+  background: var(--basics-white-100);
+  border-bottom: 1px solid var(--neutral-neutral-300);
+}
+
+.rtt-page-head__inner {
+  display: flex;
+  flex-direction: column;
+  padding-top: 24px;
+  padding-bottom: 32px;
+}
+
+.rtt-page-head__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.rtt-page-head__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 820px;
+}
+
+.rtt-page-head__title,
+.rtt-page-head__lead {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.rtt-page-head__aside {
+  flex-shrink: 0;
+}
+
+/* Breadcrumb (desktop; su mobile diventa .rtt-crumb-kicker) */
+.rtt-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 56px;
+}
+
+.rtt-breadcrumbs__link {
+  padding: 12px 8px;
+  margin: -12px -8px;
+  border-radius: var(--rtt-radius);
+  font-family: var(--rtt-font-ui);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--neutral-neutral-800);
+  text-decoration: none;
+}
+
+.rtt-breadcrumbs__link:hover {
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-breadcrumbs__sep {
+  color: var(--neutral-neutral-600);
+}
+
+.rtt-breadcrumbs__current {
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--neutral-neutral-900);
+}
+
+/* Kicker (mobile): mostrato solo sotto i 1024px (vedi media query). */
+.rtt-crumb-kicker {
+  display: none;
+}
+
+/* Overline di categoria (icona del tema + etichetta) */
+.rtt-overline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rtt-overline__icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-overline__text {
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  text-transform: uppercase;
+  color: var(--neutral-neutral-800);
+  white-space: nowrap;
+}
+
+.rtt-overline--md .rtt-overline__icon {
+  width: 20px;
+  height: 20px;
+}
+
+.rtt-overline--md .rtt-overline__text {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.rtt-overline--lg .rtt-overline__text {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/* Chip (filtri attivi, tag). Le taglie seguono il design system. */
+.rtt-chip {
+  --chip-h: 30px;
+  --chip-py: 4px;
+  --chip-pad: 4px 8px 4px 12px;
+  --chip-f: 14px;
+  --chip-lh: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  box-sizing: border-box;
+  min-height: var(--chip-h);
+  padding: var(--chip-pad);
+  border-radius: var(--rtt-radius-full);
+  background: var(--neutral-neutral-100);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-300);
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-chip--sm {
+  --chip-h: 24px;
+  --chip-py: 2px;
+  --chip-pad: 2px 6px 2px 10px;
+  --chip-f: 12px;
+  --chip-lh: 16px;
+}
+
+.rtt-chip--lg {
+  --chip-h: 38px;
+  --chip-py: 6px;
+  --chip-pad: 6px 10px 6px 14px;
+  --chip-f: 16px;
+  --chip-lh: 24px;
+}
+
+.rtt-chip:not(.rtt-chip--dismissible) {
+  padding: var(--chip-py) 12px;
+}
+
+.rtt-chip.is-selected {
+  background: var(--neutral-neutral-200);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-500);
+}
+
+.rtt-chip.is-disabled {
+  background: var(--neutral-neutral-100);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-300);
+  color: var(--neutral-neutral-600);
+}
+
+.rtt-chip__icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.rtt-chip__label {
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: var(--chip-f);
+  line-height: var(--chip-lh);
+  white-space: nowrap;
+}
+
+.rtt-chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  margin: -10px -10px -10px -6px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Format chip (formato di una risorsa) */
+.rtt-format-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 22px;
+  padding: 2px 10px;
+  border-radius: var(--rtt-radius-full);
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.rtt-format-chip--neutral {
+  background: #33333a;
+  color: var(--basics-white-100);
+}
+
+.rtt-format-chip--geo {
+  background: #4e4e57;
+  color: var(--basics-white-100);
+}
+
+.rtt-format-chip--brand {
+  background: var(--primary-primary-50);
+  color: var(--primary-primary-800);
+}
+
+/* Status chip. Il design system rende tutti i toni allo stesso modo (bordo
+   sottile): `data-tone` resta nel DOM per usi futuri. */
+.rtt-status-chip {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 26px;
+  padding: 4px 12px;
+  border-radius: var(--rtt-radius-full);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-500);
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--neutral-neutral-800);
+  white-space: nowrap;
+}
+
+/* Link visitati: le classi qui sopra perdono contro `a:visited` di semantic.css. */
+.rtt-breadcrumbs__link:visited {
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-crumb-kicker__link:visited {
+  color: var(--neutral-neutral-600);
+}
+
+.rtt-chip__remove:visited {
+  color: inherit;
+}
+
 /* ---- Responsive ------------------------------------------------------ */
 
 @media (max-width: 1120px) {
@@ -767,6 +1114,68 @@ html.rtt-nav-open {
    assets/js/opendata_firenze_theme.js, per chiudere il menu mobile): se cambia
    qui va cambiata anche lì. */
 @media (max-width: 1024px) {
+  .rtt-section {
+    padding: 32px 0;
+  }
+
+  .rtt-section__inner {
+    row-gap: 20px;
+  }
+
+  .rtt-section__title {
+    order: 1;
+    font-size: var(--rtt-text-2xl);
+    line-height: var(--rtt-lh-2xl);
+  }
+
+  .rtt-section__body {
+    order: 2;
+    gap: 20px;
+  }
+
+  .rtt-section__action {
+    order: 3;
+  }
+
+  .rtt-page-head__inner {
+    padding-top: 16px;
+    padding-bottom: 24px;
+  }
+
+  .rtt-page-head__title {
+    font-size: var(--rtt-text-3xl);
+    line-height: var(--rtt-lh-3xl);
+  }
+
+  .rtt-breadcrumbs {
+    display: none;
+  }
+
+  .rtt-crumb-kicker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-family: var(--rtt-font-ui);
+    font-weight: 600;
+    font-size: 12.5px;
+    line-height: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .rtt-crumb-kicker__link {
+    padding: 8px 4px;
+    margin: -8px -4px;
+    border-radius: var(--rtt-radius);
+    color: var(--neutral-neutral-600);
+    text-decoration: none;
+  }
+
+  .rtt-crumb-kicker__sep {
+    color: var(--neutral-neutral-400);
+  }
+
   .rtt-header__top {
     display: none;
   }

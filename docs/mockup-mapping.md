@@ -50,8 +50,11 @@ da toccare, i dati da collegare e le decisioni ancora aperte.
 - Footer (contatti Comune, colonne link, legal) → **`footer.html`**.
 - TabBar mobile → snippet custom (solo <1024px).
 - Comportamenti (hide-on-scroll, reveal) → JS in `assets/js/` + classi CSS.
-- Snippet riusabili da creare: `Section`, `PageHead` (breadcrumb+titolo+lead),
-  `TemaOverline` (icona per tema), `StatusScreen`.
+- Snippet riusabili (creati in `snippets/opendata_firenze_theme/`): `section.html`
+  (`Section`), `page-head.html` (`PageHead`: breadcrumb/kicker + titolo + lead),
+  `tema-overline.html` (`TemaOverline`, icona per tema: accetta label, codice
+  dcatapit o URI), `chip.html` (`chip`, `format_chip`, `status_chip`). Resta da
+  fare `StatusScreen`.
 
 ### Home — `screens/home.jsx` → `home/index.html`
 
