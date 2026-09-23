@@ -9,8 +9,17 @@
 {% block content %}
 {% set recaptcha_v3_key = h.get_recaptcha_v3_key() %}
 {% set recaptcha_v3_action = h.get_recaptcha_v3_action() %}
-{% set tipi = [_('Chiarimenti'), _('Segnala un dataset'), _('Racconta un riuso')] %}
-<main class="rtt-editorial rtt-contact" id="content" tabindex="-1">
+{# Il tipo scelto cambia l'etichetta e il placeholder del campo richiesta
+   (come nel mockup). I testi viaggiano nei data-* dei radio, così restano
+   tradotti anche nello switch via JS. #}
+{% set tipi = [
+  {'label': _('Chiarimenti'), 'text_label': _('La tua richiesta'), 'placeholder': _('Scrivi qui…')},
+  {'label': _('Segnala un dataset'), 'text_label': _('Quale dato ti serve e a cosa ti servirebbe'), 'placeholder': _('Es. i passaggi pedonali rialzati, per verificare la copertura delle Zone 30…')},
+  {'label': _('Racconta un riuso'), 'text_label': _('Che cosa hai costruito'), 'placeholder': _('Scrivi qui…')},
+] %}
+{% set subject = data.subject or tipi[0].label %}
+{% set tipo_attivo = (tipi | selectattr('label', 'equalto', subject) | list | first) or tipi[0] %}
+<main class="rtt-editorial-page rtt-contact" id="content" tabindex="-1">
   <div class="rtt-container rtt-contact__inner">
     <div class="rtt-contact__intro">
       <h1 class="rtt-display rtt-contact__title">{{ _('Il catalogo cresce anche grazie a chi lo usa.') }}</h1>
@@ -24,10 +33,10 @@
       <fieldset class="rtt-contact__fieldset">
         <legend class="rtt-contact__legend">{{ _('Di cosa hai bisogno?') }}</legend>
         <div class="rtt-contact__tipi">
-          {% for label in tipi %}
+          {% for t in tipi %}
           <label class="rtt-contact__tipo">
-            <input type="radio" name="subject" value="{{ label }}"{% if (data.subject or tipi[0]) == label %} checked{% endif %}>
-            <span class="rtt-contact__tipo-label">{{ label }}</span>
+            <input type="radio" name="subject" value="{{ t.label }}"{% if subject == t.label %} checked{% endif %} data-rtt-tipo data-text-label="{{ t.text_label }}" data-placeholder="{{ t.placeholder }}">
+            <span class="rtt-contact__tipo-label">{{ t.label }}</span>
           </label>
           {% endfor %}
         </div>
@@ -46,8 +55,8 @@
       </div>
 
       <div class="rtt-field">
-        <label class="rtt-label" for="field-content">{{ _('La tua richiesta') }}</label>
-        <textarea id="field-content" class="rtt-input rtt-input--area" name="content" rows="5" required data-rtt-counter-field>{{ data.content or '' }}</textarea>
+        <label class="rtt-label" for="field-content" data-rtt-tipo-label>{{ tipo_attivo.text_label }}</label>
+        <textarea id="field-content" class="rtt-input rtt-input--area" name="content" rows="5" required data-rtt-counter-field placeholder="{{ tipo_attivo.placeholder }}">{{ data.content or '' }}</textarea>
         {% if errors.content %}<span class="rtt-field__error">{{ errors.content[0] }}</span>{% endif %}
       </div>
 
@@ -61,7 +70,7 @@
           <input type="hidden" name="privacy" value="">
           {# La pagina "informativa privacy" non esiste ancora: nessun link rotto
              finché non sarà pubblicata (vedi docs/adr/0005). #}
-          <span>{{ _("Ho letto l'informativa privacy del Comune di Firenze (GDPR).") }}</span>
+          <span>{{ _("Ho letto l'informativa privacy del Comune di Firenze (GDPR)") }}</span>
         </label>
         {% if errors.privacy %}<span class="rtt-field__error">{{ errors.privacy[0] }}</span>{% endif %}
       </div>

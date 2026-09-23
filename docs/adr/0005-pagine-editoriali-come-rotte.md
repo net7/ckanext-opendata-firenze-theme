@@ -23,9 +23,10 @@ espone **endpoint reali**. Inoltre nel DB dev non esiste alcuna pagina
   sull'extra custom `capitolo`, che CKAN indicizza come `extras_capitolo`.
   Finché i dataset non hanno quell'extra i capitoli risultano vuoti (decisione
   aperta già segnalata nel mapping: extra vs tag vs serie).
-- Sviluppatori: tre tab (API, RDF e LOD, Servizi geografici) con endpoint
-  reali; **SPARQL e MCP server sono omessi** perché non nativi (fuori scope
-  tema, come da mapping).
+- Sviluppatori: tab (API, RDF e LOD, Servizi geografici, MCP Server) con
+  endpoint reali; **SPARQL e MCP server non sono nativi** (fuori scope tema,
+  come da mapping) e sono resi come nel mockup con link/endpoint segnaposto
+  (vedi Aggiornamenti).
 - Collaborazione: override di `contact/form.html` di `ckanext-contact` con i 3
   tipi (chiarimenti / segnala un dataset / racconta un riuso), mappati sul campo
   `subject` (unico campo libero del form). Override anche di
@@ -50,7 +51,17 @@ espone **endpoint reali**. Inoltre nel DB dev non esiste alcuna pagina
   privacy" è testo semplice finché la pagina non esiste (nessun link rotto).
 - Il campo "tema di riferimento" del mockup è **omesso**: `ckanext-contact`
   valida come obbligatori tutti i campi inviati tranne `subject`, quindi non si
-  possono aggiungere campi opzionali senza modificare l'estensione.
+  possono aggiungere campi opzionali senza modificare l'estensione. Dettaglio e
+  alternative in [`0006`](0006-campo-tema-collaborazione.md).
 - Se in futuro servisse il contenuto editoriale gestibile dall'admin, si potrà
   spostare la sola parte statica su `ckanext-pages` e lasciare la parte
   dinamica su queste rotte.
+
+## Aggiornamenti
+
+- **Sviluppatori**: aggiunti il tab **MCP Server**, la riga `sparql` e il
+  pannello "Come interrogare i Linked Open Data" nella tabella RDF, i link
+  LodView/LodLive per dataset e il pannello "Dataset con estensione spaziale",
+  per allinearsi al mockup. MCP, endpoint SPARQL e link LodView/LodLive non sono
+  servizi attivi: i link restano segnaposto (`#`) e il pannello geo usa i
+  dataset reali con formati geografici (`odf_geo_datasets`).

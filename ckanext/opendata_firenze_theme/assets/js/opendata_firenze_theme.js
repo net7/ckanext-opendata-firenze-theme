@@ -545,6 +545,50 @@
     );
   }
 
+  /* Form Collaborazione: etichetta e placeholder del campo richiesta seguono il
+     tipo scelto. I testi arrivano dai data-* dei radio (già tradotti lato
+     server), così non serve alcuna stringa i18n nel JS. Senza JS restano quelli
+     del tipo selezionato lato server. */
+  function initContactTipo() {
+    var label = document.querySelector("[data-rtt-tipo-label]");
+    var field = document.querySelector("[data-rtt-counter-field]");
+    var radios = document.querySelectorAll("[data-rtt-tipo]");
+    if (!label || !field || !radios.length) {
+      return;
+    }
+    var sync = function () {
+      Array.prototype.forEach.call(radios, function (radio) {
+        if (!radio.checked) {
+          return;
+        }
+        label.textContent =
+          radio.getAttribute("data-text-label") || label.textContent;
+        field.setAttribute(
+          "placeholder",
+          radio.getAttribute("data-placeholder") || ""
+        );
+      });
+    };
+    Array.prototype.forEach.call(radios, function (radio) {
+      radio.addEventListener("change", sync);
+    });
+    sync();
+  }
+
+  /* Link segnaposto (LodView/LodLive, endpoint SPARQL, archivi nazionali): non
+     hanno ancora una destinazione, quindi il click non deve saltare in cima
+     alla pagina. Restano nel DOM come nel mockup, con un title esplicativo. */
+  function initPlaceholderLinks() {
+    Array.prototype.forEach.call(
+      document.querySelectorAll("[data-rtt-placeholder]"),
+      function (link) {
+        link.addEventListener("click", function (event) {
+          event.preventDefault();
+        });
+      }
+    );
+  }
+
   function init() {
     initReveal();
     initHeader();
@@ -553,9 +597,11 @@
     initLineClamp();
     initSqlConsole();
     initCommentCounter();
+    initContactTipo();
     initCopyButtons();
     initPagerLabels();
     initCarousels();
+    initPlaceholderLinks();
   }
 
   if (document.readyState === "loading") {

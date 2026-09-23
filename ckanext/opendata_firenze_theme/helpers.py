@@ -203,6 +203,26 @@ def odf_most_viewed(limit=4):
     return _search(rows=limit, sort="metadata_modified desc")["results"]
 
 
+def odf_geo_datasets(limit=12):
+    """Dataset con almeno una risorsa in un formato geografico.
+
+    Usa la stessa definizione di "dati geografici" delle KPI della home (formati
+    in `GEO_FORMATS`), così conteggi e liste restano coerenti.
+    """
+    geo_formats = " OR ".join(sorted(GEO_FORMATS))
+    return _search(rows=limit, fq=f"res_format:({geo_formats})", sort="metadata_modified desc")["results"]
+
+
+def odf_geo_search_query():
+    """Query Solr che filtra il catalogo sui formati geografici.
+
+    Per il link "Filtra il catalogo per geodati": CKAN non sa fare l'OR tra più
+    valori di una faccetta via URL (i parametri ripetuti finiscono in AND nel
+    `fq`), quindi si passa la query al campo `q` della ricerca.
+    """
+    return "res_format:(" + " OR ".join(sorted(GEO_FORMATS)) + ")"
+
+
 # 13 capitoli dell'Annuario Statistico (dal mockup). Il campo `capitolo` non è
 # nativo: è un extra custom, che CKAN indicizza in Solr come `extras_capitolo`
 # (decisione aperta, vedi docs/adr/0005). Senza l'extra i capitoli sono vuoti.
@@ -527,6 +547,8 @@ def get_helpers():
         "odf_themes": odf_themes,
         "odf_featured_datasets": odf_featured_datasets,
         "odf_most_viewed": odf_most_viewed,
+        "odf_geo_datasets": odf_geo_datasets,
+        "odf_geo_search_query": odf_geo_search_query,
         "odf_news": odf_news,
         "odf_annuario_chapters": odf_annuario_chapters,
         "odf_annuario_datasets": odf_annuario_datasets,

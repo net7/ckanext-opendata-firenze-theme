@@ -5,18 +5,21 @@
 {% block subtitle %}{{ _('Richiesta inviata') }}{% endblock %}
 
 {% block content %}
-<main class="rtt-editorial rtt-contact" id="content" tabindex="-1">
+<main class="rtt-editorial-page rtt-contact" id="content" tabindex="-1">
   {% call page_head(
       _('Richiesta inviata'),
-      crumbs=[{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Collaborazione'), 'href': h.url_for('contact.form')}, {'label': _('Richiesta inviata')}]
+      crumbs=[{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Collaborazione'), 'href': h.url_for('/contact')}, {'label': _('Richiesta inviata')}]
     ) %}
   {% endcall %}
-  <div class="rtt-container rtt-editorial__body">
+  <div class="rtt-container rtt-editorial-page__body">
     <div class="rtt-contact__success">
       <span class="rtt-contact__success-icon" aria-hidden="true">{{ icon('check', 32) }}</span>
       <h2 class="rtt-h3">{{ _('Grazie, ti risponderemo presto.') }}</h2>
-      <p class="rtt-body-lg">{{ _('La richiesta è stata inviata. Ti risponderemo entro 30 giorni all'indirizzo indicato.') }}</p>
-      <a class="rtt-btn rtt-btn--primary" href="{{ h.url_for('dataset.search') }}">{{ _('Torna al catalogo') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+      <p class="rtt-body-lg">{{ _('La richiesta è stata inviata. Ti risponderemo entro 30 giorni all\'indirizzo indicato.') }}</p>
+      <div class="rtt-contact__success-actions">
+        <a class="rtt-btn rtt-btn--primary" href="{{ h.url_for('dataset.search') }}">{{ _('Torna al catalogo') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+        <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('/contact') }}">{{ _("Invia un'altra richiesta") }}</a>
+      </div>
     </div>
   </div>
 </main>

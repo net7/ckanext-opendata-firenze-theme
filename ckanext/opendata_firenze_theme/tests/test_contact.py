@@ -28,6 +28,55 @@ def test_contact_form(app):
     assert 'name="name"' in body
     assert 'name="email"' in body
     assert 'name="content"' in body
+    # il campo richiesta ha etichetta/placeholder pilotati dal tipo scelto
+    assert "data-rtt-tipo-label" in body
+    assert "data-rtt-tipo" in body
+    assert "Scrivi qui…" in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} contact")
+@pytest.mark.usefixtures("with_plugins")
+def test_contact_form_tipo_label_follows_subject(app):
+    # con un tipo diverso, l'etichetta del campo richiesta cambia lato server
+    resp = app.post(
+        "/contact",
+        data={"subject": "Segnala un dataset", "name": "", "email": "", "content": "", "save": ""},
+    )
+    body = _body(resp)
+    assert "data-rtt-tipo-label>Quale dato ti serve e a cosa ti servirebbe</label>" in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} contact")
+@pytest.mark.ckan_config("ckanext.contact.mail_to", "ufficio@comune.fi.it")
+@pytest.mark.ckan_config("ckanext.contact.check_email", "false")
+@pytest.mark.usefixtures("with_plugins")
+def test_contact_success_page(app, monkeypatch):
+    # l'invio email non è configurato nei test: lo neutralizziamo per arrivare
+    # alla pagina di conferma
+    from ckanext.contact.routes import _helpers
+
+    monkeypatch.setattr(_helpers.mailer, "mail_recipient", lambda *a, **k: None)
+
+    resp = app.post(
+        "/contact",
+        data={
+            "subject": "Chiarimenti",
+            "name": "Mario Rossi",
+            "email": "mario.rossi@example.com",
+            "content": "Una richiesta di prova.",
+            "privacy": ["on", ""],
+            "save": "",
+        },
+    )
+    body = _body(resp)
+    assert "rtt-contact__success" in body
+    assert "Invia un'altra richiesta" in body
+    assert "Torna al catalogo" in body
+    # il breadcrumb finisce con la pagina corrente, non con "Collaborazione"
+    assert "rtt-breadcrumbs__current" in body
+    assert ">Richiesta inviata</span>" in body
+    # markup bilanciato (un </div> in eccesso era sfuggito)
+    assert body.count("<div") == body.count("</div>")
 
 
 @pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} contact")

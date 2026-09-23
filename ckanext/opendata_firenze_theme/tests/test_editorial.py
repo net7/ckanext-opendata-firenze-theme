@@ -50,5 +50,41 @@ def test_sviluppatori_page(app):
     rdf = _body(app.get("/sviluppatori-e-lod?tab=rdf"))
     assert "Risorse RDF" in rdf
     assert "package_metadata_rdf_dcat_ap_it" in rdf
+    # riga SPARQL e link LodView/LodLive per dataset
+    assert "sparql" in rdf
+    assert "GET / POST" in rdf
+    assert "LodView" in rdf and "LodLive" in rdf
+    assert "Come interrogare i Linked Open Data" in rdf
     geo = _body(app.get("/sviluppatori-e-lod?tab=geo"))
     assert "GetCapabilities" in geo
+    # pannello dei dataset con estensione spaziale
+    assert "Dataset con estensione spaziale" in geo
+    # il link filtra davvero il catalogo (query sui formati geografici)
+    assert "Filtra il catalogo per geodati" in geo
+    assert "q=res_format:(GeoJSON" in geo
+    mcp = _body(app.get("/sviluppatori-e-lod?tab=mcp"))
+    assert "MCP Server pubblico" in mcp
+    assert "search_datasets" in mcp
+    # il tab MCP è nella barra dei tab
+    assert "MCP Server" in _body(app.get("/sviluppatori-e-lod"))
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_editorial_wrapper_does_not_use_ds_type_class(app):
+    # `.rtt-editorial` è uno stile tipografico del design system (Titillium bold
+    # 700, 36/48): usarlo come wrapper di pagina rendeva tutto il contenuto in
+    # grassetto (tabelle e form inclusi). Il tema usa `rtt-editorial-page`.
+    for url in ["/annuario-statistico", "/sviluppatori-e-lod"]:
+        body = _body(app.get(url))
+        assert 'class="rtt-editorial-page' in body
+        assert 'class="rtt-editorial ' not in body
+        assert 'class="rtt-editorial"' not in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_sviluppatori_geo_panel_lists_geo_datasets(app):
+    factories.Dataset(title="Geodati di prova", resources=[{"format": "GeoJSON", "url": "http://example.com/a.geojson"}])
+    body = _body(app.get("/sviluppatori-e-lod?tab=geo"))
+    assert "Geodati di prova" in body

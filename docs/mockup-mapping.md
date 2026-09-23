@@ -131,17 +131,24 @@ SideNav 13 capitoli + lista dataset per capitolo. Il campo `capitolo` **non è
 nativo** (extra custom/tag/serie); ogni capitolo = query salvata sul catalogo
 (`package_search` con filtro).
 
-### Sviluppatori — `screens/sviluppatori.jsx` → pagina `ckanext-pages`
+### Sviluppatori — `screens/sviluppatori.jsx` → rotta del tema
 
 Contenuto editoriale + endpoint reali: action API (`package_search`,
 `package_show`, `datastore_search`, `datastore_search_sql`) e RDF di `ckanext-dcat`
 (`catalog.rdf`, `package_metadata_rdf_dcat_ap_it`, `package_show_dcatap_it`).
-SPARQL e MCP server **non nativi** (fuori scope tema).
+I tab e i pannelli del mockup sono resi per intero (4 tab, incluso **MCP Server**;
+riga `sparql` e pannello "Come interrogare i Linked Open Data"; pannello "Dataset
+con estensione spaziale" sui geodati reali). SPARQL, MCP server e i link
+LodView/LodLive **non sono servizi attivi**: restano segnaposto (`#`) finché non
+esiste il backend (vedi [`adr/0005`](adr/0005-pagine-editoriali-come-rotte.md)).
 
 ### Partecipa — `screens/partecipa.jsx` → `ckanext-contact`
 
 Adattare il form di `ckanext-contact` ai 3 tipi (chiarimenti / segnalazione /
-riuso), con validazione e informativa privacy.
+riuso), con validazione e informativa privacy. Il campo "Tema di riferimento"
+(facoltativo nel mockup) è **omesso**: `ckanext-contact` valida come obbligatori
+tutti i campi inviati tranne `subject` (vedi
+[`adr/0006`](adr/0006-campo-tema-collaborazione.md)).
 
 ## Dati: nativo vs custom
 
@@ -166,7 +173,8 @@ riuso), con validazione e informativa privacy.
 - Header hide-on-scroll e reveal-on-scroll: portarli o semplificare.
 - Faccette: solo barra orizzontale, solo laterali, o entrambe.
 - Lingua: i18n UI nativa; metadati multilingua bloccati (`ckanext-multilang`).
-- SPARQL endpoint / MCP server: richiedono backend, fuori dal tema.
+- SPARQL endpoint / MCP server: richiedono backend; nel tema sono resi come nel
+  mockup con link/endpoint segnaposto (`adr/0005`).
 - "Segnala un dataset": `ckanext-contact` (scelta attuale) vs `ckanext-issues`
   (scartata).
 
