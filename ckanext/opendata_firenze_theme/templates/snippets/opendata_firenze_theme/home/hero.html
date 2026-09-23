@@ -13,9 +13,9 @@
       <form class="rtt-search rtt-search--lg rtt-search--pill" role="search" action="{{ h.url_for('dataset.search') }}" method="get">
         <label class="rtt-visually-hidden" for="home-search">{{ _('Cerca nel catalogo') }}</label>
         <div class="rtt-search__field">
-          <span class="rtt-search__icon" aria-hidden="true">{{ icon('search', 20) }}</span>
+          <span class="rtt-search__icon" aria-hidden="true">{{ icon('search', 24) }}</span>
           <input id="home-search" type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _("Cerca un dataset, un tema, un'organizzazione…") }}" autocomplete="off">
-          <button class="rtt-search__submit" type="submit" aria-label="{{ _('Avvia la ricerca') }}">{{ icon('search', 20) }}</button>
+          <button class="rtt-search__submit" type="submit" aria-label="{{ _('Avvia la ricerca') }}">{{ icon('search', 24) }}</button>
         </div>
       </form>
       <div class="rtt-hero__suggestions">

@@ -1186,6 +1186,11 @@ html.rtt-nav-open {
   height: 56px;
 }
 
+.rtt-search--lg .rtt-search__icon {
+  width: 24px;
+  height: 24px;
+}
+
 .rtt-search--lg .rtt-search__submit {
   height: 44px;
   min-width: 44px;
@@ -1572,6 +1577,9 @@ html.rtt-nav-open {
 
 /* Azione di sezione ("Vedi tutti", "Tutto il catalogo"…) */
 .rtt-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--rtt-font-ui);
   font-weight: 600;
   font-size: 16px;
@@ -1579,6 +1587,10 @@ html.rtt-nav-open {
   color: var(--primary-primary-700);
   text-decoration: none;
   white-space: nowrap;
+}
+
+.rtt-action svg {
+  flex-shrink: 0;
 }
 
 .rtt-action:hover {

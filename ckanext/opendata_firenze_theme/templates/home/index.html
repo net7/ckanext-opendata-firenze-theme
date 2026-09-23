@@ -16,7 +16,7 @@
 
   {% set featured = h.odf_featured_datasets(4) %}
   {% if featured %}
-  {% set vedi_tutti %}<a class="rtt-action" href="{{ h.url_for('dataset.search') }}">{{ _('Vedi tutti') }}</a>{% endset %}
+  {% set vedi_tutti %}<a class="rtt-action" href="{{ h.url_for('dataset.search') }}">{{ _('Vedi tutti') }}{{ icon('arrow-right', 18) }}</a>{% endset %}
   {% call section(title=_('In evidenza'), action=vedi_tutti) %}
     {% set hero_ds = featured[0] %}
     <div class="rtt-evidenza">
@@ -45,7 +45,7 @@
 
   {% set viewed = h.odf_most_viewed(4) %}
   {% if viewed %}
-  {% set tutto_catalogo %}<a class="rtt-action" href="{{ h.url_for('dataset.search') }}">{{ _('Tutto il catalogo') }}</a>{% endset %}
+  {% set tutto_catalogo %}<a class="rtt-action" href="{{ h.url_for('dataset.search') }}">{{ _('Tutto il catalogo') }}{{ icon('arrow-right', 18) }}</a>{% endset %}
   {% call section(title=_('I più consultati'), tone='consultati', action=tutto_catalogo) %}
     <div class="rtt-grid rtt-grid--2 rtt-stagger">
       {% for pkg in viewed %}{{ dataset_card(pkg, compact=True) }}{% endfor %}
@@ -55,7 +55,7 @@
 
   {% set news = h.odf_news(3) %}
   {% if news %}
-  {% set archivio %}<a class="rtt-action" href="{{ h.url_for('/blog') }}">{{ _('Archivio') }}</a>{% endset %}
+  {% set archivio %}<a class="rtt-action" href="{{ h.url_for('/blog') }}">{{ _('Archivio') }}{{ icon('arrow-right', 18) }}</a>{% endset %}
   {% call section(title=_('News'), muted=True, action=archivio) %}
     {% snippet 'snippets/opendata_firenze_theme/home/news.html', news=news %}
   {% endcall %}
