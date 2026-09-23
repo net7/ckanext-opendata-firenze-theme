@@ -3,6 +3,7 @@
 import re
 
 import pytest
+from ckan.tests import factories
 
 PLUGIN = "opendata_firenze_theme"
 
@@ -17,6 +18,9 @@ def _body(app):
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.usefixtures("with_plugins")
 def test_home_renders(app):
+    # almeno un dataset: le sezioni con azione ("In evidenza"…) si vedono solo
+    # con del contenuto, indipendentemente dallo stato del catalogo
+    factories.Dataset(title="Dataset di prova")
     body = _body(app)
     assert 'class="rtt-hero"' in body
     assert "rtt-kpistrip" in body
@@ -31,6 +35,7 @@ def test_home_renders(app):
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.usefixtures("with_plugins")
 def test_home_search_icon_and_section_arrow(app):
+    factories.Dataset(title="Dataset di prova")
     body = _body(app)
     # la lente dell'hero e' a 24px, come SearchBar size="lg" del mockup
     assert re.search(r'class="rtt-search__icon" aria-hidden="true"><svg[^>]*width="24"', body)

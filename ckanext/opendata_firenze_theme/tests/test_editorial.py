@@ -1,4 +1,8 @@
-"""Pagine editoriali (step 8): Annuario, Sviluppatori & LOD, Collaborazione."""
+"""Pagine editoriali (step 8): Annuario e Sviluppatori & LOD.
+
+Il form di Collaborazione (ckanext-contact) è testato in `test_contact.py`,
+che salta se l'estensione non è installata.
+"""
 
 import pytest
 from ckan.tests import factories
@@ -48,65 +52,3 @@ def test_sviluppatori_page(app):
     assert "package_metadata_rdf_dcat_ap_it" in rdf
     geo = _body(app.get("/sviluppatori-e-lod?tab=geo"))
     assert "GetCapabilities" in geo
-
-
-@pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} contact")
-@pytest.mark.usefixtures("with_plugins")
-def test_contact_form(app):
-    body = _body(app.get("/contact"))
-    assert "rtt-contact__form" in body
-    # i 3 tipi di richiesta
-    assert "Segnala un dataset" in body
-    assert "Racconta un riuso" in body
-    assert "Chiarimenti" in body
-    # i campi che ckanext-contact valida
-    assert 'name="name"' in body
-    assert 'name="email"' in body
-    assert 'name="content"' in body
-
-
-@pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} contact")
-@pytest.mark.usefixtures("with_plugins")
-def test_contact_form_rejects_missing_fields(app):
-    # POST senza i campi obbligatori: validazione lato server, nessuna email
-    resp = app.post("/contact", data={"name": "", "email": "", "content": "", "save": ""})
-    assert resp.status_code == 200
-    body = _body(resp)
-    assert "rtt-contact__form" in body
-    assert "rtt-contact__success" not in body
-
-
-@pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} contact")
-@pytest.mark.usefixtures("with_plugins")
-def test_contact_form_requires_privacy_consent(app):
-    # consenso non spuntato (hidden vuoto): il server rifiuta l'invio
-    resp = app.post(
-        "/contact",
-        data={
-            "subject": "Chiarimenti",
-            "name": "Mario Rossi",
-            "email": "mario.rossi@example.com",
-            "content": "Una richiesta di prova.",
-            "privacy": "",
-            "save": "",
-        },
-    )
-    assert resp.status_code == 200
-    body = _body(resp)
-    assert "rtt-contact__success" not in body
-    assert "Missing Value" in body
-
-    # consenso spuntato (checkbox + hidden, nell'ordine del DOM): la validazione
-    # passa e non viene mostrato l'errore del campo privacy
-    resp = app.post(
-        "/contact",
-        data={
-            "subject": "Chiarimenti",
-            "name": "Mario Rossi",
-            "email": "mario.rossi@example.com",
-            "content": "Una richiesta di prova.",
-            "privacy": ["on", ""],
-            "save": "",
-        },
-    )
-    assert "Missing Value" not in _body(resp)
