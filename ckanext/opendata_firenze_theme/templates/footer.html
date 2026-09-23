@@ -2,8 +2,8 @@
 {% from 'snippets/opendata_firenze_theme/open-data-logo.html' import open_data_logo %}
 {% set nav_items = [
   {'label': _('Catalogo'), 'href': h.url_for('dataset.search')},
-  {'label': _('Annuario Statistico'), 'href': h.url_for('/pages/annuario-statistico')},
-  {'label': _('Sviluppatori & LOD'), 'href': h.url_for('/pages/sviluppatori-e-lod')},
+  {'label': _('Annuario Statistico'), 'href': h.url_for('odf_pages.annuario')},
+  {'label': _('Sviluppatori & LOD'), 'href': h.url_for('odf_pages.sviluppatori')},
   {'label': _('Collaborazione'), 'href': h.url_for('/contact')}
 ] %}
 {% set external_links = [

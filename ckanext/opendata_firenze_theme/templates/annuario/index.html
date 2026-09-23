@@ -1,0 +1,55 @@
+{% extends "page.html" %}
+{% from 'snippets/opendata_firenze_theme/page-head.html' import page_head %}
+{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
+
+{% block subtitle %}{{ _('Annuario Statistico') }}{% endblock %}
+
+{% block content %}
+{% set chapters = h.odf_annuario_chapters() %}
+{% set names = chapters|map(attribute='name')|list %}
+{% set selected = request.args.get('capitolo') %}
+{% if selected not in names %}{% set selected = names[0] if names else '' %}{% endif %}
+{% set current = chapters|selectattr('name', 'equalto', selected)|list|first %}
+{% set datasets = h.odf_annuario_datasets(selected) %}
+<main class="rtt-editorial">
+  {% call page_head(
+      _('Annuario Statistico del Comune di Firenze'),
+      crumbs=[{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Annuario Statistico')}],
+      lead=_("Questa sezione contiene i dati dell'Annuario Statistico del Comune di Firenze, suddivisi in tredici capitoli tematici. L'elaborazione e la pubblicazione dei dati è curata dall'ufficio comunale di statistica.")
+    ) %}
+  <p class="rtt-body rtt-editorial__note"><strong>{{ _('Storia ed evoluzione.') }}</strong> {{ _("Il primo Annuario Statistico del Comune di Firenze risale a oltre un secolo fa; le pubblicazioni, interrotte per vent'anni, sono riprese circa dieci anni fa. Da allora l'Annuario non è più un volume a cadenza fissa ma un flusso continuo: le tavole vengono aggiornate mano a mano che i dati sono raccolti e validati. La cura editoriale resta all'ufficio comunale di statistica.") }}</p>
+  {% endcall %}
+
+  <div class="rtt-container rtt-editorial__body">
+    <div class="rtt-annuario__grid">
+      <aside class="rtt-annuario__nav">
+        <h2 class="rtt-h4 rtt-annuario__nav-title">{{ _('Capitoli') }}</h2>
+        <ul class="rtt-sidenav">
+          {% for chapter in chapters %}
+          <li>
+            <a class="rtt-sidenav__item{% if chapter.name == selected %} is-active{% endif %}" href="{{ h.url_for('odf_pages.annuario', capitolo=chapter.name) }}"{% if chapter.name == selected %} aria-current="page"{% endif %}>{{ '%02d'|format(chapter.index) }}. {{ chapter.name }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </aside>
+
+      <section class="rtt-annuario__chapter">
+        <div class="rtt-annuario__chapter-head">
+          <span class="rtt-annuario__kicker">{{ _('Capitolo') }} {{ '%02d'|format(current.index if current else 0) }} {{ _('di') }} {{ chapters|length }}</span>
+          <h2 class="rtt-h2 rtt-annuario__title">{{ selected }}</h2>
+          <span class="rtt-body-sm">{{ ungettext('{num} dataset pubblicato nel catalogo', '{num} dataset pubblicati nel catalogo', current.count if current else 0).format(num=current.count if current else 0) }}</span>
+        </div>
+        {% if datasets %}
+        <div class="rtt-grid rtt-grid--2">
+          {% for pkg in datasets %}{{ dataset_card(pkg) }}{% endfor %}
+        </div>
+        {% else %}
+        <div class="rtt-annuario__empty">
+          <p class="rtt-body">{{ _('Nessun dataset di questo capitolo è presente nel catalogo.') }}</p>
+        </div>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}

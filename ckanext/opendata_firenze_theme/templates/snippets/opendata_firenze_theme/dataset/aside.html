@@ -22,7 +22,7 @@
       (_('Frequenza'), h.odf_frequency_label(pkg.frequency)),
       (_('Pubblicato il'), h.odf_date(pkg.metadata_created)),
       (_('Ultima modifica'), h.odf_date(pkg.metadata_modified)),
-      (_('Capitolo Annuario'), {'label': capitolo, 'href': h.url_for('/pages/annuario-statistico')} if capitolo else None),
+      (_('Capitolo Annuario'), {'label': capitolo, 'href': h.url_for('odf_pages.annuario')} if capitolo else None),
       (_('Dimensione'), size),
       (_('Visualizzazioni'), views),
       (_('Download'), downloads.total or None),

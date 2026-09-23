@@ -1,0 +1,137 @@
+{% extends "page.html" %}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/page-head.html' import page_head %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import chip, status_chip %}
+{% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
+
+{% block subtitle %}{{ _('Sviluppatori & LOD') }}{% endblock %}
+
+{% block content %}
+{% set api = h.url_for('/api/3/action') %}
+{% set api_ext = h.url_for('/api/3/action', _external=True) %}
+{% set rdf_ext = h.url_for('/catalog.rdf', _external=True) %}
+{% set tab = request.args.get('tab', 'api') %}
+{% set tabs = [
+  {'value': 'api', 'label': _('API del catalogo'), 'icon': 'code'},
+  {'value': 'rdf', 'label': _('RDF e LOD'), 'icon': 'catalog'},
+  {'value': 'geo', 'label': _('Servizi geografici'), 'icon': 'grid'},
+] %}
+{% set api_rows = [
+  ('package_search', _('Ricerca sul catalogo, con faccette e paginazione')),
+  ('package_show', _('Metadati completi di un dataset e delle sue risorse')),
+  ('resource_show', _('Metadati di una singola risorsa distribuita')),
+  ('datastore_search', _('Righe di una risorsa tabellare, filtrabili')),
+  ('datastore_search_sql', _('Query SQL in sola lettura sul datastore')),
+  ('organization_list', _('Elenco delle strutture titolari dei dati')),
+] %}
+{% set rdf_rows = [
+  ('catalog.rdf', _('Catalogo completo in RDF/XML')),
+  ('package_metadata_rdf_dcat_ap_it', _('Metadato del dataset conforme a DCAT-AP_IT')),
+  ('package_show_dcatap_it', _('Stesso profilo, serializzato in JSON-LD')),
+] %}
+{% set svil_aside %}<div class="rtt-editorial__badges">{{ status_chip(_('Nessuna autenticazione'), 'aperto') }}{{ status_chip('CC BY 4.0', 'graduatorie') }}</div><span class="rtt-body-sm">{{ _('Base URL') }} · {{ api }}</span>{% endset %}
+{% set base_action %}<span class="rtt-body-sm">{{ _('Base') }} · {{ api }}</span>{% endset %}
+{% set rdf_action %}<span class="rtt-body-sm">{{ _('Profilo DCAT-AP_IT') }}</span>{% endset %}
+{% set lod_action %}<span class="rtt-body-sm">{{ _('Naviga risorsa per risorsa con LodView o LodLive') }}</span>{% endset %}
+<main class="rtt-editorial">
+  {% call page_head(
+      _('Sviluppatori & Linked Open Data'),
+      crumbs=[{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Sviluppatori & LOD')}],
+      lead=_("Endpoint, API e servizi geografici per consumare il catalogo in modo programmatico. Tutte le interfacce sono pubbliche, in sola lettura e non richiedono chiave."),
+      aside=svil_aside
+    ) %}
+  {% endcall %}
+
+  <div class="rtt-container rtt-editorial__body">
+    <nav class="rtt-dataset__tabs" aria-label="{{ _('Sezioni') }}">
+      {% for t in tabs %}
+      <a class="rtt-dataset__tab{% if tab == t.value %} is-active{% endif %}" href="{{ h.url_for('odf_pages.sviluppatori', tab=t.value) }}"{% if tab == t.value %} aria-current="page"{% endif %}>{{ icon(t.icon, 20, 'rtt-dataset__tab-icon') }}{{ t.label }}</a>
+      {% endfor %}
+    </nav>
+
+    {% if tab == 'rdf' %}
+    {% call panel(_('Risorse RDF'), action=rdf_action) %}
+      <div class="rtt-meta-table rtt-meta-table--mono">
+        <table>
+          <thead><tr><th scope="col">{{ _('Endpoint') }}</th><th scope="col">{{ _('Cosa restituisce') }}</th><th scope="col">{{ _('Metodo') }}</th></tr></thead>
+          <tbody>
+            {% for name, what in rdf_rows %}
+            <tr><td>{{ name }}</td><td>{{ what }}</td><td>{{ chip('GET', 'sm') }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endcall %}
+
+    {% call panel(_('Catalogo completo in RDF/XML')) %}
+      <pre class="rtt-code"><code>curl -H "Accept: application/rdf+xml" "{{ rdf_ext }}"
+
+# Metadato di un singolo dataset, in JSON-LD
+curl "{{ api_ext }}/package_show_dcatap_it?id=zone-30"</code></pre>
+    {% endcall %}
+
+    {% call panel(_('Linked Open Data per ambito'), action=lod_action) %}
+      {% set ambiti = [
+        {'titolo': _('Storia e Memoria'), 'interlink': 'Wikidata, WikiVoyage, Fondazione CDEC', 'dataset': ["Esercizi storici", "Lapidi Dantesche", "Lapidi della Resistenza", "Pietre d'inciampo", 'Stradario storico', 'Toponomastica Femminile']},
+        {'titolo': _('Il verde a Firenze'), 'interlink': 'Wikidata, GBIF, IPNI, Encyclopedia Of Life, iNaturalist, Royal Botanic Gardens (KEW)', 'dataset': ['Alberi', 'Aree Verdi']},
+        {'titolo': _('Cultura e Turismo'), 'interlink': 'Wikidata, Ministero della Cultura, Catalogo Beni Culturali, Sistema Archivistico Nazionale', 'dataset': ['Architettura e Monumenti', 'Fontane monumentali', "Gallerie d'arte", 'Librerie', 'Musei', 'Teatri']},
+      ] %}
+      {% for amb in ambiti %}
+      <div class="rtt-lod">
+        <h3 class="rtt-h5">{{ amb.titolo }}</h3>
+        <ul class="rtt-lod__list">
+          {% for nome in amb.dataset %}<li>{{ nome }}</li>{% endfor %}
+        </ul>
+        <p class="rtt-body-sm">{{ _('Interlinking con') }} {{ amb.interlink }}.</p>
+      </div>
+      {% endfor %}
+    {% endcall %}
+
+    {% call panel(_('Archivi nazionali')) %}
+      <p class="rtt-body">{{ _('I metadati sono armonizzati e riversati verso i cataloghi nazionali: la scheda pubblicata qui e quella nazionale descrivono la stessa risorsa.') }}</p>
+    {% endcall %}
+
+    {% elif tab == 'geo' %}
+    {% call panel(_('Servizi WMS e WMTS'), action=chip('tms.comune.fi.it', 'sm')) %}
+      <p class="rtt-body">{{ _('I layer geografici sono serviti dal tile server comunale in WGS84 / EPSG:4326 e sono caricabili direttamente in QGIS, ArcGIS o in una mappa Leaflet.') }}</p>
+      <pre class="rtt-code"><code># WMS tiled · GetCapabilities
+https://tms.comune.fi.it/tiles/service/wms?tiled=TRUE&amp;request=GetCapabilities&amp;service=WMS&amp;version=1.3.0
+
+# WMTS · GetCapabilities
+https://tms.comune.fi.it/tiles/service/wmts?request=GetCapabilities&amp;service=WMTS&amp;version=1.3.0</code></pre>
+    {% endcall %}
+
+    {% call panel(_('Caricare un layer in QGIS')) %}
+      <ol class="rtt-editorial__steps">
+        <li>{{ _('Livello → Aggiungi livello → Aggiungi livello WMS/WMTS.') }}</li>
+        <li>{{ _("Nuova connessione, incolla l'URL di GetCapabilities qui sopra.") }}</li>
+        <li>{{ _('Connetti, scegli il layer e conferma il sistema di riferimento EPSG:4326.') }}</li>
+      </ol>
+      <p class="rtt-body-sm">{{ _('Per i dataset scaricabili preferisci GeoJSON o SHP: contengono le geometrie, il WMS solo la rappresentazione.') }}</p>
+    {% endcall %}
+
+    {% else %}
+    {% call panel(_('Endpoint CKAN'), action=base_action) %}
+      <div class="rtt-meta-table rtt-meta-table--mono">
+        <table>
+          <thead><tr><th scope="col">{{ _('Endpoint') }}</th><th scope="col">{{ _('Cosa restituisce') }}</th><th scope="col">{{ _('Metodo') }}</th></tr></thead>
+          <tbody>
+            {% for name, what in api_rows %}
+            <tr><td>{{ name }}</td><td>{{ what }}</td><td>{{ chip('GET', 'sm') }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="rtt-body-sm">{{ _('Le risposte sono JSON. Il campo') }} <code>success</code> {{ _("indica l'esito; i dati stanno sempre in") }} <code>result</code>.</p>
+    {% endcall %}
+
+    {% call panel(_('Prima chiamata'), action=chip('cURL', 'sm')) %}
+      <pre class="rtt-code"><code>curl "{{ api_ext }}/package_search?q=biblioteche&amp;rows=5"
+
+# Metadati di un dataset, con le statistiche di download
+curl "{{ api_ext }}/package_show?id=biblioteche-sdiaf&amp;stats=1"</code></pre>
+    {% endcall %}
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

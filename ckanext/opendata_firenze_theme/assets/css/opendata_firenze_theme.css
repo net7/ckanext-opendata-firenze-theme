@@ -549,7 +549,7 @@ body {
 
 .rtt-footer {
   width: 100%;
-  background: var(--primary-primary-900);
+  background: var(--primary-primary-700);
   color: var(--basics-white-100);
 }
 
@@ -3171,4 +3171,359 @@ a.rtt-contact__value:hover {
   .rtt-resource__iframe {
     min-height: 360px;
   }
+}
+
+/* ---- Pagine editoriali (step 8) -------------------------------------- */
+
+.rtt-editorial {
+  background: var(--neutral-neutral-50);
+}
+
+.rtt-editorial__note {
+  margin: 20px 0 0;
+  max-width: 820px;
+  color: var(--neutral-neutral-700);
+}
+
+.rtt-editorial__note strong {
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-editorial__badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rtt-editorial__body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 40px;
+  padding-bottom: 72px;
+}
+
+.rtt-editorial__steps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--rtt-font-text);
+  font-size: var(--rtt-text-base);
+  line-height: 26px;
+  color: var(--rtt-text-muted);
+}
+
+/* Annuario: SideNav capitoli + contenuto */
+.rtt-annuario__grid {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.rtt-annuario__nav {
+  background: var(--basics-white-100);
+  border-radius: var(--rtt-radius-lg);
+  box-shadow: var(--rtt-shadow-md);
+  padding: 24px;
+  position: sticky;
+  top: 16px;
+}
+
+.rtt-annuario__nav-title {
+  margin: 0 0 12px;
+}
+
+.rtt-sidenav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rtt-sidenav__item {
+  display: block;
+  padding: 8px 12px;
+  border-radius: var(--rtt-radius-md);
+  font-family: var(--rtt-font-ui);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--neutral-neutral-800);
+  text-decoration: none;
+}
+
+.rtt-sidenav__item:hover {
+  background: var(--lilac-50);
+}
+
+.rtt-sidenav__item.is-active {
+  background: var(--lilac-100);
+  font-weight: 600;
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-annuario__chapter {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.rtt-annuario__chapter-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rtt-annuario__kicker {
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--neutral-neutral-600);
+}
+
+.rtt-annuario__title {
+  margin: 0;
+}
+
+.rtt-annuario__empty {
+  background: var(--basics-white-100);
+  border-radius: var(--rtt-radius-lg);
+  box-shadow: var(--rtt-shadow-md);
+  padding: 32px;
+  text-align: center;
+}
+
+/* Sviluppatori: elenchi LOD */
+.rtt-lod {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rtt-lod__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rtt-lod__list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--neutral-neutral-200);
+  font-family: var(--rtt-font-text);
+  font-size: var(--rtt-text-base);
+  line-height: 26px;
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-lod__list li:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 1024px) {
+  .rtt-annuario__grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .rtt-annuario__nav {
+    position: static;
+  }
+}
+
+/* Partecipa / Collaborazione (ckanext-contact, form del tema) */
+.rtt-contact__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 560px);
+  gap: 56px;
+  align-items: start;
+  padding-top: 64px;
+  padding-bottom: 72px;
+}
+
+.rtt-contact__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 32px;
+}
+
+.rtt-contact__title {
+  margin: 0;
+  color: var(--neutral-neutral-900);
+  letter-spacing: -0.02em;
+}
+
+.rtt-contact__alt {
+  margin: 0;
+  font-family: var(--rtt-font-ui);
+  font-size: 15px;
+  color: var(--neutral-neutral-700);
+}
+
+.rtt-contact__alt a {
+  color: var(--rtt-link);
+  font-weight: 600;
+}
+
+.rtt-contact__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rtt-contact__fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rtt-contact__legend {
+  padding: 0;
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--neutral-neutral-700);
+}
+
+.rtt-contact__tipi {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rtt-contact__tipo {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 12px 16px;
+  border-radius: var(--rtt-radius-md);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-300);
+}
+
+.rtt-contact__tipo:has(input:checked) {
+  box-shadow: inset 0 0 0 2px var(--primary-primary-500-base);
+  background: var(--primary-primary-50);
+}
+
+.rtt-contact__tipo-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rtt-contact__tipo-label {
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-contact__tipo-hint {
+  font-family: var(--rtt-font-text);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--neutral-neutral-700);
+}
+
+.rtt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rtt-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: var(--rtt-radius-md);
+  padding: 12px 16px;
+  font-family: var(--rtt-font-text);
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--neutral-neutral-900);
+  background: var(--basics-white-100);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-600);
+}
+
+.rtt-input--area {
+  resize: vertical;
+  line-height: 26px;
+}
+
+.rtt-field__error {
+  font-family: var(--rtt-font-text);
+  font-size: 13px;
+  color: var(--support-error-medium);
+}
+
+.rtt-contact__privacy {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  cursor: pointer;
+  font-family: var(--rtt-font-text);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-contact__privacy a {
+  color: var(--rtt-link);
+}
+
+.rtt-contact__success {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  max-width: 720px;
+  background: var(--basics-white-100);
+  border-radius: var(--rtt-radius-lg);
+  box-shadow: var(--rtt-shadow-md);
+  padding: 40px;
+}
+
+.rtt-contact__success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--rtt-radius-full);
+  background: var(--support-success-light);
+  color: var(--support-success-dark);
+}
+
+@media (max-width: 1024px) {
+  .rtt-contact__inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-top: 32px;
+    padding-bottom: 48px;
+  }
+
+  .rtt-contact__intro {
+    position: static;
+  }
+}
+
+/* La base di CKAN aggiunge ":" dopo ogni <label> (label:after): nel form del
+   tema le etichette sono già leggibili senza. */
+.rtt-contact label::after,
+.rtt-field label::after {
+  content: none;
 }

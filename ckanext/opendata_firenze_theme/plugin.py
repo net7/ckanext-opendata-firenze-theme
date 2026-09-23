@@ -1,7 +1,7 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from ckanext.opendata_firenze_theme import helpers
+from ckanext.opendata_firenze_theme import helpers, views
 
 
 class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
@@ -9,6 +9,7 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
 
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IBlueprint)
 
     # IConfigurer
 
@@ -21,3 +22,8 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
 
     def get_helpers(self):
         return helpers.get_helpers()
+
+    # IBlueprint
+
+    def get_blueprint(self):
+        return views.pages

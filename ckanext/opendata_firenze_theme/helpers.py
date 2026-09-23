@@ -178,6 +178,47 @@ def odf_most_viewed(limit=4):
     return _search(rows=limit, sort="metadata_modified desc")["results"]
 
 
+# 13 capitoli dell'Annuario Statistico (dal mockup). Il campo `capitolo` non è
+# nativo: è un extra custom, che CKAN indicizza in Solr come `extras_capitolo`
+# (decisione aperta, vedi docs/adr/0005). Senza l'extra i capitoli sono vuoti.
+ANNUARIO_CHAPTERS = (
+    "Ambiente e territorio",
+    "Popolazione",
+    "Sanità",
+    "Sicurezza sociale",
+    "Istruzione e cultura",
+    "Giustizia",
+    "Economia e lavoro",
+    "Prezzi",
+    "Trasporti",
+    "Amministrazione comunale",
+    "Quartieri",
+    "Spettacolo e sport",
+    "Le donne a Firenze",
+)
+
+
+def odf_annuario_chapters():
+    """Capitoli dell'Annuario con il numero di dataset collegati.
+
+    I conteggi arrivano dal facet `extras_capitolo` (una sola query); il campo è
+    popolato solo se i dataset hanno l'extra `capitolo`.
+    """
+    data = _search(rows=0, **{"facet.field": ["extras_capitolo"], "facet.limit": 100})
+    counts = {item["name"]: item["count"] for item in _facet_items(data, "extras_capitolo")}
+    return [
+        {"index": index, "name": name, "count": counts.get(name, 0)} for index, name in enumerate(ANNUARIO_CHAPTERS, start=1)
+    ]
+
+
+def odf_annuario_datasets(chapter, limit=12):
+    """Dataset del capitolo dell'Annuario (extra `capitolo`), per titolo."""
+    if not chapter:
+        return []
+    data = _search(rows=limit, fq=f'extras_capitolo:"{chapter}"', sort="title_string asc")
+    return data["results"]
+
+
 def odf_news(limit=3):
     """Ultime news dal blog di ckanext-pages (vuoto se non disponibile)."""
     try:
@@ -462,6 +503,8 @@ def get_helpers():
         "odf_featured_datasets": odf_featured_datasets,
         "odf_most_viewed": odf_most_viewed,
         "odf_news": odf_news,
+        "odf_annuario_chapters": odf_annuario_chapters,
+        "odf_annuario_datasets": odf_annuario_datasets,
         "odf_pkg_extra": odf_pkg_extra,
         "odf_dataset_formats": odf_dataset_formats,
         "odf_format_is_geo": odf_format_is_geo,

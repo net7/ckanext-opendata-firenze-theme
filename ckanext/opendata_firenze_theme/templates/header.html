@@ -5,8 +5,8 @@
 {% set cta_url = h.url_for('/contact') %}
 {% set nav_items = [
   {'label': _('Catalogo'), 'href': h.url_for('dataset.search'), 'match': '/dataset'},
-  {'label': _('Annuario Statistico'), 'href': h.url_for('/pages/annuario-statistico'), 'match': '/pages/annuario-statistico'},
-  {'label': _('Sviluppatori & LOD'), 'href': h.url_for('/pages/sviluppatori-e-lod'), 'match': '/pages/sviluppatori-e-lod'},
+  {'label': _('Annuario Statistico'), 'href': h.url_for('odf_pages.annuario'), 'match': '/annuario-statistico'},
+  {'label': _('Sviluppatori & LOD'), 'href': h.url_for('odf_pages.sviluppatori'), 'match': '/sviluppatori-e-lod'},
   {'label': _('Collaborazione'), 'href': h.url_for('/contact'), 'match': '/contact'}
 ] %}
 {% set social_links = [

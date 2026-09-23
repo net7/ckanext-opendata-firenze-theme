@@ -19,7 +19,7 @@
   --basics-black-100: rgb(0,0,0); /* @kind color */
   --basics-black-transparency-25: rgba(0,0,0,0.25); /* @kind color */
   --basics-black-transparency-50: rgba(0,0,0,0.5); /* @kind color */
-  --basics-brand-00: rgb(228,4,33); /* @kind color */
+  --basics-brand-00: rgb(179,10,10); /* @kind color */
   --basics-brand-01: rgb(43,43,43); /* @kind color */
   --basics-white-100-2: rgb(255,255,255); /* @kind color */
   --basics-white-100: rgb(255,255,255); /* @kind color */
@@ -83,16 +83,16 @@
   --overlays-backdrop-black-50: var(--basics-black-transparency-50); /* @kind color */
   --overlays-backdrop-white-25: var(--basics-white-25); /* @kind color */
   --overlays-backdrop-white-50: var(--basics-white-50); /* @kind color */
-  --primary-primary-100: rgb(250,188,195); /* @kind color */
-  --primary-primary-200: rgb(245,144,155); /* @kind color */
-  --primary-primary-300: rgb(240,100,115); /* @kind color */
-  --primary-primary-400: rgb(234,56,75); /* @kind color */
-  --primary-primary-500-base: rgb(228,4,33); /* @kind color */
-  --primary-primary-50: rgb(253,232,235); /* @kind color */
-  --primary-primary-600: rgb(189,3,27); /* @kind color */
-  --primary-primary-700: rgb(150,3,22); /* @kind color */
-  --primary-primary-800: rgb(111,2,16); /* @kind color */
-  --primary-primary-900: rgb(72,1,10); /* @kind color */
+  --primary-primary-100: rgb(243,152,152); /* @kind color */
+  --primary-primary-200: rgb(236,110,110); /* @kind color */
+  --primary-primary-300: rgb(230,67,67); /* @kind color */
+  --primary-primary-400: rgb(216,31,31); /* @kind color */
+  --primary-primary-500-base: rgb(179,10,10); /* @kind color */
+  --primary-primary-50: rgb(247,195,195); /* @kind color */
+  --primary-primary-600: rgb(141,8,8); /* @kind color */
+  --primary-primary-700: rgb(104,6,6); /* @kind color */
+  --primary-primary-800: rgb(66,4,4); /* @kind color */
+  --primary-primary-900: rgb(29,1,1); /* @kind color */
   --radius-rounded-2xl: 16;
   --radius-rounded-3xl: 24;
   --radius-rounded-full: 50;

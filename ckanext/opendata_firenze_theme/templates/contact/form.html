@@ -1,0 +1,80 @@
+{% extends "page.html" %}
+{% import 'macros/form.html' as form %}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{% asset 'ckanext-contact/main' %}
+
+{% block subtitle %}{{ _('Collaborazione') }}{% endblock %}
+
+{% block content %}
+{% set recaptcha_v3_key = h.get_recaptcha_v3_key() %}
+{% set recaptcha_v3_action = h.get_recaptcha_v3_action() %}
+{% set tipi = [
+  (_('Chiarimenti'), _('Domande su un dataset già pubblicato, sui formati o sulla licenza.')),
+  (_('Segnala un dataset'), _('Dati che il Comune detiene ma non ha ancora aperto.')),
+  (_('Racconta un riuso'), _('Un servizio, una mappa o una ricerca costruita sui dati del catalogo.')),
+] %}
+<main class="rtt-editorial rtt-contact">
+  <div class="rtt-container rtt-contact__inner">
+    <div class="rtt-contact__intro">
+      <h1 class="rtt-display rtt-contact__title">{{ _('Il catalogo cresce anche grazie a chi lo usa.') }}</h1>
+      <p class="rtt-body-lg">{{ _('Un tema da proporre, un dato che manca, un progetto costruito sopra: scrivici, ti rispondiamo entro 30 giorni.') }}</p>
+      <p class="rtt-contact__alt">{{ _('Cerchi altri contatti?') }} <a href="mailto:statistica@comune.fi.it">{{ _("Scrivi direttamente all'ufficio") }}</a></p>
+    </div>
+
+    <form class="contact-form rtt-contact__form" method="post" action="{{ h.url_for('contact.form') }}" data-module="form-contact" data-module-action="{{ recaptcha_v3_action }}" data-module-key="{{ recaptcha_v3_key }}">
+      {{ form.errors(error_summary) }}
+
+      <fieldset class="rtt-contact__fieldset">
+        <legend class="rtt-contact__legend">{{ _('Di cosa hai bisogno?') }}</legend>
+        <div class="rtt-contact__tipi">
+          {% for label, hint in tipi %}
+          <label class="rtt-contact__tipo">
+            <input type="radio" name="subject" value="{{ label }}"{% if (data.subject or tipi[0][0]) == label %} checked{% endif %}>
+            <span class="rtt-contact__tipo-body">
+              <span class="rtt-contact__tipo-label">{{ label }}</span>
+              <span class="rtt-contact__tipo-hint">{{ hint }}</span>
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <div class="rtt-field">
+        <label class="rtt-label" for="field-name">{{ _('Nome e cognome') }}</label>
+        <input id="field-name" class="rtt-input" type="text" name="name" value="{{ data.name or '' }}" placeholder="Mario Rossi" required>
+        {% if errors.name %}<span class="rtt-field__error">{{ errors.name[0] }}</span>{% endif %}
+      </div>
+
+      <div class="rtt-field">
+        <label class="rtt-label" for="field-email">{{ _('Email') }}</label>
+        <input id="field-email" class="rtt-input" type="email" name="email" value="{{ data.email or '' }}" placeholder="mario.rossi@example.it" required>
+        {% if errors.email %}<span class="rtt-field__error">{{ errors.email[0] }}</span>{% endif %}
+      </div>
+
+      <div class="rtt-field">
+        <label class="rtt-label" for="field-content">{{ _('La tua richiesta') }}</label>
+        <textarea id="field-content" class="rtt-input rtt-input--area" name="content" rows="5" required>{{ data.content or '' }}</textarea>
+        {% if errors.content %}<span class="rtt-field__error">{{ errors.content[0] }}</span>{% endif %}
+      </div>
+
+      <div class="rtt-field">
+        <label class="rtt-contact__privacy">
+          {# ckanext-contact valida come obbligatorio ogni campo inviato (tranne
+             `subject`): il checkbox è seguito da un hidden omonimo vuoto, così
+             se non è spuntato il campo arriva vuoto e il server rifiuta l'invio
+             (consenso privacy imposto anche senza JS). #}
+          <input type="checkbox" name="privacy" value="on" required>
+          <input type="hidden" name="privacy" value="">
+          {# La pagina "informativa privacy" non esiste ancora: nessun link rotto
+             finché non sarà pubblicata (vedi docs/adr/0005). #}
+          <span>{{ _("Ho letto l'informativa privacy del Comune di Firenze (GDPR).") }}</span>
+        </label>
+        {% if errors.privacy %}<span class="rtt-field__error">{{ errors.privacy[0] }}</span>{% endif %}
+      </div>
+
+      <button class="rtt-btn rtt-btn--primary" type="submit" name="save">{{ _('Invia la richiesta') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</button>
+    </form>
+  </div>
+</main>
+{% endblock %}
