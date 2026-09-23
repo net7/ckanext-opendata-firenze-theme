@@ -1,0 +1,89 @@
+{% extends "package/base.html" %}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/page-head.html' import breadcrumbs %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import format_chip %}
+{% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
+{% from 'snippets/opendata_firenze_theme/dataset/meta_table.html' import meta_table %}
+
+{% set res = resource %}
+
+{% block subtitle %}{{ h.dataset_display_name(pkg) }} {{ g.template_title_delimiter }} {{ h.resource_display_name(res) }}{% endblock %}
+
+{% block content %}
+{% set dataset_title = h.dataset_display_name(pkg) %}
+{% set fmt = (res.format or '')|upper %}
+{% set geo = h.odf_format_is_geo(fmt) %}
+{% set size = h.odf_filesize(res.size) %}
+{% set downloads = (res.tracking_summary or {}).get('total') %}
+{% set download = h.odf_resource_download_url(pkg, res) %}
+<main class="rtt-resource">
+  <header class="rtt-resource__header">
+    <div class="rtt-container">
+      {{ breadcrumbs([
+        {'label': _('Home'), 'href': h.url_for('home.index')},
+        {'label': _('Catalogo'), 'href': h.url_for('dataset.search')},
+        {'label': dataset_title, 'href': h.url_for('dataset.read', id=pkg.name)},
+        {'label': h.resource_display_name(res)},
+      ]) }}
+      <div class="rtt-resource__head">
+        <div class="rtt-resource__intro">
+          {{ format_chip(fmt or _('n.d.'), 'geo' if geo else 'neutral') }}
+          <h1 class="rtt-h1 rtt-resource__title">{{ h.resource_display_name(res) }}</h1>
+          <p class="rtt-body-sm rtt-resource__meta">{{ _('Risorsa del dataset') }} «<a href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ dataset_title }}</a>»{% if size %} · {{ size }}{% endif %}{% if downloads %} · {{ _('Download:') }} {{ downloads }}{% endif %}</p>
+          {% if res.description %}<p class="rtt-body-lg rtt-resource__desc">{{ h.markdown_extract(res.description, extract_length=400) }}</p>{% endif %}
+        </div>
+        <div class="rtt-resource__actions">
+          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ icon('arrow-right', 20, 'rtt-btn__icon rtt-resource__back') }}{{ _('Torna al dataset') }}</a>
+          {% if download %}
+          <a class="rtt-btn rtt-btn--primary" href="{{ download }}">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica') }}</a>
+          {% endif %}
+          {% if h.check_access('package_update', {'id': pkg.id}) %}
+          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for(pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id) }}">{{ icon('settings', 20, 'rtt-btn__icon') }}{{ _('Gestisci') }}</a>
+          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for(pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id) }}">{{ _('Viste') }}</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="rtt-container rtt-resource__body">
+    {% if resource_views %}
+    {% set used_titles = namespace(titles=[]) %}
+    {% for view in resource_views %}
+    {% set label = h.odf_resource_view_title(view) %}
+    {% if label in used_titles.titles and view.title %}{% set label = label ~ ' · ' ~ view.title %}{% endif %}
+    {% set used_titles.titles = used_titles.titles + [label] %}
+    {% call panel(label) %}
+      <div class="rtt-resource__view">
+        {% if h.resource_view_is_iframed(view) %}
+        <iframe class="rtt-resource__iframe" title="{{ label }}" src="{{ h.url_for(pkg.type ~ '_resource.view', id=pkg.name, resource_id=res.id, view_id=view.id, qualified=true) }}" frameborder="0" data-module="data-viewer"></iframe>
+        {% else %}
+        {{ h.rendered_resource_view(view, res, pkg) }}
+        {% endif %}
+      </div>
+    {% endcall %}
+    {% endfor %}
+    {% else %}
+    {% call panel(_('Anteprima dei dati')) %}
+      <p class="rtt-body">{{ _('Nessuna anteprima disponibile per questa risorsa.') }}</p>
+      {% if download %}
+      <a class="rtt-btn rtt-btn--primary" href="{{ download }}">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica la risorsa') }}</a>
+      {% endif %}
+    {% endcall %}
+    {% endif %}
+
+    {% call panel(_('Dettagli della risorsa')) %}
+      {{ meta_table([
+        (_('Formato'), fmt or res.mimetype or res.mimetype_inner),
+        (_('Dimensione'), size),
+        (_('Ultima modifica'), h.odf_date(res.last_modified or res.created)),
+        (_('Creato'), h.odf_date(res.created)),
+        (_('Licenza'), pkg.license_title),
+        (_('URL'), {'label': res.url, 'href': res.url} if res.url and h.is_url(res.url) else res.url),
+      ]) }}
+    {% endcall %}
+
+    <p class="rtt-body-sm rtt-resource__note">{{ _('Le altre risorse di questo dataset restano nella') }} <a href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ _('scheda del dataset') }}</a>.</p>
+  </div>
+</main>
+{% endblock %}

@@ -330,6 +330,40 @@ def _resource_download_url(pkg, res):
     return res.get("url") or ""
 
 
+def odf_resource_download_url(pkg, res):
+    """URL di download di una singola risorsa (route CKAN per gli upload)."""
+    return _resource_download_url(pkg, res)
+
+
+# Titoli dei pannelli della scheda risorsa, per tipo di vista CKAN.
+VIEW_TITLES = {
+    "datatables_view": "Anteprima dei dati",
+    "datastore": "Anteprima dei dati",
+    "recline_grid_view": "Anteprima dei dati",
+    "recline_graph_view": "Grafico",
+    "recline_map_view": "Mappa",
+    "geoview": "Mappa",
+    "geo_view": "Mappa",
+    "geojson_view": "Mappa",
+    "wmts_view": "Mappa",
+    "shp_view": "Mappa",
+    "image_view": "Anteprima",
+    "text_view": "Anteprima",
+    "pdf_view": "Anteprima",
+    "officedocs_view": "Anteprima",
+    "html_view": "Anteprima",
+    "web_view": "Anteprima",
+}
+
+
+def odf_resource_view_title(view):
+    """Titolo del pannello di una vista risorsa (per tipo, o titolo della vista)."""
+    view_type = (view.get("view_type") or "").lower()
+    if view_type in VIEW_TITLES:
+        return toolkit._(VIEW_TITLES[view_type])
+    return view.get("title") or toolkit._("Anteprima")
+
+
 def odf_dataset_downloads(pkg):
     """Una voce per formato (primo file di quel formato): menu "Scarica"."""
     seen, downloads = set(), []
@@ -437,6 +471,8 @@ def get_helpers():
         "odf_dataset_related": odf_dataset_related,
         "odf_dataset_contact": odf_dataset_contact,
         "odf_dataset_downloads": odf_dataset_downloads,
+        "odf_resource_download_url": odf_resource_download_url,
+        "odf_resource_view_title": odf_resource_view_title,
         "odf_dataset_size": odf_dataset_size,
         "odf_sql_console_enabled": odf_sql_console_enabled,
         "odf_datastore_resource_id": odf_datastore_resource_id,
