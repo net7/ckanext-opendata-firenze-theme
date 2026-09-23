@@ -33,6 +33,24 @@ ckanext/opendata_firenze_theme/
 └── i18n/
 ```
 
+## Test
+
+La CI (GitHub Actions) usa servizi Postgres/Solr dedicati. In locale **non**
+eseguire i test con il DB/Solr di sviluppo: i dataset creati dai factory
+resterebbero indicizzati nel catalogo dev. Servono un DB e un core Solr di test
+(una volta sola: `ckan -c test-core.ini db init` su un DB di test e un core
+omonimo in Solr), poi:
+
+```bash
+CKAN_SQLALCHEMY_URL=postgresql://ckandbuser:ckandbpassword@db/ckan_test \
+CKAN_SOLR_URL=http://solr:8983/solr/ckan_test \
+python -m pytest --ckan-ini=/srv/app/src/ckan/test-core.ini \
+  ckanext/opendata_firenze_theme
+```
+
+I test che richiedono estensioni di deployment non installate (es.
+`ckanext-contact`) vengono saltati.
+
 ## Riferimenti
 
 - Mockup/UX: nel repo `design-repo`, prototipo `opendata-firenze-0209`

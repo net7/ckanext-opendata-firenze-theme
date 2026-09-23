@@ -110,12 +110,18 @@ def _facet_items(data, field):
 
 
 def odf_theme_counts():
-    """{codice_tema: numero_dataset} dal facet `theme`."""
-    data = _search(rows=0, **{"facet.field": ["theme"], "facet.limit": 100})
-    counts = {}
-    for item in _facet_items(data, "theme"):
-        counts[item["name"]] = counts.get(item["name"], 0) + item["count"]
-    return counts
+    """{codice_tema: numero_dataset} dai facet tema.
+
+    dcatapit indicizza i temi come `dcat_theme` (dal extra `theme`); `theme` e'
+    il nome usato in alcune configurazioni. Si prende il primo facet popolato,
+    per non contare due volte lo stesso dataset.
+    """
+    data = _search(rows=0, **{"facet.field": ["dcat_theme", "theme"], "facet.limit": 100})
+    for field in ("dcat_theme", "theme"):
+        items = _facet_items(data, field)
+        if items:
+            return {item["name"]: item["count"] for item in items}
+    return {}
 
 
 def odf_themes():
@@ -132,17 +138,29 @@ def odf_dataset_count():
 
 
 def odf_home_kpis():
-    """Le 4 card KPI della home."""
+    """Le 4 card KPI della home (set del mockup).
+
+    1) dataset nel catalogo, 2) dati alfanumerici (non geografici),
+    3) dati geografici, 4) capitoli dell'Annuario Statistico + tavole collegate.
+    """
     base = _search(rows=0, **{"facet.field": ["organization"], "facet.limit": 100})
     total = base["count"]
-    geo = _search(rows=0, fq="spatial:[* TO *]")["count"]
-    n_orgs = len(_facet_items(base, "organization"))
-    n_themes = len([t for t in odf_themes() if t["count"] > 0])
+    # "geografici" = dataset con almeno una risorsa in un formato geo: piu'
+    # affidabile del campo Solr `spatial` (ckanext-spatial non indicizza gli
+    # extra `spatial` impostati a mano) e coerente col badge "Geodati".
+    geo_formats = " OR ".join(sorted(GEO_FORMATS))
+    geo = _search(rows=0, fq=f"res_format:({geo_formats})")["count"]
+    tavole = _search(rows=0, fq="extras_capitolo:[* TO *]")["count"]
     return [
         {
             "value": _it(total),
             "label": toolkit._("dataset nel catalogo"),
-            "delta": toolkit._("pubblicati dal Comune di Firenze"),
+            "delta": toolkit._("tutti in licenza aperta CC BY 4.0"),
+        },
+        {
+            "value": _it(max(total - geo, 0)),
+            "label": toolkit._("dati alfanumerici"),
+            "delta": toolkit._("senza anteprima su mappa"),
         },
         {
             "value": _it(geo),
@@ -150,14 +168,9 @@ def odf_home_kpis():
             "delta": toolkit._("con anteprima su mappa"),
         },
         {
-            "value": _it(n_orgs),
-            "label": toolkit._("organizzazioni"),
-            "delta": toolkit._("enti che pubblicano dati"),
-        },
-        {
-            "value": _it(n_themes),
-            "label": toolkit._("temi DCAT-AP_IT"),
-            "delta": toolkit._("argomenti del catalogo"),
+            "value": _it(len(ANNUARIO_CHAPTERS)),
+            "label": toolkit._("capitoli dell'Annuario Statistico"),
+            "delta": toolkit.ungettext("{n} tavola nel catalogo", "{n} tavole nel catalogo", tavole).format(n=_it(tavole)),
         },
     ]
 

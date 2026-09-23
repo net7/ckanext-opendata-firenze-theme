@@ -1,0 +1,13 @@
+{% ckan_extends %}
+
+{# Il link "salta al contenuto" della base CKAN sta fuori da ogni landmark:
+   `page.html` lo ridefinisce, quindi va sovrascritto qui (non in base.html)
+   avvolgendolo in un <nav> (axe "region"/"landmark"). #}
+{% block skip %}
+<nav class="rtt-skip" aria-label="{{ _('Skip to main content') }}">
+  <a class="visually-hidden-focusable" href="#content">{{ _('Skip to main content') }}</a>
+</nav>
+{# Etichette per i link a icona del pager di CKAN (il core non dà loro un nome
+   accessibile): il JS le applica a tutti i `.pagination`. Elemento nascosto. #}
+<div hidden data-rtt-pager-labels data-label-prev="{{ _('Pagina precedente') }}" data-label-next="{{ _('Pagina successiva') }}"></div>
+{% endblock %}

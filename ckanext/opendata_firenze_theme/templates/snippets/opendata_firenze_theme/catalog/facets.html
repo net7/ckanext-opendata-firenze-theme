@@ -20,7 +20,7 @@
 {% set FACET_LABELS = {
   'theme': _('Temi'),
   'dcat_theme': _('Temi'),
-  'res_format': _('Formato dei file'),
+  'res_format': _('Formato del file'),
   'frequency': _('Aggiornamento'),
   'organization': _('Chi pubblica'),
   'spatial': _('Classificazione geografica'),
@@ -30,7 +30,10 @@
   'hvd': _('Caratteristiche'),
 } %}
 
-{% set ns = namespace(active=false, seen=[], names=[]) %}
+{# Ordine di visualizzazione come il mockup (Temi per primo). #}
+{% set FACET_ORDER = ['theme', 'dcat_theme', 'spatial', 'res_format', 'frequency',
+                      'organization', 'hvd', 'groups', 'tags', 'license_id'] %}
+{% set ns = namespace(active=false, seen=[], names=[], ordered=[]) %}
 {% for name in facets %}
 {% set label = FACET_LABELS.get(name, facets[name]['title']) %}
 {% if label not in ns.seen %}
@@ -41,6 +44,9 @@
 {% if item.active %}{% set ns.active = true %}{% endif %}
 {% endfor %}
 {% endfor %}
+{% for key in FACET_ORDER %}{% if key in ns.names %}{% set _ = ns.ordered.append(key) %}{% endif %}{% endfor %}
+{% for name in ns.names %}{% if name not in ns.ordered %}{% set _ = ns.ordered.append(name) %}{% endif %}{% endfor %}
+{% set ns.names = ns.ordered %}
 
 {% set current_sort = namespace(label=sortings[0][0]) %}
 {% for label, value in sortings %}

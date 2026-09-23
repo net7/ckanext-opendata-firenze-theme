@@ -11,7 +11,7 @@
 {% if selected not in names %}{% set selected = names[0] if names else '' %}{% endif %}
 {% set current = chapters|selectattr('name', 'equalto', selected)|list|first %}
 {% set datasets = h.odf_annuario_datasets(selected) %}
-<main class="rtt-editorial">
+<main class="rtt-editorial" id="content" tabindex="-1">
   {% call page_head(
       _('Annuario Statistico del Comune di Firenze'),
       crumbs=[{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Annuario Statistico')}],

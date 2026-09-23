@@ -10,7 +10,7 @@
     <h1 class="rtt-display rtt-hero__title">{{ _('I dati aperti del') }} <span class="rtt-hero__title-alt">{{ _('Comune di Firenze') }}</span></h1>
     <p class="rtt-body-lg rtt-hero__lead">{{ _('Esplora') }} {{ dataset_count }} {{ _('dataset aperti e riutilizzabili, con licenza CC BY 4.0.') }}</p>
     <div class="rtt-hero__search">
-      <form class="rtt-search rtt-search--lg rtt-search--pill" role="search" action="{{ h.url_for('dataset.search') }}" method="get">
+      <form class="rtt-search rtt-search--lg rtt-search--pill" role="search" aria-label="{{ _('Cerca nel catalogo') }}" action="{{ h.url_for('dataset.search') }}" method="get">
         <label class="rtt-visually-hidden" for="home-search">{{ _('Cerca nel catalogo') }}</label>
         <div class="rtt-search__field">
           <span class="rtt-search__icon" aria-hidden="true">{{ icon('search', 24) }}</span>

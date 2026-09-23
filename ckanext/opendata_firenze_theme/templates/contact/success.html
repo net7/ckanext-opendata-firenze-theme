@@ -5,7 +5,7 @@
 {% block subtitle %}{{ _('Richiesta inviata') }}{% endblock %}
 
 {% block content %}
-<main class="rtt-editorial rtt-contact">
+<main class="rtt-editorial rtt-contact" id="content" tabindex="-1">
   {% call page_head(
       _('Richiesta inviata'),
       crumbs=[{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Collaborazione'), 'href': h.url_for('contact.form')}, {'label': _('Richiesta inviata')}]

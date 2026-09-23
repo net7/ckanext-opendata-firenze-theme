@@ -360,6 +360,85 @@
     });
   }
 
+  /* Contatore caratteri della richiesta (form Collaborazione). Senza JS resta
+     la sola nota senza conteggio. */
+  /* Il pager di CKAN usa link icona ("«"/"»") senza nome accessibile: lo
+     aggiungo dai data-* del contenitore e marco la pagina corrente. */
+  function initPagerLabels() {
+    var holder = document.querySelector("[data-rtt-pager-labels]");
+    if (!holder) {
+      return;
+    }
+    var byIcon = {
+      "fa-chevron-left": holder.getAttribute("data-label-prev"),
+      "fa-chevron-right": holder.getAttribute("data-label-next"),
+    };
+    Array.prototype.forEach.call(
+      document.querySelectorAll(".pagination .page-link"),
+      function (link) {
+        var icon = link.querySelector("i");
+        Object.keys(byIcon).forEach(function (cls) {
+          if (
+            byIcon[cls] &&
+            icon &&
+            icon.classList.contains(cls) &&
+            !link.textContent.trim()
+          ) {
+            link.setAttribute("aria-label", byIcon[cls]);
+          }
+        });
+      }
+    );
+    Array.prototype.forEach.call(
+      document.querySelectorAll(".pagination .page-item.active > .page-link"),
+      function (link) {
+        link.setAttribute("aria-current", "page");
+      }
+    );
+  }
+
+  function initCommentCounter() {
+    var field = document.querySelector("[data-rtt-counter-field]");
+    var box = document.querySelector("[data-rtt-counter]");
+    var value = document.querySelector("[data-rtt-counter-value]");
+    if (!field || !box || !value) {
+      return;
+    }
+    var update = function () {
+      value.textContent = String(field.value.length);
+    };
+    box.hidden = false;
+    field.addEventListener("input", update);
+    update();
+  }
+
+  /* Pulsante "Copia" dei blocchi di codice (pagina Sviluppatori). Senza
+     clipboard API il pulsante viene nascosto. */
+  function initCopyButtons() {
+    Array.prototype.forEach.call(
+      document.querySelectorAll("[data-rtt-copy]"),
+      function (button) {
+        var wrap = button.closest(".rtt-code-wrap");
+        var code = wrap ? wrap.querySelector("code") : null;
+        var label = button.querySelector("[data-rtt-copy-label]");
+        if (!code || !label || !navigator.clipboard) {
+          button.hidden = true;
+          return;
+        }
+        var original = label.textContent;
+        button.addEventListener("click", function () {
+          navigator.clipboard.writeText(code.textContent).then(function () {
+            label.textContent =
+              button.getAttribute("data-label-copied") || original;
+            window.setTimeout(function () {
+              label.textContent = original;
+            }, 1600);
+          });
+        });
+      }
+    );
+  }
+
   function init() {
     initReveal();
     initHeader();
@@ -367,6 +446,9 @@
     initFacetDismiss();
     initLineClamp();
     initSqlConsole();
+    initCommentCounter();
+    initCopyButtons();
+    initPagerLabels();
   }
 
   if (document.readyState === "loading") {

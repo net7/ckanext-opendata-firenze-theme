@@ -16,7 +16,7 @@
 {% set size = h.odf_filesize(res.size) %}
 {% set downloads = (res.tracking_summary or {}).get('total') %}
 {% set download = h.odf_resource_download_url(pkg, res) %}
-<main class="rtt-resource">
+<main class="rtt-resource" id="content" tabindex="-1">
   <header class="rtt-resource__header">
     <div class="rtt-container">
       {{ breadcrumbs([

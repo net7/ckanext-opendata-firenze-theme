@@ -9,12 +9,8 @@
 {% block content %}
 {% set recaptcha_v3_key = h.get_recaptcha_v3_key() %}
 {% set recaptcha_v3_action = h.get_recaptcha_v3_action() %}
-{% set tipi = [
-  (_('Chiarimenti'), _('Domande su un dataset già pubblicato, sui formati o sulla licenza.')),
-  (_('Segnala un dataset'), _('Dati che il Comune detiene ma non ha ancora aperto.')),
-  (_('Racconta un riuso'), _('Un servizio, una mappa o una ricerca costruita sui dati del catalogo.')),
-] %}
-<main class="rtt-editorial rtt-contact">
+{% set tipi = [_('Chiarimenti'), _('Segnala un dataset'), _('Racconta un riuso')] %}
+<main class="rtt-editorial rtt-contact" id="content" tabindex="-1">
   <div class="rtt-container rtt-contact__inner">
     <div class="rtt-contact__intro">
       <h1 class="rtt-display rtt-contact__title">{{ _('Il catalogo cresce anche grazie a chi lo usa.') }}</h1>
@@ -28,13 +24,10 @@
       <fieldset class="rtt-contact__fieldset">
         <legend class="rtt-contact__legend">{{ _('Di cosa hai bisogno?') }}</legend>
         <div class="rtt-contact__tipi">
-          {% for label, hint in tipi %}
+          {% for label in tipi %}
           <label class="rtt-contact__tipo">
-            <input type="radio" name="subject" value="{{ label }}"{% if (data.subject or tipi[0][0]) == label %} checked{% endif %}>
-            <span class="rtt-contact__tipo-body">
-              <span class="rtt-contact__tipo-label">{{ label }}</span>
-              <span class="rtt-contact__tipo-hint">{{ hint }}</span>
-            </span>
+            <input type="radio" name="subject" value="{{ label }}"{% if (data.subject or tipi[0]) == label %} checked{% endif %}>
+            <span class="rtt-contact__tipo-label">{{ label }}</span>
           </label>
           {% endfor %}
         </div>
@@ -54,7 +47,7 @@
 
       <div class="rtt-field">
         <label class="rtt-label" for="field-content">{{ _('La tua richiesta') }}</label>
-        <textarea id="field-content" class="rtt-input rtt-input--area" name="content" rows="5" required>{{ data.content or '' }}</textarea>
+        <textarea id="field-content" class="rtt-input rtt-input--area" name="content" rows="5" required data-rtt-counter-field>{{ data.content or '' }}</textarea>
         {% if errors.content %}<span class="rtt-field__error">{{ errors.content[0] }}</span>{% endif %}
       </div>
 
@@ -74,6 +67,8 @@
       </div>
 
       <button class="rtt-btn rtt-btn--primary" type="submit" name="save">{{ _('Invia la richiesta') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</button>
+
+      <p class="rtt-contact__counter"><span data-rtt-counter hidden><span data-rtt-counter-value>0</span> {{ _('caratteri') }} · </span>{{ _("risponderemo entro 30 giorni all'indirizzo indicato.") }}</p>
     </form>
   </div>
 </main>

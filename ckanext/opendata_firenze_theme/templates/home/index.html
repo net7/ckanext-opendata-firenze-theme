@@ -6,7 +6,7 @@
 {% block subtitle %}{{ _('Home') }}{% endblock %}
 
 {% block content %}
-<main class="rtt-home">
+<main class="rtt-home" id="content" tabindex="-1">
   {% for category, message in h.get_flashed_messages(with_categories=true) %}
   <div class="alert alert-dismissible fade show {{ category }}">{{ h.literal(message) }}</div>
   {% endfor %}

@@ -29,7 +29,7 @@
 {% for e in pkg.extras %}{% set _ = extra_rows.append((e.key, e.value)) %}{% endfor %}
 {% set meta_action %}<span class="rtt-body-sm">{{ _('Profilo italiano del vocabolario DCAT') }}</span>{% endset %}
 {% set extras_action %}<span class="rtt-body-sm">{{ _('Ereditati dai processi ETL / MetaRepo') }}</span>{% endset %}
-<main class="rtt-dataset">
+<main class="rtt-dataset" id="content" tabindex="-1">
   <header class="rtt-dataset__header">
     <div class="rtt-container">
       {{ breadcrumbs([

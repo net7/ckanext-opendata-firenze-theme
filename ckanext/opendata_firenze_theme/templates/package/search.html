@@ -6,7 +6,7 @@
 {% block subtitle %}{{ _('Catalogo') }}{% endblock %}
 
 {% block content %}
-<main class="rtt-catalog">
+<main class="rtt-catalog" id="content" tabindex="-1">
   <div class="rtt-container rtt-catalog__inner">
     {{ breadcrumbs([{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Catalogo')}]) }}
     <div class="rtt-catalog__head">
@@ -21,12 +21,13 @@
     </div>
 
     <div class="rtt-catalog__search">
-      {% snippet 'snippets/opendata_firenze_theme/search_form.html', id='catalogo-search', size='md', placeholder=_("Cerca dataset, es. «qualità dell'aria»") %}
+      {% snippet 'snippets/opendata_firenze_theme/search_form.html', id='catalogo-search', size='md', aria_label=_('Cerca nel catalogo'), placeholder=_("Cerca dataset, es. «qualità dell'aria»") %}
     </div>
 
     {% snippet 'snippets/opendata_firenze_theme/catalog/facets.html', search_facets=search_facets, q=q, sort_by_selected=sort_by_selected %}
 
     {% if page.items %}
+    <h2 class="rtt-visually-hidden">{{ _('Risultati della ricerca') }}</h2>
     <div class="rtt-grid rtt-grid--2 rtt-catalog__results">
       {% for pkg in page.items %}{{ dataset_card(pkg) }}{% endfor %}
     </div>

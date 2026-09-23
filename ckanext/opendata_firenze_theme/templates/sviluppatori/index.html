@@ -4,6 +4,15 @@
 {% from 'snippets/opendata_firenze_theme/chip.html' import chip, status_chip %}
 {% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
 
+{# Blocco di codice con il pulsante "Copia" (il JS copia il testo, nascondendolo
+   se manca la clipboard API). #}
+{% macro code_block() -%}
+<div class="rtt-code-wrap">
+  <pre class="rtt-code"><code>{{ caller() }}</code></pre>
+  <button type="button" class="rtt-code__copy" data-rtt-copy data-label-copied="{{ _('Copiato') }}">{{ icon('clipboard', 16, 'rtt-code__copy-icon') }}<span data-rtt-copy-label>{{ _('Copia') }}</span></button>
+</div>
+{%- endmacro %}
+
 {% block subtitle %}{{ _('Sviluppatori & LOD') }}{% endblock %}
 
 {% block content %}
@@ -33,7 +42,7 @@
 {% set base_action %}<span class="rtt-body-sm">{{ _('Base') }} · {{ api }}</span>{% endset %}
 {% set rdf_action %}<span class="rtt-body-sm">{{ _('Profilo DCAT-AP_IT') }}</span>{% endset %}
 {% set lod_action %}<span class="rtt-body-sm">{{ _('Naviga risorsa per risorsa con LodView o LodLive') }}</span>{% endset %}
-<main class="rtt-editorial">
+<main class="rtt-editorial" id="content" tabindex="-1">
   {% call page_head(
       _('Sviluppatori & Linked Open Data'),
       crumbs=[{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Sviluppatori & LOD')}],
@@ -64,10 +73,10 @@
     {% endcall %}
 
     {% call panel(_('Catalogo completo in RDF/XML')) %}
-      <pre class="rtt-code"><code>curl -H "Accept: application/rdf+xml" "{{ rdf_ext }}"
+      {% call code_block() %}curl -H "Accept: application/rdf+xml" "{{ rdf_ext }}"
 
 # Metadato di un singolo dataset, in JSON-LD
-curl "{{ api_ext }}/package_show_dcatap_it?id=zone-30"</code></pre>
+curl "{{ api_ext }}/package_show_dcatap_it?id=zone-30"{% endcall %}
     {% endcall %}
 
     {% call panel(_('Linked Open Data per ambito'), action=lod_action) %}
@@ -94,11 +103,11 @@ curl "{{ api_ext }}/package_show_dcatap_it?id=zone-30"</code></pre>
     {% elif tab == 'geo' %}
     {% call panel(_('Servizi WMS e WMTS'), action=chip('tms.comune.fi.it', 'sm')) %}
       <p class="rtt-body">{{ _('I layer geografici sono serviti dal tile server comunale in WGS84 / EPSG:4326 e sono caricabili direttamente in QGIS, ArcGIS o in una mappa Leaflet.') }}</p>
-      <pre class="rtt-code"><code># WMS tiled · GetCapabilities
+      {% call code_block() %}# WMS tiled · GetCapabilities
 https://tms.comune.fi.it/tiles/service/wms?tiled=TRUE&amp;request=GetCapabilities&amp;service=WMS&amp;version=1.3.0
 
 # WMTS · GetCapabilities
-https://tms.comune.fi.it/tiles/service/wmts?request=GetCapabilities&amp;service=WMTS&amp;version=1.3.0</code></pre>
+https://tms.comune.fi.it/tiles/service/wmts?request=GetCapabilities&amp;service=WMTS&amp;version=1.3.0{% endcall %}
     {% endcall %}
 
     {% call panel(_('Caricare un layer in QGIS')) %}
@@ -126,10 +135,10 @@ https://tms.comune.fi.it/tiles/service/wmts?request=GetCapabilities&amp;service=
     {% endcall %}
 
     {% call panel(_('Prima chiamata'), action=chip('cURL', 'sm')) %}
-      <pre class="rtt-code"><code>curl "{{ api_ext }}/package_search?q=biblioteche&amp;rows=5"
+      {% call code_block() %}curl "{{ api_ext }}/package_search?q=biblioteche&amp;rows=5"
 
 # Metadati di un dataset, con le statistiche di download
-curl "{{ api_ext }}/package_show?id=biblioteche-sdiaf&amp;stats=1"</code></pre>
+curl "{{ api_ext }}/package_show?id=biblioteche-sdiaf&amp;stats=1"{% endcall %}
     {% endcall %}
     {% endif %}
   </div>

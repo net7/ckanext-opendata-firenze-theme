@@ -57,7 +57,7 @@ def test_catalog_facets_active_and_sort(with_plugins, app):
     src = "{% include 'snippets/opendata_firenze_theme/catalog/facets.html' %}"
     with app.flask_app.test_request_context("/dataset?res_format=CSV"):
         html = render_template_string(src, search_facets=facets, q="", sort_by_selected="")
-    assert "Formato dei file" in html
+    assert "Formato del file" in html
     assert "rtt-facets__chip" in html
     assert "rtt-facets__clear" in html
     assert "rtt-sort" in html
