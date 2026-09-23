@@ -7,12 +7,12 @@
 {% macro breadcrumbs(crumbs) -%}
 {%- if crumbs %}
 <nav class="rtt-breadcrumbs" aria-label="{{ _('Percorso') }}">
-  {%- for c in crumbs %}
+  {%- for crumb in crumbs %}
   {%- if not loop.last %}
-  <a class="rtt-breadcrumbs__link" href="{{ c.href or '#' }}">{{ c.label }}</a>
+  <a class="rtt-breadcrumbs__link" href="{{ crumb.href or '#' }}">{{ crumb.label }}</a>
   {{ icon('chevron-right', 16, 'rtt-breadcrumbs__sep') }}
   {%- else %}
-  <span class="rtt-breadcrumbs__current" aria-current="page">{{ c.label }}</span>
+  <span class="rtt-breadcrumbs__current" aria-current="page">{{ crumb.label }}</span>
   {%- endif %}
   {%- endfor %}
 </nav>
@@ -25,9 +25,9 @@
 {%- set middle = crumbs[1:-1] if crumbs and crumbs|length > 2 else [] -%}
 {%- if middle %}
 <div class="rtt-crumb-kicker">
-  {%- for c in middle %}
+  {%- for crumb in middle %}
   {%- if not loop.first %}<span class="rtt-crumb-kicker__sep" aria-hidden="true">/</span>{% endif %}
-  <a class="rtt-crumb-kicker__link" href="{{ c.href or '#' }}">{{ c.label }}</a>
+  <a class="rtt-crumb-kicker__link" href="{{ crumb.href or '#' }}">{{ crumb.label }}</a>
   {%- endfor %}
 </div>
 {%- endif %}

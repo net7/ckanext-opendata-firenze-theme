@@ -1,0 +1,147 @@
+{% extends "package/read_base.html" %}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/page-head.html' import breadcrumbs %}
+{% from 'snippets/opendata_firenze_theme/tema-overline.html' import tema_overline, tema_label %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import format_chip, status_chip %}
+{% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
+{% from 'snippets/opendata_firenze_theme/dataset/meta_table.html' import meta_table %}
+{% from 'snippets/opendata_firenze_theme/dataset/quality_gauge.html' import quality_gauge %}
+{% from 'snippets/opendata_firenze_theme/dataset/resource_row.html' import resource_row %}
+{% from 'snippets/opendata_firenze_theme/dataset/aside.html' import dataset_aside %}
+{% from 'snippets/opendata_firenze_theme/dataset/api.html' import api_panel %}
+
+{% block content %}
+{% set tema = h.odf_package_theme(pkg) %}
+{% set badges = h.odf_dataset_badges(pkg) %}
+{% set downloads = h.odf_dataset_downloads(pkg) %}
+{% set quality = h.odf_dataset_openness(pkg) %}
+{% set contact = h.odf_dataset_contact(pkg) %}
+{% set related = h.odf_dataset_related(pkg) %}
+{% set notes = h.get_translated(pkg, 'notes') %}
+{% set uso = h.odf_pkg_extra(pkg, 'uso') %}
+{% set tab = request.args.get('tab', 'essenziale') %}
+{% set avanzata = tab == 'avanzata' %}
+{% set tags = pkg.tags|map(attribute='display_name')|join(', ') %}
+{% set geometria = h.odf_dataset_geometry(pkg) %}
+{% set geo_shapes = {'punto': _('Punto'), 'area': _('Area'), 'linea': _('Linea')} %}
+{% set is_geo = badges|selectattr('kind', 'equalto', 'geo')|list %}
+{% set extra_rows = [] %}
+{% for e in pkg.extras %}{% set _ = extra_rows.append((e.key, e.value)) %}{% endfor %}
+{% set meta_action %}<span class="rtt-body-sm">{{ _('Profilo italiano del vocabolario DCAT') }}</span>{% endset %}
+{% set extras_action %}<span class="rtt-body-sm">{{ _('Ereditati dai processi ETL / MetaRepo') }}</span>{% endset %}
+<main class="rtt-dataset">
+  <header class="rtt-dataset__header">
+    <div class="rtt-container">
+      {{ breadcrumbs([
+        {'label': _('Home'), 'href': h.url_for('home.index')},
+        {'label': _('Catalogo'), 'href': h.url_for('dataset.search')},
+        {'label': tema_label(tema), 'href': h.url_for('dataset.search', theme=tema)} if tema else None,
+        {'label': h.dataset_display_name(pkg)},
+      ]|select|list) }}
+      <div class="rtt-dataset__head">
+        <div class="rtt-dataset__intro">
+          <div class="rtt-dataset__metas">
+            {% if tema %}{{ tema_overline(tema) }}{% endif %}
+            {% for b in badges %}
+              {% if b.kind == 'realtime' %}
+              <span class="rtt-live"><span class="rtt-live__dot" aria-hidden="true"></span>{{ b.label }}</span>
+              {% else %}
+              {{ status_chip(b.label, b.kind) }}
+              {% endif %}
+            {% endfor %}
+          </div>
+          <h1 class="rtt-h1 rtt-dataset__title">{{ _('Dataset:') }} {{ h.dataset_display_name(pkg) }}</h1>
+          {% if uso %}<p class="rtt-body-lg rtt-dataset__uso">{{ uso }}</p>{% endif %}
+        </div>
+        <div class="rtt-dataset__head-aside">
+          <div class="rtt-dataset__head-actions">
+          {% if downloads %}
+          <details class="rtt-download">
+            <summary class="rtt-download__trigger">{{ _('Scarica') }}{{ icon('chevron-down', 20, 'rtt-download__chevron') }}</summary>
+            <div class="rtt-download__menu">
+              {% for d in downloads %}
+              <a class="rtt-download__item" href="{{ d.href }}">{{ format_chip(d.format, 'geo' if d.geo else 'neutral') }}<span>{{ d.name }}</span></a>
+              {% endfor %}
+            </div>
+          </details>
+          {% endif %}
+          {% if h.check_access('package_update', {'id': pkg.id}) %}
+          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.edit', id=pkg.name) }}">{{ icon('settings', 20, 'rtt-btn__icon') }}{{ _('Gestisci') }}</a>
+          {% endif %}
+          {% if pkg.groups %}
+          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.groups', id=pkg.name) }}">{{ _('Gruppi') }}</a>
+          {% endif %}
+          </div>
+          {% if quality %}{{ quality_gauge(quality) }}{% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="rtt-container rtt-dataset__grid">
+    <div class="rtt-dataset__main">
+      <nav class="rtt-dataset__tabs" aria-label="{{ _('Viste del dataset') }}">
+        <a class="rtt-dataset__tab{% if not avanzata %} is-active{% endif %}" href="{{ h.url_for('dataset.read', id=pkg.name) }}"{% if not avanzata %} aria-current="page"{% endif %}>{{ icon('doc', 20, 'rtt-dataset__tab-icon') }}{{ _('Vista essenziale') }}</a>
+        <a class="rtt-dataset__tab{% if avanzata %} is-active{% endif %}" href="{{ h.url_for('dataset.read', id=pkg.name, tab='avanzata') }}"{% if avanzata %} aria-current="page"{% endif %}>{{ icon('table', 20, 'rtt-dataset__tab-icon') }}{{ _('Metadati avanzati') }}</a>
+      </nav>
+
+      {% if not avanzata %}
+      {% call panel(_('Descrizione')) %}
+        {% if notes %}
+        <div class="rtt-dataset__desc{% if notes|length > 240 %} is-clamped{% endif %}" id="ds-descrizione">{{ h.render_markdown(notes) }}</div>
+        {% if notes|length > 240 %}
+        <button type="button" class="rtt-dataset__more" data-rtt-line-clamp aria-expanded="false" aria-controls="ds-descrizione" data-label-more="{{ _('Mostra tutto') }}" data-label-less="{{ _('Mostra meno') }}">
+          <span data-rtt-clamp-label>{{ _('Mostra tutto') }}</span>{{ icon('chevron-down', 16, 'rtt-dataset__more-icon') }}
+        </button>
+        {% endif %}
+        {% else %}
+        <p class="rtt-body">{{ _('Nessuna descrizione disponibile.') }}</p>
+        {% endif %}
+      {% endcall %}
+
+      {% call panel(_('Risorse scaricabili')) %}
+        {% if badges|selectattr('kind', 'equalto', 'realtime')|list %}
+        <p class="rtt-body-sm rtt-panel__note">{{ _('Il dato si aggiorna in tempo reale; il file scaricato resta fermo al momento del download.') }}</p>
+        {% endif %}
+        {% if pkg.resources %}
+        <ul class="rtt-reslist">
+          {% for res in pkg.resources %}{{ resource_row(pkg, res) }}{% endfor %}
+        </ul>
+        {% else %}
+        <p class="rtt-body">{{ _('Questo dataset non ha risorse.') }}</p>
+        {% endif %}
+      {% endcall %}
+      {% else %}
+      {% call panel(_('Metadati DCAT-AP_IT'), action=meta_action) %}
+        {{ meta_table([
+          (_('Identificatore'), pkg.identifier or pkg.name),
+          (_('Titolo'), pkg.title),
+          (_('Descrizione'), notes),
+          (_('Tema DCAT-AP_IT'), tema_label(tema) if tema else ''),
+          (_('Titolare del dato'), contact.holder),
+          (_('Punto di contatto'), contact.email),
+          (_('Licenza'), pkg.license_title),
+          (_('Frequenza di aggiornamento'), h.odf_frequency_label(pkg.frequency)),
+          (_('Data di pubblicazione'), h.odf_date(pkg.metadata_created)),
+          (_('Data di ultima modifica'), h.odf_date(pkg.metadata_modified)),
+          (_('Lingua'), _('Italiano (ITA)')),
+          (_('Parole chiave'), tags),
+          (_('Tipo di geometria'), geo_shapes.get(geometria, _('Non dichiarato')) if is_geo else ''),
+          (_('Estensione spaziale'), _('Comune di Firenze · WGS84 / EPSG:4326') if is_geo else ''),
+          (_('High Value Dataset'), _('Sì') if badges|selectattr('kind', 'equalto', 'hvd')|list else _('No')),
+          (_('Serie di appartenenza'), h.odf_pkg_extra(pkg, 'serie')),
+        ]) }}
+      {% endcall %}
+
+      {% call panel(_('Extras e interoperabilità'), action=extras_action) %}
+        {{ meta_table(extra_rows, mono=True) }}
+      {% endcall %}
+
+      {{ api_panel(pkg, h.odf_datastore_resource_id(pkg)) }}
+      {% endif %}
+    </div>
+
+    {{ dataset_aside(pkg, related, contact) }}
+  </div>
+</main>
+{% endblock %}

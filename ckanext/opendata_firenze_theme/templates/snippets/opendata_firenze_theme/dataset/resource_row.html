@@ -1,0 +1,32 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import format_chip %}
+
+{# Riga risorsa del pannello "Risorse scaricabili": card grigia (ListItem del
+   design system) con nome, chip formato, azioni e meta peso · download. #}
+{% macro resource_row(pkg, res) -%}
+{% set fmt = (res.format or '')|upper %}
+{% set href = h.url_for('resource.read', id=pkg.name, resource_id=res.id) %}
+{% set download = h.url_for('resource.download', id=pkg.name, resource_id=res.id) if res.url_type == 'upload' else (res.url if res.url and h.is_url(res.url) else '') %}
+{% set size = h.odf_filesize(res.size) %}
+{% set views = (res.tracking_summary or {}).get('total') %}
+<li class="rtt-resrow">
+  <div class="rtt-resrow__top">
+    <div class="rtt-resrow__title">
+      <a class="rtt-resrow__name" href="{{ href }}">{{ res.name or res.id }}</a>
+    </div>
+    <div class="rtt-resrow__actions">
+      {{ format_chip(fmt or _('n.d.'), 'geo' if h.odf_format_is_geo(fmt) else 'neutral') }}
+      <a class="rtt-btn rtt-btn--text rtt-btn--sm" href="{{ href }}">{{ _('Vedi anteprima') }}</a>
+      {% if download %}
+      <a class="rtt-btn rtt-btn--primary rtt-btn--sm" href="{{ download }}">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica') }}</a>
+      {% endif %}
+    </div>
+  </div>
+  {% if size or views %}
+  <div class="rtt-resrow__meta">
+    {% if size %}<span>{{ size }}</span>{% endif %}
+    {% if views %}{% if size %}<span aria-hidden="true">·</span>{% endif %}<span>{{ _('Download:') }} {{ views }}</span>{% endif %}
+  </div>
+  {% endif %}
+</li>
+{%- endmacro %}

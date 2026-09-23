@@ -1,0 +1,26 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
+
+{# Pannello "API e formati semantici": endpoint reali + console SQL in sola
+   lettura (datastore_search_sql), con risultati caricati via JS. #}
+{% macro api_panel(pkg, resource_id='') -%}
+{% set base = h.url_for('/api/3/action') %}
+{% set sample = 'SELECT * FROM "' ~ (resource_id or 'risorsa') ~ '" LIMIT 10;' %}
+{% call panel(_('API e formati semantici')) %}
+  <p class="rtt-body">{{ _('Il dataset è interrogabile via API CKAN. La console SQL è configurata in sola lettura.') }}</p>
+  <pre class="rtt-code"><code>package_show   {{ base }}/package_show?id={{ pkg.name }}&amp;stats=1
+RDF/XML        {{ base }}/package_metadata_rdf_dcat_ap_it?id={{ pkg.name }}
+JSON-LD        {{ base }}/package_show_dcatap_it?id={{ pkg.name }}</code></pre>
+  {% if h.odf_sql_console_enabled() %}
+  <label class="rtt-label" for="rtt-sql">{{ _('Console SQL (datastore_search_sql)') }}</label>
+  <textarea id="rtt-sql" class="rtt-sql" rows="5" spellcheck="false" data-rtt-sql>{{ sample }}</textarea>
+  <div class="rtt-api__actions">
+    <button type="button" class="rtt-btn rtt-btn--primary rtt-btn--sm" data-rtt-sql-run data-rtt-api="{{ base }}">{{ icon('play', 20, 'rtt-btn__icon') }}{{ _('Esegui query') }}</button>
+    <span class="rtt-body-sm">{{ _('Sola lettura · le query di scrittura sono rifiutate.') }}</span>
+  </div>
+  <div class="rtt-api__result" data-rtt-sql-result data-rtt-sql-error="{{ _('Query non eseguita.') }}" aria-live="polite" hidden></div>
+  {% else %}
+  <p class="rtt-body-sm rtt-panel__note">{{ _('La console SQL (datastore_search_sql) non è abilitata su questo portale.') }}</p>
+  {% endif %}
+{% endcall %}
+{%- endmacro %}

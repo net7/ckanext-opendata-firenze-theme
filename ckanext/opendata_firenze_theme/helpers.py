@@ -35,8 +35,12 @@ THEMES = (
 
 # Formati con anteprima su mappa (per il chip "geo").
 GEO_FORMATS = frozenset(("GeoJSON", "SHP", "KML", "WMS", "WFS"))
+GEO_FORMATS_UPPER = frozenset(fmt.upper() for fmt in GEO_FORMATS)
 
 THEME_CODES = frozenset(code for code, _ in THEMES)
+
+# Tipi di geometria riconosciuti (extra `geometria`).
+GEOMETRY_SHAPES = ("punto", "area", "linea")
 
 
 def odf_package_theme(pkg):
@@ -185,6 +189,235 @@ def odf_news(limit=3):
         return []
 
 
+# Etichette italiane per i codici frequenza EU (dcatapit usa il vocabolario
+# `frequency` di Publications Office: ANNUAL, MONTHLY, IRREG…).
+FREQUENCY_LABELS = {
+    "ANNUAL": "annuale",
+    "BIENNIAL": "biennale",
+    "BIWEEKLY": "quindicinale",
+    "CONT": "continua",
+    "DAILY": "giornaliera",
+    "HOURLY": "oraria",
+    "IRREG": "irregolare",
+    "MONTHLY": "mensile",
+    "QUARTERLY": "trimestrale",
+    "REALTIME": "in tempo reale",
+    "SEMIANNUAL": "semestrale",
+    "TRIENNIAL": "triennale",
+    "UNKNOWN": "non nota",
+    "WEEKLY": "settimanale",
+}
+
+
+def _pkg_extras(pkg):
+    """{chiave: valore} degli extras del package (lista o dict)."""
+    extras = pkg.get("extras") or []
+    if isinstance(extras, dict):
+        return extras
+    return {e.get("key"): e.get("value") for e in extras if e.get("key")}
+
+
+def _truthy(value):
+    return str(value).strip().lower() in ("1", "true", "yes", "si", "sì", "y")
+
+
+def odf_pkg_extra(pkg, key, default=None):
+    """Valore di un extra del dataset (None se assente)."""
+    return _pkg_extras(pkg).get(key, default)
+
+
+def odf_dataset_formats(pkg):
+    """Formati distinti delle risorse, nell'ordine di pubblicazione."""
+    seen, formats = set(), []
+    for res in pkg.get("resources") or []:
+        fmt = (res.get("format") or "").strip().upper()
+        if fmt and fmt not in seen:
+            seen.add(fmt)
+            formats.append(fmt)
+    return formats
+
+
+def odf_format_is_geo(fmt):
+    """True se il formato ha un'anteprima su mappa (chip "geo")."""
+    return (fmt or "").strip().upper() in GEO_FORMATS_UPPER
+
+
+def odf_dataset_geometry(pkg):
+    """Tipo di geometria normalizzato ('punto'|'area'|'linea') o None.
+
+    Unico punto di verità per l'extra `geometria`: badge e tabella metadati
+    devono mostrare lo stesso valore anche se l'extra non è in minuscolo.
+    """
+    value = (_pkg_extras(pkg).get("geometria") or "").strip().lower()
+    return value if value in GEOMETRY_SHAPES else None
+
+
+def odf_dataset_badges(pkg):
+    """Badge della testata del dataset: HVD, geodati, aggiornamento continuo.
+
+    HVD/geometria/realtime sono extras custom (ckanext-scheming non installato);
+    la geometria si deduce anche dai formati geografici delle risorse.
+    """
+    extras = _pkg_extras(pkg)
+    badges = []
+    if _truthy(extras.get("hvd")) or _truthy(pkg.get("hvd")):
+        badges.append({"kind": "hvd", "label": toolkit._("High Value Dataset")})
+    geometria = odf_dataset_geometry(pkg)
+    geo = (
+        geometria is not None
+        or bool(extras.get("spatial") or extras.get("spatial_geometry"))
+        or any(odf_format_is_geo(f) for f in odf_dataset_formats(pkg))
+    )
+    if geo:
+        shape = {"punto": "puntuale", "area": "areale", "linea": "lineare"}.get(geometria)
+        label = toolkit._("Geodati · {shape}").format(shape=shape) if shape else toolkit._("Geodati")
+        badges.append({"kind": "geo", "label": label})
+    if _truthy(extras.get("realtime")):
+        badges.append({"kind": "realtime", "label": toolkit._("In aggiornamento continuo")})
+    return badges
+
+
+def odf_dataset_openness(pkg):
+    """Openness di ckanext-qa (0-5) con etichetta/tono, o None.
+
+    `qa` è il dict che ckanext-qa aggiunge al package in after_show; assente
+    finché il task di QA non è stato eseguito.
+    """
+    qa = pkg.get("qa") or {}
+    raw = qa.get("openness_score")
+    if raw is None:
+        raw = _pkg_extras(pkg).get("openness_score")
+    try:
+        score = int(raw)
+    except (TypeError, ValueError):
+        return None
+    if score >= 4:
+        label, tier = toolkit._("Alta"), "high"
+    elif score == 3:
+        label, tier = toolkit._("Buona"), "medium"
+    else:
+        label, tier = toolkit._("Bassa"), "low"
+    return {"score": score, "label": label, "tier": tier}
+
+
+def odf_dataset_related(pkg, limit=3):
+    """Dataset correlati: stesso tema DCAT-AP_IT, escluso sé stesso."""
+    tema = odf_package_theme(pkg)
+    if not tema:
+        return []
+    data = _search(rows=limit + 1, fq=f"theme:{tema}", sort="metadata_modified desc")
+    return [r for r in data["results"] if r.get("id") != pkg.get("id")][:limit]
+
+
+def odf_dataset_contact(pkg):
+    """Titolare/struttura/contatto del dataset (dcatapit o campi nativi)."""
+    extras = _pkg_extras(pkg)
+    organization = pkg.get("organization") or {}
+    return {
+        "holder": pkg.get("holder_name") or extras.get("rights_holder") or pkg.get("author") or "",
+        "structure": organization.get("title") or pkg.get("holder_identifier") or "",
+        "email": pkg.get("author_email") or pkg.get("maintainer_email") or extras.get("email") or "",
+    }
+
+
+def _resource_download_url(pkg, res):
+    """URL di download di una risorsa (route CKAN per gli upload)."""
+    if res.get("url_type") == "upload":
+        try:
+            return ckan_h.url_for("resource.download", id=pkg.get("name"), resource_id=res.get("id"))
+        except Exception:
+            return res.get("url") or ""
+    return res.get("url") or ""
+
+
+def odf_dataset_downloads(pkg):
+    """Una voce per formato (primo file di quel formato): menu "Scarica"."""
+    seen, downloads = set(), []
+    for res in pkg.get("resources") or []:
+        fmt = (res.get("format") or "").strip().upper()
+        if not fmt or fmt in seen:
+            continue
+        seen.add(fmt)
+        downloads.append(
+            {
+                "format": fmt,
+                "name": res.get("name") or res.get("id"),
+                "href": _resource_download_url(pkg, res),
+                "geo": odf_format_is_geo(fmt),
+            }
+        )
+    return downloads
+
+
+def odf_dataset_size(pkg):
+    """Dimensione totale delle risorse (formattata); '' se non disponibile."""
+    total = 0
+    for res in pkg.get("resources") or []:
+        try:
+            total += int(float(res.get("size") or 0))
+        except (TypeError, ValueError):
+            continue
+    return odf_filesize(total)
+
+
+def odf_sql_console_enabled():
+    """True se ckanext-datastore espone datastore_search_sql (sola lettura)."""
+    helper = getattr(ckan_h, "datastore_search_sql_enabled", None)
+    try:
+        return bool(helper()) if helper else False
+    except Exception:
+        return False
+
+
+def odf_datastore_resource_id(pkg):
+    """Id della prima risorsa con datastore attivo (per la console SQL)."""
+    for res in pkg.get("resources") or []:
+        if res.get("datastore_active"):
+            return res.get("id")
+    return ""
+
+
+def odf_date(value, fmt="%d/%m/%Y"):
+    """Data ISO/datetime -> 'gg/mm/aaaa'; stringa vuota se assente."""
+    if not value:
+        return ""
+    if hasattr(value, "strftime"):
+        return value.strftime(fmt)
+    text = str(value)
+    try:
+        from datetime import datetime
+
+        return datetime.fromisoformat(text.replace("Z", "+00:00")).strftime(fmt)
+    except ValueError:
+        return text[:10]
+
+
+def odf_frequency_label(code):
+    """Etichetta italiana di un codice frequenza EU (fallback: codice)."""
+    if not code:
+        return ""
+    return FREQUENCY_LABELS.get(str(code).upper(), str(code))
+
+
+def odf_filesize(size):
+    """Byte -> '1,2 MB' (it-IT); stringa vuota se non disponibile."""
+    if not size:
+        return ""
+    try:
+        value = float(size)
+    except (TypeError, ValueError):
+        return ""
+    if value <= 0:
+        return ""
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if value < 1024 or unit == "TB":
+            if unit == "B":
+                return f"{int(value)} B"
+            return f"{value:.1f}".replace(".", ",") + f" {unit}"
+        value /= 1024
+    return ""
+
+
 def get_helpers():
     return {
         "odf_dataset_count": odf_dataset_count,
@@ -195,4 +428,19 @@ def get_helpers():
         "odf_featured_datasets": odf_featured_datasets,
         "odf_most_viewed": odf_most_viewed,
         "odf_news": odf_news,
+        "odf_pkg_extra": odf_pkg_extra,
+        "odf_dataset_formats": odf_dataset_formats,
+        "odf_format_is_geo": odf_format_is_geo,
+        "odf_dataset_badges": odf_dataset_badges,
+        "odf_dataset_geometry": odf_dataset_geometry,
+        "odf_dataset_openness": odf_dataset_openness,
+        "odf_dataset_related": odf_dataset_related,
+        "odf_dataset_contact": odf_dataset_contact,
+        "odf_dataset_downloads": odf_dataset_downloads,
+        "odf_dataset_size": odf_dataset_size,
+        "odf_sql_console_enabled": odf_sql_console_enabled,
+        "odf_datastore_resource_id": odf_datastore_resource_id,
+        "odf_date": odf_date,
+        "odf_frequency_label": odf_frequency_label,
+        "odf_filesize": odf_filesize,
     }

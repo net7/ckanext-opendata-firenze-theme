@@ -1,0 +1,71 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
+{% from 'snippets/opendata_firenze_theme/dataset/meta_table.html' import meta_table %}
+
+{# Colonna laterale della scheda dataset: "In sintesi", "Dataset correlati",
+   "Titolare del dato". `related` = lista di package, `contact` = dict
+   {holder, structure, email} (helper odf_dataset_contact). #}
+{% macro dataset_aside(pkg, related, contact) -%}
+<aside class="rtt-dataset__aside">
+  {% set license = pkg.license_title or (pkg.license_id|upper if pkg.license_id else '') %}
+  {% set size = h.odf_dataset_size(pkg) %}
+  {% set tracking = pkg.tracking_summary or {} %}
+  {% set views = tracking.get('total') %}
+  {% set downloads = namespace(total=0) %}
+  {% for res in pkg.resources or [] %}
+    {% set downloads.total = downloads.total + ((res.tracking_summary or {}).get('total') or 0) %}
+  {% endfor %}
+  {% set capitolo = h.odf_pkg_extra(pkg, 'capitolo') %}
+  {% call panel(_('In sintesi')) %}
+    {{ meta_table([
+      (_('Licenza'), license),
+      (_('Frequenza'), h.odf_frequency_label(pkg.frequency)),
+      (_('Pubblicato il'), h.odf_date(pkg.metadata_created)),
+      (_('Ultima modifica'), h.odf_date(pkg.metadata_modified)),
+      (_('Capitolo Annuario'), {'label': capitolo, 'href': h.url_for('/pages/annuario-statistico')} if capitolo else None),
+      (_('Dimensione'), size),
+      (_('Visualizzazioni'), views),
+      (_('Download'), downloads.total or None),
+    ]) }}
+    {% if pkg.license_url %}
+    <a class="rtt-link" href="{{ pkg.license_url }}" rel="license">{{ pkg.license_title or pkg.license_id }}</a>
+    {% endif %}
+  {% endcall %}
+
+  {% if related %}
+  {% set related_action %}<span class="rtt-body-sm">{{ _('stesso tema') }}</span>{% endset %}
+  {% call panel(_('Dataset correlati'), action=related_action) %}
+    <ul class="rtt-related">
+      {% for r in related %}
+      <li><a href="{{ h.url_for('dataset.read', id=r.name) }}">{{ r.title or r.name }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endcall %}
+  {% endif %}
+
+  {% if contact.holder or contact.structure or contact.email %}
+  {% call panel(_('Titolare del dato')) %}
+    <div class="rtt-contacts">
+      {% if contact.holder %}
+      <div class="rtt-contact">
+        <span class="rtt-contact__icon" aria-hidden="true">{{ icon('building', 24) }}</span>
+        <span class="rtt-contact__body"><span class="rtt-contact__label">{{ _('Titolare') }}</span><span class="rtt-contact__value">{{ contact.holder }}</span></span>
+      </div>
+      {% endif %}
+      {% if contact.structure %}
+      <div class="rtt-contact">
+        <span class="rtt-contact__icon" aria-hidden="true">{{ icon('user', 24) }}</span>
+        <span class="rtt-contact__body"><span class="rtt-contact__label">{{ _('Struttura') }}</span><span class="rtt-contact__value">{{ contact.structure }}</span></span>
+      </div>
+      {% endif %}
+      {% if contact.email %}
+      <div class="rtt-contact">
+        <span class="rtt-contact__icon" aria-hidden="true">{{ icon('mail', 24) }}</span>
+        <span class="rtt-contact__body"><span class="rtt-contact__label">{{ _('Contatto') }}</span><a class="rtt-contact__value" href="mailto:{{ contact.email }}">{{ contact.email }}</a></span>
+      </div>
+      {% endif %}
+    </div>
+  {% endcall %}
+  {% endif %}
+</aside>
+{%- endmacro %}

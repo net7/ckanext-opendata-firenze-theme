@@ -1,0 +1,15 @@
+{#
+  Pannello del dettaglio dataset: card bianca con titolo e azione opzionali e
+  contenuto passato con `{% call %}`. Stesso pattern del Panel del mockup.
+#}
+{% macro panel(title=None, action=None, id=None) -%}
+<section class="rtt-panel"{% if id %} id="{{ id }}"{% endif %}>
+  {%- if title or action %}
+  <header class="rtt-panel__head">
+    {%- if title %}<h2 class="rtt-h4 rtt-panel__title">{{ title }}</h2>{%- endif %}
+    {%- if action %}<div class="rtt-panel__action">{{ action|safe }}</div>{%- endif %}
+  </header>
+  {%- endif %}
+  <div class="rtt-panel__body">{{ caller() if caller is defined else '' }}</div>
+</section>
+{%- endmacro %}

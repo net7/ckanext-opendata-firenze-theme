@@ -1,0 +1,23 @@
+{#
+  Tabella chiave/valore dei metadati.
+
+  rows - lista di coppie (chiave, valore); le righe senza valore sono saltate.
+         Il valore può essere una stringa o un dict {label, href} per i link.
+  mono - valori in monospace (extras, API).
+#}
+{% macro meta_table(rows, mono=False) -%}
+<div class="rtt-meta-table{% if mono %} rtt-meta-table--mono{% endif %}">
+  <table>
+    <tbody>
+      {% for key, value in rows %}
+      {% if value %}
+      <tr>
+        <th scope="row">{{ key }}</th>
+        <td>{% if value is mapping and value.href %}<a href="{{ value.href }}">{{ value.label }}</a>{% else %}{{ value }}{% endif %}</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{%- endmacro %}
