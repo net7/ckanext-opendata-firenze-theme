@@ -2757,9 +2757,9 @@ html.rtt-nav-open {
   background: var(--neutral-neutral-50);
 }
 
+/* La MetaTable "mono" del mockup cambia solo la famiglia (resta 14px) */
 .rtt-meta-table--mono td {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 13px;
 }
 
 /* Risorse: card grigia (ListItem del design system) */
@@ -3096,10 +3096,6 @@ a.rtt-contact__value:hover {
   gap: 8px;
   flex-wrap: wrap;
   flex-shrink: 0;
-}
-
-.rtt-resource__back {
-  transform: rotate(180deg);
 }
 
 .rtt-resource__body {
@@ -3554,4 +3550,164 @@ a.rtt-contact__value:hover {
 
 .rtt-code__copy-icon {
   color: currentColor;
+}
+
+/* Tabella dati con intestazione (es. endpoint della pagina Sviluppatori) */
+.rtt-table {
+  border-radius: var(--rtt-radius-md);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-300);
+}
+
+.rtt-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rtt-table th {
+  text-align: left;
+  padding: 10px 16px;
+  background: var(--neutral-neutral-100);
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--neutral-neutral-900);
+  border-bottom: 1px solid var(--neutral-neutral-300);
+  white-space: nowrap;
+}
+
+.rtt-table td {
+  padding: 10px 16px;
+  font-family: var(--rtt-font-text);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--neutral-neutral-800);
+  border-bottom: 1px solid var(--neutral-neutral-300);
+}
+
+.rtt-table tbody tr:nth-child(even) {
+  background: var(--neutral-neutral-50);
+}
+
+.rtt-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Prima colonna = endpoint (monospace, colore del brand) */
+.rtt-table--endpoints td:first-child {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 22px;
+  color: var(--primary-primary-800);
+  white-space: nowrap;
+}
+
+/* Carosello delle card (home "In evidenza") ----------------------------- */
+
+.rtt-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rtt-carousel__track {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.rtt-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.rtt-carousel__item {
+  flex: 0 0 calc((100% - 48px) / 3);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.rtt-carousel__footer {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* mostrato solo quando il JS ha inizializzato il carosello */
+.rtt-carousel.is-ready .rtt-carousel__footer {
+  display: flex;
+}
+
+.rtt-carousel__dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rtt-carousel__dots button {
+  height: 4px;
+  width: 24px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--rtt-radius-full);
+  background: rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: width var(--rtt-duration) var(--rtt-ease),
+    background-color var(--rtt-duration) var(--rtt-ease);
+}
+
+.rtt-carousel__dots button.is-active {
+  width: 40px;
+  background: var(--primary-primary-500-base);
+}
+
+.rtt-carousel__controls {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Pulsante a sola icona (frecce del carosello), come il DS */
+.rtt-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: var(--rtt-radius-md);
+  background: var(--basics-white-100);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-400);
+  color: var(--neutral-neutral-900);
+  cursor: pointer;
+  transition: background-color var(--rtt-duration) var(--rtt-ease);
+}
+
+.rtt-icon-btn:not(:disabled):hover {
+  background: var(--neutral-neutral-50);
+}
+
+.rtt-icon-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 1024px) {
+  .rtt-carousel__item {
+    flex-basis: calc((100% - 24px) / 2);
+  }
+}
+
+@media (max-width: 640px) {
+  .rtt-carousel__item {
+    flex-basis: 100%;
+  }
 }

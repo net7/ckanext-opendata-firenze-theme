@@ -33,7 +33,7 @@
           {% if res.description %}<p class="rtt-body-lg rtt-resource__desc">{{ h.markdown_extract(res.description, extract_length=400) }}</p>{% endif %}
         </div>
         <div class="rtt-resource__actions">
-          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ icon('arrow-right', 20, 'rtt-btn__icon rtt-resource__back') }}{{ _('Torna al dataset') }}</a>
+          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ icon('arrow-uturn-left', 20, 'rtt-btn__icon') }}{{ _('Torna al dataset') }}</a>
           {% if download %}
           <a class="rtt-btn rtt-btn--primary" href="{{ download }}">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica') }}</a>
           {% endif %}

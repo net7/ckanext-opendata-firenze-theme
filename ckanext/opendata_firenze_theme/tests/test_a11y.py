@@ -27,9 +27,9 @@ def _body(response):
 @pytest.mark.parametrize("path", PAGES)
 def test_page_a11y_structure(app, path):
     body = _body(app.get(path))
-    # il skip link ha un target (lo mettiamo sul <main>)
+    # il skip link ha un target (lo mettiamo sul <main>) e l'id è unico
     assert 'href="#content"' in body
-    assert 'id="content"' in body
+    assert body.count('id="content"') == 1
     # una sola h1 per pagina
     assert body.count("<h1") == 1
     # lingua dichiarata
@@ -45,3 +45,6 @@ def test_catalog_search_landmarks_unique(app):
     assert body.count('role="search"') >= 2
     assert "Cerca nel sito" in body
     assert "Cerca nel catalogo" in body
+    # etichette per i link a icona del pager (applicate dal JS)
+    assert "data-rtt-pager-labels" in body
+    assert "Pagina successiva" in body

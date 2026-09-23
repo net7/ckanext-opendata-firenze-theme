@@ -56,6 +56,21 @@ def test_theme_counts_from_dcat_theme(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_featured_datasets_hvd_then_recent(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    def fake_search(**params):
+        if params.get("fq") == "extras_hvd:true":
+            return {"results": [{"id": "a"}], "count": 1}
+        return {"results": [{"id": "a"}, {"id": "b"}, {"id": "c"}]}
+
+    with mock.patch.object(helpers, "_search", side_effect=fake_search):
+        got = helpers.odf_featured_datasets(limit=3)
+    # prima l'HVD, poi i recenti senza duplicati
+    assert [p["id"] for p in got] == ["a", "b", "c"]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_home_helpers(with_plugins, with_request_context):
     from ckanext.opendata_firenze_theme import helpers
 

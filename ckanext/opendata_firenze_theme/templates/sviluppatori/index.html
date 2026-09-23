@@ -21,9 +21,9 @@
 {% set rdf_ext = h.url_for('/catalog.rdf', _external=True) %}
 {% set tab = request.args.get('tab', 'api') %}
 {% set tabs = [
-  {'value': 'api', 'label': _('API del catalogo'), 'icon': 'code'},
-  {'value': 'rdf', 'label': _('RDF e LOD'), 'icon': 'catalog'},
-  {'value': 'geo', 'label': _('Servizi geografici'), 'icon': 'grid'},
+  {'value': 'api', 'label': _('API del catalogo'), 'icon': 'code-bracket'},
+  {'value': 'rdf', 'label': _('RDF e LOD'), 'icon': 'globe-alt'},
+  {'value': 'geo', 'label': _('Servizi geografici'), 'icon': 'map'},
 ] %}
 {% set api_rows = [
   ('package_search', _('Ricerca sul catalogo, con faccette e paginazione')),
@@ -60,7 +60,7 @@
 
     {% if tab == 'rdf' %}
     {% call panel(_('Risorse RDF'), action=rdf_action) %}
-      <div class="rtt-meta-table rtt-meta-table--mono">
+      <div class="rtt-table rtt-table--endpoints">
         <table>
           <thead><tr><th scope="col">{{ _('Endpoint') }}</th><th scope="col">{{ _('Cosa restituisce') }}</th><th scope="col">{{ _('Metodo') }}</th></tr></thead>
           <tbody>
@@ -121,7 +121,7 @@ https://tms.comune.fi.it/tiles/service/wmts?request=GetCapabilities&amp;service=
 
     {% else %}
     {% call panel(_('Endpoint CKAN'), action=base_action) %}
-      <div class="rtt-meta-table rtt-meta-table--mono">
+      <div class="rtt-table rtt-table--endpoints">
         <table>
           <thead><tr><th scope="col">{{ _('Endpoint') }}</th><th scope="col">{{ _('Cosa restituisce') }}</th><th scope="col">{{ _('Metodo') }}</th></tr></thead>
           <tbody>
