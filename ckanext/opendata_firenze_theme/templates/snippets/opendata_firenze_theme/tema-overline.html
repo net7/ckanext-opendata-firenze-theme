@@ -45,8 +45,8 @@
 {%- endmacro %}
 
 {% macro tema_overline(tema, size='sm', label=None) -%}
-<span class="rtt-overline rtt-overline--{{ size }}">
-  <span class="rtt-overline__icon" aria-hidden="true">{{ tema_icon(tema, 20 if size == 'md' else 16) }}</span>
-  <span class="rtt-overline__text">{{ label or tema_label(tema) }}</span>
+<span class="rtt-tema-overline rtt-tema-overline--{{ size }}">
+  <span class="rtt-tema-overline__icon" aria-hidden="true">{{ tema_icon(tema, 20 if size == 'md' else 16) }}</span>
+  <span class="rtt-tema-overline__text">{{ label or tema_label(tema) }}</span>
 </span>
 {%- endmacro %}

@@ -28,6 +28,7 @@
     </div>
 
     <form class="contact-form rtt-contact__form" method="post" action="{{ h.url_for('contact.form') }}" data-module="form-contact" data-module-action="{{ recaptcha_v3_action }}" data-module-key="{{ recaptcha_v3_key }}">
+      {{ h.csrf_input() }}
       {{ form.errors(error_summary) }}
 
       <fieldset class="rtt-contact__fieldset">

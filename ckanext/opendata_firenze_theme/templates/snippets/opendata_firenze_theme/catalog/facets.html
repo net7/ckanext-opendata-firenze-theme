@@ -1,10 +1,9 @@
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 
 {# Faccette del catalogo dai `search_facets` di CKAN (link GET, nessuna HTMX).
-   `h.get_facet_items_dict` aggiunge il flag `active` (dai parametri in URL).
-   Struttura come il DS: barra di trigger a tendina, poi filtri attivi, poi
-   "Ordina per". I gruppi sono deduplicati per etichetta (theme/dcat_theme). #}
-{% set facets = search_facets or {} %}
+   Il raggruppamento, la deduplica per etichetta e l'ordine di visualizzazione
+   arrivano da `h.odf_facet_groups()` (helper testabile); qui c'è solo il markup.
+   `h.get_facet_items_dict` aggiunge il flag `active` (dai parametri in URL). #}
 
 {# Criteri come il mockup. "Più scaricati"/"Più visualizzati" usano i campi
    views_total/views_recent di CKAN: senza tracking attivo restano a 0. #}
@@ -16,37 +15,8 @@
   (_('Data di aggiornamento'), 'metadata_modified desc'),
 ] %}
 
-{# Nomi leggibili dei gruppi faccette (i facet di CKAN espongono il nome tecnico). #}
-{% set FACET_LABELS = {
-  'theme': _('Temi'),
-  'dcat_theme': _('Temi'),
-  'res_format': _('Formato del file'),
-  'frequency': _('Aggiornamento'),
-  'organization': _('Chi pubblica'),
-  'spatial': _('Classificazione geografica'),
-  'groups': _('Gruppi'),
-  'tags': _('Parole chiave'),
-  'license_id': _('Licenza'),
-  'hvd': _('Caratteristiche'),
-} %}
-
-{# Ordine di visualizzazione come il mockup (Temi per primo). #}
-{% set FACET_ORDER = ['theme', 'dcat_theme', 'spatial', 'res_format', 'frequency',
-                      'organization', 'hvd', 'groups', 'tags', 'license_id'] %}
-{% set ns = namespace(active=false, seen=[], names=[], ordered=[]) %}
-{% for name in facets %}
-{% set label = FACET_LABELS.get(name, facets[name]['title']) %}
-{% if label not in ns.seen %}
-{% set _ = ns.seen.append(label) %}
-{% set _ = ns.names.append(name) %}
-{% endif %}
-{% for item in h.get_facet_items_dict(name, facets) %}
-{% if item.active %}{% set ns.active = true %}{% endif %}
-{% endfor %}
-{% endfor %}
-{% for key in FACET_ORDER %}{% if key in ns.names %}{% set _ = ns.ordered.append(key) %}{% endif %}{% endfor %}
-{% for name in ns.names %}{% if name not in ns.ordered %}{% set _ = ns.ordered.append(name) %}{% endif %}{% endfor %}
-{% set ns.names = ns.ordered %}
+{% set facet_data = h.odf_facet_groups(search_facets or {}) %}
+{% set groups = facet_data.groups %}
 
 {% set current_sort = namespace(label=sortings[0][0]) %}
 {% for label, value in sortings %}
@@ -55,52 +25,47 @@
 
 <div class="rtt-facets">
   <div class="rtt-facets__bar" role="group" aria-label="{{ _('Filtri di ricerca') }}">
-    {% for name in ns.names %}
-    {% set items = h.get_facet_items_dict(name, facets) %}
-    {% if items %}
-    {% set selected = items|selectattr('active')|list|length %}
-    {% set title = FACET_LABELS.get(name, facets[name]['title']) %}
+    {% for group in groups %}
     <details class="rtt-facet" name="rtt-facets">
-      <summary class="rtt-facet__trigger{% if selected %} is-active{% endif %}" aria-label="{{ title }}">
-        <span>{{ title }}</span>
-        {% if selected %}<span class="rtt-facet__badge" aria-hidden="true">{{ selected }}</span>{% endif %}
+      <summary class="rtt-facet__trigger{% if group.selected %} is-active{% endif %}" aria-label="{{ group.label }}">
+        <span>{{ group.label }}</span>
+        {% if group.selected %}<span class="rtt-facet__badge" aria-hidden="true">{{ group.selected }}</span>{% endif %}
         {{ icon('chevron-down', 18, 'rtt-facet__chevron') }}
       </summary>
-      <div class="rtt-facet__panel" role="group" aria-label="{{ title }}">
+      <div class="rtt-facet__panel" role="group" aria-label="{{ group.label }}">
         <div class="rtt-facet__head">
-          <span class="rtt-facet__title">{{ title }}</span>
-          {% if items|length > 1 %}
-          <a class="rtt-facet__link" href="{{ h.odf_facet_all_url(name, items|map(attribute='name')|list) }}">{{ _('Tutti') }}</a>
+          <span class="rtt-facet__title">{{ group.label }}</span>
+          {% if group.entries|length > 1 %}
+          <a class="rtt-facet__link" href="{{ h.odf_facet_all_url(group.name, group.entries|map(attribute='name')|list) }}">{{ _('Tutti') }}</a>
           {% endif %}
         </div>
         <div class="rtt-facet__items">
-          {% for item in items %}
-          {% set href = h.remove_url_param(name, item.name) if item.active else h.add_url_param(new_params={name: item.name}) %}
-          <a class="rtt-facet__item{% if item.active %} is-active{% endif %}" href="{{ href }}" aria-label="{{ _('Filtra per') }} {{ title }}: {{ item.display_name }}">
+          {% for item in group.entries %}
+          {% set href = h.remove_url_param(group.name, item.name) if item.active else h.add_url_param(new_params={group.name: item.name}) %}
+          <a class="rtt-facet__item{% if item.active %} is-active{% endif %}" href="{{ href }}" aria-label="{{ _('Filtra per') }} {{ group.label }}: {{ item.display_name }}">
             <span class="rtt-facet__box" aria-hidden="true">{% if item.active %}{{ icon('check', 10) }}{% endif %}</span>
             <span class="rtt-facet__label">{{ item.display_name }}</span>
             <span class="rtt-facet__count" aria-hidden="true">{{ item.count }}</span>
           </a>
           {% endfor %}
         </div>
-        {% if selected %}
+        {% if group.selected %}
         <div class="rtt-facet__foot">
-          <a class="rtt-facet__link" href="{{ h.remove_url_param(name) }}">{{ _('Azzera') }}</a>
+          <a class="rtt-facet__link" href="{{ h.remove_url_param(group.name) }}">{{ _('Azzera') }}</a>
         </div>
         {% endif %}
       </div>
     </details>
-    {% endif %}
     {% endfor %}
   </div>
 
-  {% if ns.active %}
+  {% if facet_data.active %}
   <div class="rtt-facets__applied">
     <span class="rtt-facets__applied-label">{{ _('Filtri attivi:') }}</span>
-    {% for name in facets %}
-    {% for item in h.get_facet_items_dict(name, facets) %}
+    {% for group in groups %}
+    {% for item in group.entries %}
     {% if item.active %}
-    <span class="rtt-facets__chip">{{ FACET_LABELS.get(name, facets[name]['title']) }}: {{ item.display_name }}<a class="rtt-facets__remove" href="{{ h.remove_url_param(name, item.name) }}" aria-label="{{ _('Rimuovi filtro') }}: {{ item.display_name }}">{{ icon('close', 16) }}</a></span>
+    <span class="rtt-facets__chip">{{ group.label }}: {{ item.display_name }}<a class="rtt-facets__remove" href="{{ h.remove_url_param(group.name, item.name) }}" aria-label="{{ _('Rimuovi filtro') }}: {{ item.display_name }}">{{ icon('close', 16) }}</a></span>
     {% endif %}
     {% endfor %}
     {% endfor %}

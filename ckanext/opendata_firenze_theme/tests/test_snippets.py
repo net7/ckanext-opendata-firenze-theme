@@ -22,8 +22,8 @@ def test_tema_overline(with_plugins, with_request_context):
     html = _render(
         "{% from 'snippets/opendata_firenze_theme/tema-overline.html' import tema_overline %}{{ tema_overline('Trasporti') }}"
     )
-    assert 'class="rtt-overline rtt-overline--sm"' in html
-    assert 'class="rtt-overline__icon"' in html
+    assert 'class="rtt-tema-overline rtt-tema-overline--sm"' in html
+    assert 'class="rtt-tema-overline__icon"' in html
     assert "Trasporti" in html
     assert "<svg" in html
 
@@ -35,7 +35,7 @@ def test_tema_overline_fallback(with_plugins, with_request_context):
         "{% from 'snippets/opendata_firenze_theme/tema-overline.html'"
         " import tema_overline %}{{ tema_overline('Tema senza icona') }}"
     )
-    assert 'class="rtt-overline__text"' in html
+    assert 'class="rtt-tema-overline__text"' in html
     assert "<svg" in html
 
 
@@ -67,13 +67,13 @@ def test_section(with_plugins, with_request_context):
     html = _render(
         "{% from 'snippets/opendata_firenze_theme/section.html' import section %}"
         "{% call section(title='In evidenza',"
-        ' action=\'<a class="rtt-action" href="#">Vedi tutti</a>\') %}'
+        ' action=\'<a class="rtt-actionlink" href="#">Vedi tutti</a>\') %}'
         "<p>contenuto</p>{% endcall %}"
     )
     assert 'class="rtt-section rtt-reveal"' in html
     assert 'class="rtt-section__action"' in html
     assert "In evidenza" in html
-    assert '<a class="rtt-action" href="#">Vedi tutti</a>' in html
+    assert '<a class="rtt-actionlink" href="#">Vedi tutti</a>' in html
     assert "contenuto" in html
 
 

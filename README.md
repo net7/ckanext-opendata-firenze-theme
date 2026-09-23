@@ -51,6 +51,22 @@ python -m pytest --ckan-ini=/srv/app/src/ckan/test-core.ini \
 I test che richiedono estensioni di deployment non installate (es.
 `ckanext-contact`) vengono saltati.
 
+## Traduzioni (i18n)
+
+Le stringhe utente passano da `_()` / `ungettext()` (helper: `toolkit._`). Il
+template delle traduzioni è `i18n/ckanext-opendata_firenze_theme.pot`,
+rigenerabile con `python setup.py extract_messages`.
+
+Il portale offre italiano e inglese (`CKAN__LOCALES_OFFERED="it en"`): la lingua
+sorgente delle stringhe del tema è l'italiano, quindi il **catalogo inglese non è
+ancora tradotto** (in EN le stringhe del tema restano in italiano). Per aggiungerlo:
+
+```bash
+python setup.py init_catalog -l en   # crea i18n/en/LC_MESSAGES/*.po
+# ...tradurre il .po, poi:
+python setup.py compile_catalog      # genera il .mo
+```
+
 ## Riferimenti
 
 - Mockup/UX: nel repo `design-repo`, prototipo `opendata-firenze-0209`

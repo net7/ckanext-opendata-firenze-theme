@@ -906,13 +906,13 @@ html.rtt-nav-open {
 }
 
 /* Overline di categoria (icona del tema + etichetta) */
-.rtt-overline {
+.rtt-tema-overline {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
-.rtt-overline__icon {
+.rtt-tema-overline__icon {
   display: inline-flex;
   width: 16px;
   height: 16px;
@@ -920,7 +920,7 @@ html.rtt-nav-open {
   color: var(--neutral-neutral-800);
 }
 
-.rtt-overline__text {
+.rtt-tema-overline__text {
   font-family: var(--rtt-font-ui);
   font-weight: 600;
   font-size: 12px;
@@ -930,17 +930,17 @@ html.rtt-nav-open {
   white-space: nowrap;
 }
 
-.rtt-overline--md .rtt-overline__icon {
+.rtt-tema-overline--md .rtt-tema-overline__icon {
   width: 20px;
   height: 20px;
 }
 
-.rtt-overline--md .rtt-overline__text {
+.rtt-tema-overline--md .rtt-tema-overline__text {
   font-size: 14px;
   line-height: 20px;
 }
 
-.rtt-overline--lg .rtt-overline__text {
+.rtt-tema-overline--lg .rtt-tema-overline__text {
   font-size: 16px;
   line-height: 24px;
 }
@@ -1575,31 +1575,35 @@ html.rtt-nav-open {
   color: var(--neutral-neutral-700);
 }
 
-/* Azione di sezione ("Vedi tutti", "Tutto il catalogo"…) */
-.rtt-action {
+/* Action link del design system ("Vedi tutti", "Tutto il catalogo", "Filtra il
+   catalogo per geodati"…). Classe distinta da `.rtt-action` dei token (stile
+   tipografico) per non collidere. */
+.rtt-actionlink {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  align-self: flex-start;
   font-family: var(--rtt-font-ui);
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--rtt-text-base);
   line-height: 24px;
-  color: var(--primary-primary-700);
+  color: var(--rtt-link);
   text-decoration: none;
   white-space: nowrap;
 }
 
-.rtt-action svg {
+.rtt-actionlink svg,
+.rtt-actionlink__icon {
   flex-shrink: 0;
 }
 
-.rtt-action:hover {
+.rtt-actionlink:hover {
   color: var(--primary-primary-800);
   text-decoration: underline;
 }
 
-.rtt-action:visited {
-  color: var(--primary-primary-700);
+.rtt-actionlink:visited {
+  color: var(--rtt-link);
 }
 
 /* ---- Catalogo -------------------------------------------------------- */
@@ -3368,26 +3372,6 @@ a.rtt-contact__value:hover {
 .rtt-chip-link {
   text-decoration: none;
   color: inherit;
-}
-
-.rtt-actionlink {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  align-self: flex-start;
-  font-family: var(--rtt-font-ui);
-  font-weight: 600;
-  font-size: var(--rtt-text-base);
-  color: var(--rtt-link);
-  text-decoration: none;
-}
-
-.rtt-actionlink:hover {
-  text-decoration: underline;
-}
-
-.rtt-actionlink__icon {
-  flex-shrink: 0;
 }
 
 .rtt-doclinks {

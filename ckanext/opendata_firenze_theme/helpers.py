@@ -87,8 +87,72 @@ def odf_facet_all_url(facet, values):
     args = [(key, value) for key, value in request.args.items(multi=True) if key not in (facet, "page")]
     args.extend((facet, value) for value in values)
     query = urlencode(args)
-    url = ckan_h.url_for("dataset.search")
+    url = toolkit.url_for("dataset.search")
     return f"{url}?{query}" if query else url
+
+
+# Ordine di visualizzazione dei gruppi faccetta come il mockup (Temi per primo).
+FACET_ORDER = (
+    "theme",
+    "dcat_theme",
+    "spatial",
+    "res_format",
+    "frequency",
+    "organization",
+    "hvd",
+    "groups",
+    "tags",
+    "license_id",
+)
+
+
+def odf_facet_groups(facets):
+    """Gruppi faccetta del catalogo pronti per il template.
+
+    Deduplica i gruppi con la stessa etichetta (`theme`/`dcat_theme`), li ordina
+    secondo `FACET_ORDER` (poi gli eventuali altri) e calcola le voci attive.
+    Ritorna `{'groups': [{'name', 'label', 'items', 'selected'}], 'active': bool}`.
+    """
+    if not facets:
+        return {"groups": [], "active": False}
+    labels = {
+        "theme": toolkit._("Temi"),
+        "dcat_theme": toolkit._("Temi"),
+        "res_format": toolkit._("Formato del file"),
+        "frequency": toolkit._("Aggiornamento"),
+        "organization": toolkit._("Chi pubblica"),
+        "spatial": toolkit._("Classificazione geografica"),
+        "groups": toolkit._("Gruppi"),
+        "tags": toolkit._("Parole chiave"),
+        "license_id": toolkit._("Licenza"),
+        "hvd": toolkit._("Caratteristiche"),
+    }
+    seen = set()
+    names = []
+    for name in facets:
+        label = labels.get(name, facets[name]["title"])
+        if label not in seen:
+            seen.add(label)
+            names.append(name)
+    ordered = [name for name in FACET_ORDER if name in names]
+    ordered += [name for name in names if name not in ordered]
+    groups = []
+    active = False
+    for name in ordered:
+        items = ckan_h.get_facet_items_dict(name, facets)
+        if not items:
+            continue
+        selected = len([item for item in items if item.get("active")])
+        active = active or bool(selected)
+        groups.append(
+            {
+                "name": name,
+                "label": labels.get(name, facets[name]["title"]),
+                "entries": items,
+                "selected": selected,
+            }
+        )
+    return {"groups": groups, "active": active}
 
 
 def _it(n):
@@ -410,7 +474,7 @@ def _resource_download_url(pkg, res):
     """URL di download di una risorsa (route CKAN per gli upload)."""
     if res.get("url_type") == "upload":
         try:
-            return ckan_h.url_for("resource.download", id=pkg.get("name"), resource_id=res.get("id"))
+            return toolkit.url_for("resource.download", id=pkg.get("name"), resource_id=res.get("id"))
         except Exception:
             return res.get("url") or ""
     return res.get("url") or ""
@@ -543,6 +607,7 @@ def get_helpers():
         "odf_dataset_count": odf_dataset_count,
         "odf_package_theme": odf_package_theme,
         "odf_facet_all_url": odf_facet_all_url,
+        "odf_facet_groups": odf_facet_groups,
         "odf_home_kpis": odf_home_kpis,
         "odf_themes": odf_themes,
         "odf_featured_datasets": odf_featured_datasets,

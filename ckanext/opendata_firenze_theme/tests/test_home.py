@@ -26,9 +26,9 @@ def test_home_renders(app):
     assert 'class="rtt-hero"' in body
     assert "rtt-kpistrip" in body
     assert "Esplora per tema" in body
-    assert 'class="rtt-action"' in body
+    assert 'class="rtt-actionlink"' in body
     # l'azione di sezione e' markup, non deve finire escapata nel DOM
-    assert '&lt;a class="rtt-action"' not in body
+    assert '&lt;a class="rtt-actionlink"' not in body
     # i 13 temi DCAT-AP_IT sono sempre elencati
     assert body.count("rtt-tema__name") == 13
 
