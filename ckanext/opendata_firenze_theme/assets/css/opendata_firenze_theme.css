@@ -1294,7 +1294,23 @@ html.rtt-nav-open {
   transition: background-color var(--rtt-duration) var(--rtt-ease), box-shadow var(--rtt-duration) var(--rtt-ease), transform var(--rtt-duration) var(--rtt-ease);
 }
 
-.rtt-tema:hover {
+/* Wrapper delle card (dataset e temi): è lui a fare da trigger di :hover e NON
+   si trasforma. La card interna si solleva sul :hover del wrapper, così l'area
+   di hover resta ferma e il bordo non esce da sotto il cursore: niente flicker
+   (l'elemento trasformato è diverso da quello che riceve l'hover). */
+.rtt-tema-wrap,
+.rtt-dcard-wrap {
+  display: flex;
+  min-width: 0;
+}
+
+.rtt-tema-wrap > .rtt-tema,
+.rtt-dcard-wrap > .rtt-dcard {
+  flex: 1;
+  min-width: 0;
+}
+
+.rtt-tema-wrap:hover > .rtt-tema {
   background: var(--primary-primary-50);
   box-shadow: var(--rtt-shadow-md);
   transform: translateY(-2px);
@@ -1340,26 +1356,22 @@ html.rtt-nav-open {
   transition: background-color var(--rtt-duration) var(--rtt-ease);
 }
 
-.rtt-tema:hover .rtt-tema__icon {
+.rtt-tema-wrap:hover .rtt-tema__icon {
   background: var(--basics-white-100);
 }
 
-/* Le transition del reveal/stagger (token DS, specificità maggiore) sovrascrivono
-   quelle di card e card dei temi: qui le ricombino, così l'ingresso resta animato
-   e anche l'hover usa la durata del DS come nel mockup. */
+/* Le card sono avvolte da .rtt-dcard-wrap/.rtt-tema-wrap, che sono i figli
+   dello stagger: qui azzero il ritardo a cascata del token DS, così le card
+   entrano insieme (come il mockup). L'hover resta immediato perché è la card
+   interna a trasformarsi, non il wrapper che riceve l'hover. */
 @media (prefers-reduced-motion: no-preference) {
-  html.js-reveal .rtt-stagger.is-revealed > .rtt-dcard,
-  html.js-reveal .rtt-stagger.is-revealed > .rtt-tema {
+  html.js-reveal .rtt-stagger.is-revealed > .rtt-dcard-wrap,
+  html.js-reveal .rtt-stagger.is-revealed > .rtt-tema-wrap {
     transition: opacity .5s cubic-bezier(0.16, 1, 0.3, 1),
       translate .5s cubic-bezier(0.16, 1, 0.3, 1),
       background-color var(--rtt-duration) var(--rtt-ease),
       box-shadow var(--rtt-duration) var(--rtt-ease),
       transform var(--rtt-duration) var(--rtt-ease);
-    /* delay 0: il token dello stagger lo imposta per figlio (fino a 320ms) e
-       quel ritardo finirebbe anche sull'hover, facendo partire il sollevamento
-       con mezzo secondo di ritardo sulle card in fondo. Qui la transition è
-       ricombinata senza delay, quindi l'hover è immediato; le card entrano
-       insieme (come il mockup, che sui temi non fa cascata). */
     transition-delay: 0ms;
   }
 }
@@ -1405,19 +1417,19 @@ html.rtt-nav-open {
   background: var(--neutral-neutral-50);
 }
 
-.rtt-dcard:hover .rtt-dcard__arrow,
-.rtt-dcard:focus-within .rtt-dcard__arrow {
+.rtt-dcard-wrap:hover .rtt-dcard__arrow,
+.rtt-dcard-wrap:focus-within .rtt-dcard__arrow {
   opacity: 1;
   transform: translateX(0);
 }
 
 @media (hover: hover) {
-  .rtt-dcard:hover {
+  .rtt-dcard-wrap:hover > .rtt-dcard {
     box-shadow: var(--rtt-shadow-md);
     transform: translateY(-2px);
   }
 
-  .rtt-dcard:hover .rtt-dcard__title {
+  .rtt-dcard-wrap:hover .rtt-dcard__title {
     color: var(--primary-primary-700);
   }
 }
