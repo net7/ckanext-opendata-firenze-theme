@@ -6,7 +6,8 @@
  * "opendata_firenze_theme-css" (vedi assets/webassets.yml). Qui vanno gli stili
  * del tema veri e propri.
  *
- * Font: Titillium Web, caricato da Google Fonts nel <head> (templates/base.html).
+ * Font: Titillium Web self-hosted (public/fonts/titillium-web/, @font-face in
+ * assets/css/fonts.css; vedi docs/adr/0001).
  */
 
 /* Base: font e colore di testo dal design system. */

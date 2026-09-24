@@ -20,9 +20,9 @@ espone **endpoint reali**. Inoltre nel DB dev non esiste alcuna pagina
   `ckanext-pages`: le rotte del tema sono statiche e non entrano in conflitto.
 - Annuario: SideNav con i 13 capitoli; il capitolo attivo è un parametro
   `?capitolo=` (funziona senza JS). I dataset del capitolo si cercano
-  sull'extra custom `capitolo`, che CKAN indicizza come `extras_capitolo`.
-  Finché i dataset non hanno quell'extra i capitoli risultano vuoti (decisione
-  aperta già segnalata nel mapping: extra vs tag vs serie).
+  sull'extra custom `capitolo`, che CKAN indicizza come `extras_capitolo`
+  (decisione presa: extra custom). Il conteggio usa una query sul valore esatto,
+  perché il facet `extras_capitolo` è tokenizzato e non dà il capitolo intero.
 - Sviluppatori: tab (API, RDF e LOD, Servizi geografici, MCP Server) con
   endpoint reali; **SPARQL e MCP server non sono nativi** (fuori scope tema,
   come da mapping) e sono resi come nel mockup con link/endpoint segnaposto
@@ -42,7 +42,8 @@ espone **endpoint reali**. Inoltre nel DB dev non esiste alcuna pagina
 
 ## Conseguenze
 
-- L'Annuario resta vuoto finché non si decide come popolare `capitolo`.
+- L'Annuario elenca i dataset il cui extra `capitolo` coincide col capitolo
+  selezionato (extra custom, decisione presa).
 - La conferma privacy è **imposta anche lato server** senza toccare
   `ckanext-contact`: il suo `validate()` richiede non-vuoto ogni campo inviato
   (tranne `subject`), quindi il checkbox del consenso è seguito da un hidden

@@ -31,8 +31,8 @@ da toccare, i dati da collegare e le decisioni ancora aperte.
 | `catalogo.jsx` | `/dataset` | `package/search.html` |
 | `dataset.jsx` | `/dataset/<name>` | `package/read.html` |
 | `risorsa.jsx` | `/dataset/<name>/resource/<id>` | `package/resource_read.html` |
-| `annuario.jsx` | pagina (`/pages/...`) | `ckanext-pages` |
-| `sviluppatori.jsx` | pagina (`/pages/...`) | `ckanext-pages` |
+| `annuario.jsx` | `/annuario-statistico` | `annuario/index.html` (rotta del tema) |
+| `sviluppatori.jsx` | `/sviluppatori-e-lod` | `sviluppatori/index.html` (rotta del tema) |
 | `partecipa.jsx` | `/contact` | `ckanext-contact` |
 | stati globali (404/errore) | — | `error_document_template.html` |
 
@@ -128,11 +128,13 @@ include `package/snippets/resources_list.html`, `package/snippets/tags.html`,
 Explorer (`datatables_view`/datastore); mappa → `geoview` + `ckanext-spatial`
 (layer WMS).
 
-### Annuario — `screens/annuario.jsx` → pagina `ckanext-pages`
+### Annuario — `screens/annuario.jsx` → rotta del tema `/annuario-statistico`
 
-SideNav 13 capitoli + lista dataset per capitolo. Il campo `capitolo` **non è
-nativo** (extra custom/tag/serie); ogni capitolo = query salvata sul catalogo
-(`package_search` con filtro).
+SideNav 13 capitoli + lista dataset per capitolo (rotta del tema, vedi
+[`adr/0005`](adr/0005-pagine-editoriali-come-rotte.md)). Il campo `capitolo` è un
+**extra custom** (CKAN lo indicizza come `extras_capitolo`); il capitolo attivo è
+`?capitolo=` e il conteggio dei dataset usa una query sul valore esatto
+(`odf_annuario_count`), perché il facet è tokenizzato.
 
 ### Sviluppatori — `screens/sviluppatori.jsx` → rotta del tema
 
@@ -169,26 +171,20 @@ tutti i campi inviati tranne `subject` (vedi
 ## Decisioni aperte
 
 - Facet "Classificazione geografica" (ISO 19115): quale campo Solr esporre.
-- `capitolo` Annuario: extra custom vs tag vs serie.
-- Qualità del metadato: metrica MQA vs openness di `ckanext-qa`.
 - "Forse cercavi": Solr `spellcheck` vs Levenshtein lato client (mockup).
-- Download/viste: abilitare il tracking nativo o analytics.
-- Header hide-on-scroll e reveal-on-scroll: portarli o semplificare.
-- Faccette: solo barra orizzontale, solo laterali, o entrambe.
-- Lingua: i18n UI nativa; metadati multilingua bloccati (`ckanext-multilang`).
+- Download/viste: abilitare il tracking nativo o analytics (senza tracking i
+  contatori delle viste/download restano nascosti).
+- Lingua: metadati multilingua bloccati (`ckanext-multilang`).
 - SPARQL endpoint / MCP server: richiedono backend; nel tema sono resi come nel
   mockup con link/endpoint segnaposto (`adr/0005`).
-- "Segnala un dataset": `ckanext-contact` (scelta attuale) vs `ckanext-issues`
-  (scartata).
 
-## Ordine di lavoro suggerito
+Decisioni prese (per riferimento): `capitolo` Annuario = extra custom; qualità del
+metadato = openness di `ckanext-qa`; hide-on-scroll e reveal-on-scroll portati nel
+JS del tema; faccette = solo barra orizzontale (niente colonna laterale né drawer);
+"Segnala un dataset" = `ckanext-contact`.
 
-1. Asset/design system: token CSS, font, logo/immagini (`assets/`, `public/`).
-2. Shell: `header.html`, `footer.html`, tab bar + JS.
-3. Snippet base riusabili (`Section`, `PageHead`, `TemaOverline`, chip).
-4. Home (helper KPI/temi/consultati/news).
-5. Catalogo (`search.html` + facet bar + result row + no-results).
-6. Dataset (`read.html`: tab, risorse, metadati, QA, aside).
-7. Risorsa (`resource_read.html` + view tabella/mappa).
-8. Pagine editoriali (annuario, sviluppatori, partecipa).
-9. Test di rendering + accessibilità.
+## Ordine di lavoro
+
+Tutti i passi del piano sono stati implementati (asset/design system, shell,
+snippet base, home, catalogo, dataset, risorsa, pagine editoriali, test di
+rendering e accessibilità). Restano solo le decisioni aperte qui sopra.
