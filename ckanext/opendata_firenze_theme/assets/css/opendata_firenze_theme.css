@@ -1348,13 +1348,19 @@ html.rtt-nav-open {
    quelle di card e card dei temi: qui le ricombino, così l'ingresso resta animato
    e anche l'hover usa la durata del DS come nel mockup. */
 @media (prefers-reduced-motion: no-preference) {
-  html.js-reveal .rtt-stagger > .rtt-dcard,
-  html.js-reveal .rtt-stagger > .rtt-tema {
+  html.js-reveal .rtt-stagger.is-revealed > .rtt-dcard,
+  html.js-reveal .rtt-stagger.is-revealed > .rtt-tema {
     transition: opacity .5s cubic-bezier(0.16, 1, 0.3, 1),
       translate .5s cubic-bezier(0.16, 1, 0.3, 1),
       background-color var(--rtt-duration) var(--rtt-ease),
       box-shadow var(--rtt-duration) var(--rtt-ease),
       transform var(--rtt-duration) var(--rtt-ease);
+    /* delay 0: il token dello stagger lo imposta per figlio (fino a 320ms) e
+       quel ritardo finirebbe anche sull'hover, facendo partire il sollevamento
+       con mezzo secondo di ritardo sulle card in fondo. Qui la transition è
+       ricombinata senza delay, quindi l'hover è immediato; le card entrano
+       insieme (come il mockup, che sui temi non fa cascata). */
+    transition-delay: 0ms;
   }
 }
 
@@ -1368,6 +1374,8 @@ html.rtt-nav-open {
   border: 1px solid var(--neutral-neutral-200);
   border-radius: var(--rtt-radius-xl);
   padding: 24px;
+  color: inherit;
+  text-decoration: none;
   transition: box-shadow var(--rtt-duration) var(--rtt-ease), transform var(--rtt-duration) var(--rtt-ease);
 }
 
@@ -1388,7 +1396,13 @@ html.rtt-nav-open {
   color: var(--neutral-neutral-900);
   opacity: 0;
   transform: translateX(-4px);
-  transition: opacity var(--rtt-duration) var(--rtt-ease), transform var(--rtt-duration) var(--rtt-ease);
+  transition: opacity var(--rtt-duration) var(--rtt-ease), transform var(--rtt-duration) var(--rtt-ease),
+    background-color var(--rtt-duration) var(--rtt-ease);
+}
+
+/* hover del box: come `.rtt-icon-btn` del DS (sfondo lilac chiaro) */
+.rtt-dcard__arrow:hover {
+  background: var(--neutral-neutral-50);
 }
 
 .rtt-dcard:hover .rtt-dcard__arrow,
@@ -1403,7 +1417,7 @@ html.rtt-nav-open {
     transform: translateY(-2px);
   }
 
-  .rtt-dcard:hover .rtt-dcard__title a {
+  .rtt-dcard:hover .rtt-dcard__title {
     color: var(--primary-primary-700);
   }
 }
@@ -1414,17 +1428,8 @@ html.rtt-nav-open {
   font-weight: 600;
   font-size: 20px;
   line-height: 28px;
-}
-
-.rtt-dcard__title a,
-.rtt-dcard__title a:visited {
   color: var(--neutral-neutral-900);
-  text-decoration: none;
   transition: color var(--rtt-duration) var(--rtt-ease);
-}
-
-.rtt-dcard__title a:hover {
-  text-decoration: underline;
 }
 
 .rtt-dcard__desc {
