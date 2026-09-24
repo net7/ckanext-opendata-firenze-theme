@@ -12,7 +12,7 @@
 {%- set formats = [] -%}
 {%- for f in (rf or []) -%}{%- if f and f not in formats -%}{%- set _ = formats.append(f) -%}{%- endif -%}{%- endfor -%}
 {%- for res in (pkg.resources or []) -%}{%- if res.format and res.format not in formats -%}{%- set _ = formats.append(res.format) -%}{%- endif -%}{%- endfor -%}
-<article class="rtt-dcard rtt-reveal{% if compact %} rtt-dcard--compact{% endif %}">
+<article class="rtt-dcard{% if compact %} rtt-dcard--compact{% endif %}">
   <span class="rtt-dcard__arrow" aria-hidden="true">{{ icon('arrow-right', 16) }}</span>
   {% if tema %}<div class="rtt-dcard__overline">{{ tema_overline(tema) }}</div>{% endif %}
   <h3 class="rtt-dcard__title"><a href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ pkg.title or pkg.name }}</a></h3>

@@ -432,8 +432,8 @@ body {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  min-height: 38px;
-  padding: 8px 12px;
+  min-height: 40px;
+  padding: 8px 16px;
   box-sizing: border-box;
   border: 0;
   border-radius: var(--rtt-radius-md);
@@ -441,7 +441,7 @@ body {
   cursor: pointer;
   font-family: var(--rtt-font-action);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 18px;
   line-height: 24px;
   white-space: nowrap;
   transition: background-color var(--rtt-duration) var(--rtt-ease), box-shadow var(--rtt-duration) var(--rtt-ease);
@@ -1342,6 +1342,20 @@ html.rtt-nav-open {
 
 .rtt-tema:hover .rtt-tema__icon {
   background: var(--basics-white-100);
+}
+
+/* Le transition del reveal/stagger (token DS, specificità maggiore) sovrascrivono
+   quelle di card e card dei temi: qui le ricombino, così l'ingresso resta animato
+   e anche l'hover usa la durata del DS come nel mockup. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js-reveal .rtt-stagger > .rtt-dcard,
+  html.js-reveal .rtt-stagger > .rtt-tema {
+    transition: opacity .5s cubic-bezier(0.16, 1, 0.3, 1),
+      translate .5s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color var(--rtt-duration) var(--rtt-ease),
+      box-shadow var(--rtt-duration) var(--rtt-ease),
+      transform var(--rtt-duration) var(--rtt-ease);
+  }
 }
 
 /* Card dataset */

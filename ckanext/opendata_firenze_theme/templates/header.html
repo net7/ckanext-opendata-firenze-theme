@@ -50,7 +50,7 @@
           {% endfor %}
         </nav>
         <div class="rtt-header__actions">
-          <a class="rtt-btn rtt-btn--primary rtt-header__cta" href="{{ cta_url }}">{{ _('Segnala un dataset') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+          <a class="rtt-btn rtt-btn--primary rtt-btn--sm rtt-header__cta" href="{{ cta_url }}">{{ _('Segnala un dataset') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
           <button type="button" class="rtt-header__burger" data-rtt-menu-toggle aria-expanded="false" aria-controls="rtt-mobile-nav" aria-label="{{ _('Apri menu') }}" data-label-open="{{ _('Apri menu') }}" data-label-close="{{ _('Chiudi menu') }}">
             <span class="rtt-header__burger-open" aria-hidden="true">{{ icon('menu', 24) }}</span>
             <span class="rtt-header__burger-close" aria-hidden="true">{{ icon('close', 24) }}</span>
@@ -67,7 +67,7 @@
     {% for item in nav_items %}
     <a class="rtt-mobile-nav__link{{ ' is-active' if current_path.startswith(item.match) }}" href="{{ item.href }}"{% if current_path.startswith(item.match) %} aria-current="page"{% endif %}>{{ item.label }}</a>
     {% endfor %}
-    <a class="rtt-btn rtt-btn--primary rtt-mobile-nav__cta" href="{{ cta_url }}">{{ _('Segnala un dataset') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+    <a class="rtt-btn rtt-btn--primary rtt-btn--sm rtt-mobile-nav__cta" href="{{ cta_url }}">{{ _('Segnala un dataset') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
     <div class="rtt-mobile-nav__tools">
       {% snippet 'snippets/opendata_firenze_theme/account_menu.html' %}
       {% snippet 'snippets/opendata_firenze_theme/language_selector.html' %}
