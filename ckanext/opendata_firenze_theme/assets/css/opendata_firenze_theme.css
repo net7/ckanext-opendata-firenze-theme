@@ -3547,6 +3547,8 @@ a.rtt-contact__value:hover {
   align-items: start;
   padding-top: 64px;
   padding-bottom: 72px;
+  /* Come il mockup: la sezione del form è chiusa da una riga sottile. */
+  border-bottom: 1px solid var(--neutral-neutral-300);
 }
 
 .rtt-contact__intro {
@@ -3557,11 +3559,25 @@ a.rtt-contact__value:hover {
   top: 32px;
 }
 
+/* La spaziatura dell'intro è gestita dal gap della colonna (come nel mockup):
+   i margini di default dei paragrafi (CKAN core) aggiungono spazio in più. */
+.rtt-contact__intro p {
+  margin: 0;
+}
+
+/* Il lead del mockup è largo 440px (testo su due righe strette). */
+.rtt-contact__intro .rtt-body-lg {
+  max-width: 440px;
+}
+
 .rtt-contact__title {
   margin: 0;
   color: var(--neutral-neutral-900);
   letter-spacing: -0.02em;
   text-wrap: balance;
+  /* Il mockup usa `rtt-display` con line-height 56px (il token del DS è 72px):
+     senza questa riga il titolo su due righe è 32px più alto. */
+  line-height: 56px;
 }
 
 .rtt-contact__alt {
@@ -3593,6 +3609,11 @@ a.rtt-contact__value:hover {
 
 .rtt-contact__legend {
   padding: 0;
+  margin: 0;
+  /* CKAN core imposta `legend { float: left; margin-bottom: 8px }`: con float il
+     legend diventa un flex item e il gap del fieldset aggiunge 48px (più 8px di
+     margine). Il mockup lo rende come legend nativo, attaccato alle opzioni. */
+  float: none;
   font-family: var(--rtt-font-ui);
   font-weight: 600;
   font-size: 15px;
@@ -3613,12 +3634,40 @@ a.rtt-contact__value:hover {
   cursor: pointer;
 }
 
-/* Radio come nel design system: pallino scuro (#232327), non l'accent del browser */
+/* Radio come il design system (non quello nativo): anello scuro 20px con punto
+   centrale, area di rispetto 28px come il wrapper del DS. */
 .rtt-contact__tipo input[type="radio"] {
-  accent-color: #232327;
-  width: 18px;
-  height: 18px;
-  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  margin: 4px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--basics-white-100);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-800);
+  display: inline-grid;
+  place-content: center;
+  cursor: pointer;
+}
+
+.rtt-contact__tipo input[type="radio"]::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--neutral-neutral-900);
+  transform: scale(0);
+  transition: transform var(--rtt-duration-fast) var(--rtt-ease);
+}
+
+.rtt-contact__tipo input[type="radio"]:checked {
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-900);
+}
+
+.rtt-contact__tipo input[type="radio"]:checked::before {
+  transform: scale(1);
 }
 
 /* Il pulsante d'invio non è a piena larghezza su desktop (solo su mobile) */
@@ -3645,6 +3694,14 @@ a.rtt-contact__value:hover {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Etichette dei campi come il mockup (fieldLabel): 15px, neutral-700. Il token
+   `.rtt-label` del DS è 14px/neutral-900. */
+.rtt-contact__form .rtt-label {
+  font-size: 15px;
+  line-height: normal;
+  color: var(--neutral-neutral-700);
 }
 
 .rtt-input {
@@ -3674,13 +3731,42 @@ a.rtt-contact__value:hover {
 
 .rtt-contact__privacy {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: flex-start;
   cursor: pointer;
   font-family: var(--rtt-font-text);
   font-size: 14px;
+  font-weight: 400;
   line-height: 20px;
   color: var(--neutral-neutral-800);
+}
+
+/* Checkbox come il design system: 20px, angoli 4px, anello scuro, spunta bianca
+   su sfondo scuro quando selezionata (non il controllo nativo). */
+.rtt-contact__privacy input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 0;
+  border-radius: var(--rtt-radius);
+  background: var(--basics-white-100);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-800);
+  display: inline-grid;
+  place-content: center;
+  cursor: pointer;
+}
+
+.rtt-contact__privacy input[type="checkbox"]:checked {
+  background-color: var(--neutral-neutral-900);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-900);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M 11.747 0.128 C 12.029 0.337 12.084 0.729 11.868 1.004 L 5.011 9.754 C 4.899 9.897 4.728 9.986 4.543 9.999 C 4.358 10.011 4.177 9.944 4.045 9.817 L 0.188 6.067 C -0.063 5.823 -0.063 5.427 0.188 5.183 C 0.439 4.939 0.846 4.939 1.097 5.183 L 4.434 8.427 L 10.846 0.246 C 11.061 -0.028 11.464 -0.081 11.747 0.128 Z' fill='%23ffffff' fill-rule='evenodd' transform='matrix(1 0 0 1 4 5)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px 14px;
 }
 
 .rtt-contact__privacy a {
@@ -3730,9 +3816,22 @@ a.rtt-contact__value:hover {
     position: static;
   }
 
+  /* Come il mockup: su mobile il titolo passa a rtt-h2 (36px) con line-height 34px. */
+  .rtt-contact__title {
+    font-size: 36px;
+    line-height: 34px;
+  }
+
   .rtt-contact__form .rtt-btn {
     align-self: stretch;
   }
+}
+
+/* La card di conferma è una colonna con gap: i margini di default di titolo e
+   paragrafi (CKAN core) aggiungono spazio in più (il mockup li azzera). */
+.rtt-contact__success h2,
+.rtt-contact__success p {
+  margin: 0;
 }
 
 /* La base di CKAN aggiunge ":" dopo ogni <label> (label:after): nel form del
