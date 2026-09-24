@@ -31,8 +31,9 @@
       </div>
       {% if featured|length > 1 %}
       {# Carosello delle card piccole: il track scorre, JS aggiunge indicatori
-         e frecce (nascoste senza JS). #}
-      <div class="rtt-carousel rtt-stagger" data-rtt-carousel data-dot-label="{{ _('Vai a') }}">
+         e frecce (nascoste senza JS). `rtt-evidenza__others` dà alle card la
+         superficie lilla piatta del mockup (#F2EDF4). #}
+      <div class="rtt-carousel rtt-stagger rtt-evidenza__others" data-rtt-carousel data-dot-label="{{ _('Vai a') }}">
         <div class="rtt-carousel__track" role="group" tabindex="0" aria-label="{{ _('Dataset in evidenza') }}">
           {% for pkg in featured[1:] %}<div class="rtt-carousel__item">{{ dataset_card(pkg) }}</div>{% endfor %}
         </div>

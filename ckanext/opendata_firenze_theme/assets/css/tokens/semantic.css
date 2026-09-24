@@ -127,14 +127,21 @@
    agli elementi .rtt-reveal quando entrano in vista, e mette html.js-reveal a
    conferma che lo script gira: SENZA quella classe .rtt-reveal resta pienamente
    visibile (nessun contenuto nascosto se il JS non parte). Con
-   prefers-reduced-motion l'osservatore salta l'animazione e mostra tutto subito. */
+   prefers-reduced-motion l'osservatore salta l'animazione e mostra tutto subito.
+
+   Nota (tema Firenze): lo scostamento usa la proprietà `translate` e non
+   `transform`, perché il selettore `html.js-reveal .rtt-reveal.is-revealed`
+   (e `… .rtt-stagger.is-revealed > *`) ha specificità maggiore dei nostri
+   `:hover` su card e card dei temi: con `transform: none` il sollevamento al
+   passaggio del mouse non si vedrebbe. `translate` si compone con il `transform`
+   dei `:hover` invece di sovrascriverlo. */
 @media (prefers-reduced-motion: no-preference) {
   html.js-reveal .rtt-reveal {
     opacity: 0;
-    transform: translateY(7px);
-    transition: opacity .62s cubic-bezier(0.16, 1, 0.3, 1), transform .62s cubic-bezier(0.16, 1, 0.3, 1);
+    translate: 0 7px;
+    transition: opacity .62s cubic-bezier(0.16, 1, 0.3, 1), translate .62s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  html.js-reveal .rtt-reveal.is-revealed { opacity: 1; transform: none; }
+  html.js-reveal .rtt-reveal.is-revealed { opacity: 1; translate: 0; }
   /* elementi già in vista al caricamento: nessuna animazione d'ingresso */
   html.js-reveal .rtt-reveal.reveal-instant,
   html.js-reveal .rtt-stagger.reveal-instant > * { transition: none; }
@@ -144,10 +151,10 @@
      ritardo progressivo. */
   html.js-reveal .rtt-stagger > * {
     opacity: 0;
-    transform: translateY(8px);
-    transition: opacity .5s cubic-bezier(0.16, 1, 0.3, 1), transform .5s cubic-bezier(0.16, 1, 0.3, 1);
+    translate: 0 8px;
+    transition: opacity .5s cubic-bezier(0.16, 1, 0.3, 1), translate .5s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  html.js-reveal .rtt-stagger.is-revealed > * { opacity: 1; transform: none; }
+  html.js-reveal .rtt-stagger.is-revealed > * { opacity: 1; translate: 0; }
   html.js-reveal .rtt-stagger.is-revealed > :nth-child(1) { transition-delay: 0ms; }
   html.js-reveal .rtt-stagger.is-revealed > :nth-child(2) { transition-delay: 55ms; }
   html.js-reveal .rtt-stagger.is-revealed > :nth-child(3) { transition-delay: 110ms; }

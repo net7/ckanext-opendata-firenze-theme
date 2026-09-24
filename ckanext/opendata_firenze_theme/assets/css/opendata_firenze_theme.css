@@ -1349,16 +1349,12 @@ html.rtt-nav-open {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   background: var(--rtt-card-surface, var(--basics-white-100));
   border: 1px solid var(--neutral-neutral-200);
   border-radius: var(--rtt-radius-xl);
-  padding: 22px;
+  padding: 24px;
   transition: box-shadow var(--rtt-duration) var(--rtt-ease), transform var(--rtt-duration) var(--rtt-ease);
-}
-
-.rtt-dcard--compact {
-  gap: 8px;
 }
 
 .rtt-dcard__arrow {
@@ -1422,9 +1418,9 @@ html.rtt-nav-open {
   margin: 0;
   overflow: hidden;
   font-family: var(--rtt-font-text);
-  font-size: 14px;
-  line-height: 21px;
-  color: var(--neutral-neutral-700);
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--neutral-neutral-800);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -1440,16 +1436,17 @@ html.rtt-nav-open {
   margin-top: auto;
   padding-top: 6px;
   font-family: var(--rtt-font-text);
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--neutral-neutral-600);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--neutral-neutral-800);
 }
 
 /* "In evidenza": card con illustrazione + riquadro di vetro */
 .rtt-evidenza {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  /* 24 + 10: il track del carosello ha -10px di margine verticale */
+  gap: 34px;
 }
 
 .rtt-evidenza__others {
@@ -1523,7 +1520,7 @@ html.rtt-nav-open {
 .rtt-evidenza__text {
   margin: 0;
   font-family: var(--rtt-font-text);
-  font-size: 16px;
+  font-size: 18px;
   line-height: 28px;
   color: var(--neutral-neutral-800);
 }
@@ -3701,17 +3698,23 @@ a.rtt-contact__value:hover {
 .rtt-carousel {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  /* 24 + 10: il track ha -10px di margine verticale */
+  gap: 34px;
 }
 
 .rtt-carousel__track {
   display: flex;
   gap: 24px;
+  /* Il movimento di pagina lo fa il JS con la durata del DS (`--rtt-duration`):
+     `scroll-behavior: smooth` renderebbe non controllabile ogni scrollLeft. */
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  /* spazio per il sollevamento (translateY(-2px)) e l'ombra delle card: il track
+     ha overflow, quindi senza padding verrebbero tagliati */
+  padding: 10px 0;
+  margin: -10px 0;
 }
 
 .rtt-carousel__track::-webkit-scrollbar {
@@ -3719,9 +3722,15 @@ a.rtt-contact__value:hover {
 }
 
 .rtt-carousel__item {
+  display: flex;
   flex: 0 0 calc((100% - 48px) / 3);
   min-width: 0;
   scroll-snap-align: start;
+}
+
+/* la card riempie l'item: le card di una pagina hanno la stessa altezza */
+.rtt-carousel__item > * {
+  flex: 1;
 }
 
 .rtt-carousel__footer {

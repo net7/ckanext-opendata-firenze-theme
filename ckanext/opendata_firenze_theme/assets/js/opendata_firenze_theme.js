@@ -486,12 +486,45 @@
             Math.round(track.scrollLeft / (perView() * step()))
           );
         };
+        /* Scorrimento di una pagina con la durata/easing del design system
+           (`--rtt-duration`, `--rtt-ease`): `behavior: "smooth"` nativo non è
+           controllabile e risulta più lento del mockup. Con
+           prefers-reduced-motion si salta direttamente. */
+        var animate = function (to) {
+          var from = track.scrollLeft;
+          var delta = to - from;
+          var reduce =
+            window.matchMedia &&
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          if (reduce || !delta || !window.requestAnimationFrame) {
+            track.scrollLeft = to;
+            return;
+          }
+          var css = window.getComputedStyle(track);
+          var raw = (css.getPropertyValue("--rtt-duration") || "").trim();
+          var ms = raw.indexOf("ms") > -1 ? parseFloat(raw) : parseFloat(raw) * 1000;
+          if (!ms) {
+            ms = 180;
+          }
+          var ease = function (t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          };
+          var start = null;
+          var frame = function (ts) {
+            if (start === null) {
+              start = ts;
+            }
+            var p = Math.min(1, (ts - start) / ms);
+            track.scrollLeft = from + delta * ease(p);
+            if (p < 1) {
+              window.requestAnimationFrame(frame);
+            }
+          };
+          window.requestAnimationFrame(frame);
+        };
         var goTo = function (i) {
           var page = Math.max(0, Math.min(pages() - 1, i));
-          track.scrollTo({
-            left: Math.min(page * perView() * step(), maxScroll()),
-            behavior: "smooth",
-          });
+          animate(Math.min(page * perView() * step(), maxScroll()));
         };
         var render = function () {
           var n = pages();
