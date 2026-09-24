@@ -53,8 +53,8 @@ da toccare, i dati da collegare e le decisioni ancora aperte.
 - Snippet riusabili (creati in `snippets/opendata_firenze_theme/`): `section.html`
   (`Section`), `page-head.html` (`PageHead`: breadcrumb/kicker + titolo + lead),
   `tema-overline.html` (`TemaOverline`, icona per tema: accetta label, codice
-  dcatapit o URI), `chip.html` (`chip`, `format_chip`, `status_chip`). Resta da
-  fare `StatusScreen`.
+  dcatapit o URI), `chip.html` (`chip`, `format_chip`, `status_chip`).
+  `StatusScreen` → `error_document_template.html` (404 e altri errori).
 
 ### Home — `screens/home.jsx` → `home/index.html`
 
@@ -83,7 +83,10 @@ e/o gli snippet `home/snippets/*`.
   `snippets/package_item.html`.
 - Paginazione → dentro `package/snippets/search_results.html`.
 - No results ("forse cercavi", filtri attivi, più richiesti) → stato vuoto di
-  `search_results.html` + snippet custom.
+  `search_results.html` + snippet custom. Implementato in
+  `snippets/opendata_firenze_theme/catalog/no-results.html` (titolo per query o
+  filtri, azioni "Azzera i filtri"/"Svuota la ricerca"/"Chiedi un dato mancante",
+  "I dataset più richiesti"); "Forse cercavi" resta una decisione aperta.
 - Facet bar orizzontale / faccette laterali / drawer mobile → snippet + JS.
 - Sort → ordinamento nativo di `package/search.html`.
 - Gruppi faccette: `Temi` (theme), `Formato` (`res_format`), `Aggiornamento`

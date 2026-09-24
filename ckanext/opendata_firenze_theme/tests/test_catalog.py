@@ -26,7 +26,12 @@ def test_catalog_no_results(app):
     body = response.body
     if isinstance(body, bytes):
         body = body.decode("utf-8")
+    # lo stato vuoto (noresults.jsx): titolo con la query, azioni (svuota la
+    # ricerca quando c'è una q, "chiedi un dato mancante" sempre)
     assert "rtt-noresults" in body
+    assert "Nessun dataset per" in body
+    assert "Svuota la ricerca" in body
+    assert "Chiedi un dato mancante" in body
 
 
 def test_package_theme_helper():
@@ -57,7 +62,7 @@ def test_catalog_facets_active_and_sort(with_plugins, app):
     src = "{% include 'snippets/opendata_firenze_theme/catalog/facets.html' %}"
     with app.flask_app.test_request_context("/dataset?res_format=CSV"):
         html = render_template_string(src, search_facets=facets, q="", sort_by_selected="")
-    assert "Formato del file" in html
+    assert "Formato dei file" in html
     assert "rtt-facets__chip" in html
     assert "rtt-facets__clear" in html
     assert "rtt-sort" in html

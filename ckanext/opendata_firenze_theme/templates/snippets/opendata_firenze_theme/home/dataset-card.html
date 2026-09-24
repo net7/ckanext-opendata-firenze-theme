@@ -1,14 +1,17 @@
 {% from 'snippets/opendata_firenze_theme/tema-overline.html' import tema_overline %}
-{% from 'snippets/opendata_firenze_theme/chip.html' import format_chip %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import format_chip, status_chip %}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 
 {# Card di un dataset (da package_search): tema, titolo, chip dei formati e (se
    non `compact`) descrizione e data di ultimo aggiornamento. Come la Card del
    mockup è un `<a>`: tutta la superficie è cliccabile. Nel risultato di ricerca
    il tema non e' un campo diretto (sta negli extras: vedi h.odf_package_theme) e
-   i formati stanno nelle risorse, non in res_format. #}
-{% macro dataset_card(pkg, compact=False) %}
+   i formati stanno nelle risorse, non in res_format. `show_hvd` aggiunge il chip
+   "High Value Dataset" (usato nelle card "In evidenza", come nel mockup). #}
+{% macro dataset_card(pkg, compact=False, show_hvd=False) %}
 {%- set tema = h.odf_package_theme(pkg) -%}
+{%- set hvd = h.odf_pkg_extra(pkg, 'hvd') or pkg.get('hvd') -%}
+{%- set is_hvd = hvd and hvd|string|lower in ['1', 'true', 'yes', 'si', 'sì', 'y'] -%}
 {%- set rf = pkg.res_format if pkg.res_format is not string else [pkg.res_format] -%}
 {%- set formats = [] -%}
 {%- for f in (rf or []) -%}{%- if f and f not in formats -%}{%- set _ = formats.append(f) -%}{%- endif -%}{%- endfor -%}
@@ -18,13 +21,45 @@
   {% if tema %}<div class="rtt-dcard__overline">{{ tema_overline(tema) }}</div>{% endif %}
   <h3 class="rtt-dcard__title">{{ pkg.title or pkg.name }}</h3>
   {% if not compact and pkg.notes %}<p class="rtt-dcard__desc">{{ pkg.notes|striptags|truncate(160) }}</p>{% endif %}
-  {% if formats %}
+  {% if is_hvd or formats %}
   <div class="rtt-dcard__meta">
+    {% if show_hvd and is_hvd %}{{ status_chip(_('High Value Dataset'), 'hvd') }}{% endif %}
     {% for f in formats[:3] %}{{ format_chip(f, 'geo' if f in ['GeoJSON', 'SHP', 'KML', 'WMS', 'WFS'] else 'neutral') }}{% endfor %}
   </div>
   {% endif %}
   {% if not compact and pkg.metadata_modified %}
   <span class="rtt-dcard__date">{{ _('Ultimo aggiornamento:') }} {{ h.render_datetime(pkg.metadata_modified, date_format='%d/%m/%Y') }}</span>
+  {% endif %}
+</a>
+{% endmacro %}
+
+{# Card "I più consultati" (mockup): tema (+ chip "in tempo reale"), titolo e una
+   riga di meta con frequenza di aggiornamento, visualizzazioni e chip "Geodati"
+   per i dataset con contenuto geografico. Senza tracking (views a zero o assenti)
+   la sezione visualizzazioni sparisce e resta solo ciò che c'è. #}
+{% macro consultati_card(pkg) %}
+{%- set tema = h.odf_package_theme(pkg) -%}
+{%- set freq_code = h.odf_pkg_extra(pkg, 'frequency') or pkg.get('frequency') -%}
+{%- set freq = h.odf_frequency_label(freq_code) -%}
+{%- set views = h.odf_number(pkg.get('views_total') or pkg.get('views_recent')) -%}
+{%- set geo = h.odf_dataset_is_geo(pkg) -%}
+{%- set rt = h.odf_pkg_extra(pkg, 'realtime') -%}
+{%- set is_rt = rt and rt|string|lower in ['1', 'true', 'yes', 'si', 'sì', 'y'] -%}
+<a class="rtt-dcard rtt-dcard--consultati" href="{{ h.url_for('dataset.read', id=pkg.name) }}">
+  <span class="rtt-dcard__arrow" aria-hidden="true">{{ icon('arrow-right', 16) }}</span>
+  {% if tema %}
+  <div class="rtt-dcard__overline">
+    {{ tema_overline(tema) }}
+    {% if is_rt %}<span class="rtt-live"><span class="rtt-live__dot" aria-hidden="true"></span>{{ _('in tempo reale') }}</span>{% endif %}
+  </div>
+  {% endif %}
+  <h3 class="rtt-dcard__title">{{ pkg.title or pkg.name }}</h3>
+  {% if freq or views or geo %}
+  <div class="rtt-dcard__consultati-meta">
+    {% if freq %}<span>{{ freq }}</span>{% endif %}
+    {% if views %}<span aria-hidden="true">·</span><span>{{ views }} {{ _('visualizzazioni') }}</span>{% endif %}
+    {% if geo %}{{ format_chip(_('Geodati'), 'geo') }}{% endif %}
+  </div>
   {% endif %}
 </a>
 {% endmacro %}

@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% from 'snippets/opendata_firenze_theme/section.html' import section %}
-{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
+{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card, consultati_card %}
 
 {% block subtitle %}{{ _('Home') }}{% endblock %}
 
@@ -35,7 +35,7 @@
          superficie lilla piatta del mockup (#F2EDF4). #}
       <div class="rtt-carousel rtt-stagger rtt-evidenza__others" data-rtt-carousel data-dot-label="{{ _('Vai a') }}">
         <div class="rtt-carousel__track" role="group" tabindex="0" aria-label="{{ _('Dataset in evidenza') }}">
-          {% for pkg in featured[1:] %}<div class="rtt-carousel__item">{{ dataset_card(pkg) }}</div>{% endfor %}
+          {% for pkg in featured[1:] %}<div class="rtt-carousel__item">{{ dataset_card(pkg, show_hvd=True) }}</div>{% endfor %}
         </div>
         <div class="rtt-carousel__footer">
           <div class="rtt-carousel__dots" data-rtt-carousel-dots></div>
@@ -51,7 +51,7 @@
   {% endif %}
 
   {% call section(title=_('Esplora per tema'), band=True) %}
-    <p class="rtt-body rtt-section__intro">{{ _('Sfoglia i dati per argomento: 13 temi che seguono lo standard italiano per i dati aperti (DCAT-AP_IT).') }}</p>
+    <p class="rtt-body rtt-section__intro">{{ _('Sfoglia i dati per argomento: 13 temi che seguono lo standard italiano per i dati aperti (DCAT-AP_IT). Per una ricerca più fine, nel catalogo trovi anche i filtri INSPIRE e ISO 19115.') }}</p>
     {% snippet 'snippets/opendata_firenze_theme/home/temi.html' %}
   {% endcall %}
 
@@ -60,7 +60,7 @@
   {% set tutto_catalogo %}<a class="rtt-actionlink" href="{{ h.url_for('dataset.search') }}">{{ _('Tutto il catalogo') }}{{ icon('arrow-right', 18) }}</a>{% endset %}
   {% call section(title=_('I più consultati'), tone='consultati', action=tutto_catalogo) %}
     <div class="rtt-grid rtt-grid--2 rtt-stagger">
-      {% for pkg in viewed %}{{ dataset_card(pkg, compact=True) }}{% endfor %}
+      {% for pkg in viewed %}{{ consultati_card(pkg) }}{% endfor %}
     </div>
   {% endcall %}
   {% endif %}

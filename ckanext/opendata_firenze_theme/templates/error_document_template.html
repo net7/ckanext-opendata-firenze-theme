@@ -1,0 +1,36 @@
+{% ckan_extends %}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{# Stati di errore/404 come StatusScreen del mockup (icona, titolo, messaggio e
+   azioni). La pagina mantiene header e footer del tema; solo il contenuto cambia
+   in base al codice: 404 = "Pagina non trovata", gli altri = problema generico. #}
+{% block primary %}
+<main class="rtt-status" id="content" tabindex="-1">
+  <div class="rtt-container">
+    <div class="rtt-status__card">
+      <span class="rtt-status__icon" aria-hidden="true">{{ icon('search-lg', 32) }}</span>
+      {% if code == 404 %}
+      <h1 class="rtt-h2">{{ _('Pagina non trovata') }}</h1>
+      <p class="rtt-body-lg">{{ _('La pagina che cerchi non esiste o è stata spostata. Puoi cercare un dataset o tornare alla home.') }}</p>
+      {% else %}
+      <h1 class="rtt-h2">{{ _('Si è verificato un problema') }}</h1>
+      <p class="rtt-body-lg">{{ _('Non è stato possibile completare la richiesta. Riprova tra qualche istante o torna alla home.') }}</p>
+      {% endif %}
+      <div class="rtt-status__actions">
+        <a class="rtt-btn rtt-btn--primary" href="{{ h.url_for('dataset.search') }}">{{ _('Cerca nel catalogo') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+        <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('home.index') }}">{{ _('Torna alla home') }}</a>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block breadcrumb %}{% endblock %}
+
+{% block flash %}
+{# Le flash messages causate dal 404 (es. "dataset non trovato") non servono qui:
+   il messaggio di errore è già mostrato dalla card. #}
+{% set flash_messages = h.get_flashed_messages() %}
+{% endblock %}
+
+{% block secondary %}{% endblock %}

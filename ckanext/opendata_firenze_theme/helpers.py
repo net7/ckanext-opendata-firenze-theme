@@ -91,15 +91,18 @@ def odf_facet_all_url(facet, values):
     return f"{url}?{query}" if query else url
 
 
-# Ordine di visualizzazione dei gruppi faccetta come il mockup (Temi per primo).
+# Ordine di visualizzazione dei gruppi faccetta come il mockup (Temi per primo,
+# poi Formato, Aggiornamento, Chi pubblica, Caratteristiche e infine le faccette
+# geografiche/classificazioni e le altre). "Tipo di geometria" (2° nel mockup)
+# non ha un campo Solr dedicato senza ckanext-scheming: resta non implementato.
 FACET_ORDER = (
     "theme",
     "dcat_theme",
-    "spatial",
     "res_format",
     "frequency",
     "organization",
     "hvd",
+    "spatial",
     "groups",
     "tags",
     "license_id",
@@ -118,7 +121,7 @@ def odf_facet_groups(facets):
     labels = {
         "theme": toolkit._("Temi"),
         "dcat_theme": toolkit._("Temi"),
-        "res_format": toolkit._("Formato del file"),
+        "res_format": toolkit._("Formato dei file"),
         "frequency": toolkit._("Aggiornamento"),
         "organization": toolkit._("Chi pubblica"),
         "spatial": toolkit._("Classificazione geografica"),
@@ -158,6 +161,16 @@ def odf_facet_groups(facets):
 def _it(n):
     """Intero con separatore delle migliaia italiano (2086 -> '2.086')."""
     return format(int(n), ",d").replace(",", ".")
+
+
+def odf_number(value):
+    """Numero per la UI (int->it-IT, con migliaia); '' se non disponibile."""
+    if value is None or value == "":
+        return ""
+    try:
+        return _it(value)
+    except (TypeError, ValueError):
+        return ""
 
 
 def _search(**params):
@@ -215,6 +228,7 @@ def odf_home_kpis():
     geo_formats = " OR ".join(sorted(GEO_FORMATS))
     geo = _search(rows=0, fq=f"res_format:({geo_formats})")["count"]
     tavole = _search(rows=0, fq="extras_capitolo:[* TO *]")["count"]
+    serie = _search(rows=0, fq="extras_serie:[* TO *]")["count"]
     return [
         {
             "value": _it(total),
@@ -224,7 +238,7 @@ def odf_home_kpis():
         {
             "value": _it(max(total - geo, 0)),
             "label": toolkit._("dati alfanumerici"),
-            "delta": toolkit._("senza anteprima su mappa"),
+            "delta": toolkit._("organizzati in {num} serie").format(num=_it(serie)),
         },
         {
             "value": _it(geo),
@@ -234,7 +248,7 @@ def odf_home_kpis():
         {
             "value": _it(len(ANNUARIO_CHAPTERS)),
             "label": toolkit._("capitoli dell'Annuario Statistico"),
-            "delta": toolkit.ungettext("{n} tavola nel catalogo", "{n} tavole nel catalogo", tavole).format(n=_it(tavole)),
+            "delta": toolkit.ungettext("{num} tavola statistica", "{num} tavole statistiche", tavole).format(num=_it(tavole)),
         },
     ]
 
@@ -402,6 +416,21 @@ def odf_dataset_geometry(pkg):
     return value if value in GEOMETRY_SHAPES else None
 
 
+def odf_dataset_is_geo(pkg):
+    """True se il dataset ha contenuto geografico.
+
+    Unico punto di verità per il badge "Geodati": extra `geometria`/`spatial`
+    oppure almeno una risorsa in un formato con anteprima su mappa.
+    """
+    extras = _pkg_extras(pkg)
+    return bool(
+        odf_dataset_geometry(pkg) is not None
+        or extras.get("spatial")
+        or extras.get("spatial_geometry")
+        or any(odf_format_is_geo(f) for f in odf_dataset_formats(pkg))
+    )
+
+
 def odf_dataset_badges(pkg):
     """Badge della testata del dataset: HVD, geodati, aggiornamento continuo.
 
@@ -413,12 +442,7 @@ def odf_dataset_badges(pkg):
     if _truthy(extras.get("hvd")) or _truthy(pkg.get("hvd")):
         badges.append({"kind": "hvd", "label": toolkit._("High Value Dataset")})
     geometria = odf_dataset_geometry(pkg)
-    geo = (
-        geometria is not None
-        or bool(extras.get("spatial") or extras.get("spatial_geometry"))
-        or any(odf_format_is_geo(f) for f in odf_dataset_formats(pkg))
-    )
-    if geo:
+    if odf_dataset_is_geo(pkg):
         shape = {"punto": "puntuale", "area": "areale", "linea": "lineare"}.get(geometria)
         label = toolkit._("Geodati · {shape}").format(shape=shape) if shape else toolkit._("Geodati")
         badges.append({"kind": "geo", "label": label})
@@ -622,6 +646,8 @@ def get_helpers():
         "odf_format_is_geo": odf_format_is_geo,
         "odf_dataset_badges": odf_dataset_badges,
         "odf_dataset_geometry": odf_dataset_geometry,
+        "odf_dataset_is_geo": odf_dataset_is_geo,
+        "odf_number": odf_number,
         "odf_dataset_openness": odf_dataset_openness,
         "odf_dataset_related": odf_dataset_related,
         "odf_dataset_contact": odf_dataset_contact,

@@ -1460,6 +1460,50 @@ html.rtt-nav-open {
   color: var(--neutral-neutral-800);
 }
 
+/* Overline della card ("I più consultati"): tema + eventuale chip "in tempo
+   reale" nella stessa riga, come nel mockup. */
+.rtt-dcard__overline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Card "I più consultati": riga di meta con frequenza · visualizzazioni e chip
+   "Geodati". Testo più piccolo e non in capsule come il resto della card. */
+.rtt-dcard--consultati {
+  gap: 10px;
+  padding: 20px 24px;
+}
+
+.rtt-dcard--consultati .rtt-dcard__title {
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.rtt-dcard__consultati-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 6px;
+  font-family: var(--rtt-font-text);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-dcard__consultati-meta .rtt-format-chip {
+  font-size: 11.5px;
+}
+
+@media (max-width: 1024px) {
+  .rtt-dcard--consultati {
+    padding: 16px 18px;
+  }
+}
+
 /* "In evidenza": card con illustrazione + riquadro di vetro */
 .rtt-evidenza {
   display: flex;
@@ -2024,8 +2068,16 @@ html.rtt-nav-open {
   box-shadow: var(--rtt-shadow-lg);
 }
 
-/* Nessun risultato */
+/* Nessun risultato: card di stato (come noresults.jsx) + "I dataset più
+   richiesti" sotto. La card contiene icona, titolo, messaggio e azioni; il resto
+   della pagina resta sullo sfondo neutro del catalogo. */
 .rtt-noresults {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.rtt-noresults__card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2048,9 +2100,73 @@ html.rtt-nav-open {
   color: var(--neutral-neutral-700);
 }
 
-.rtt-noresults h2,
-.rtt-noresults p {
+.rtt-noresults__card h2,
+.rtt-noresults__card p {
   margin: 0;
+}
+
+.rtt-noresults__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.rtt-noresults__top {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rtt-noresults__top-title {
+  margin: 0;
+  color: var(--neutral-neutral-900);
+}
+
+/* Pagina di errore (404 e altri codici): card di stato a tutta larghezza, con
+   le stesse proporzioni della card "nessun risultato" del catalogo. */
+.rtt-status {
+  background: var(--grad-surface);
+  padding: 64px 0 96px;
+}
+
+.rtt-status__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 64px 32px;
+  text-align: center;
+  background: var(--basics-white-100);
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: var(--rtt-radius-lg);
+}
+
+.rtt-status__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--rtt-radius-full);
+  background: var(--primary-primary-50);
+  color: var(--primary-primary-700);
+}
+
+.rtt-status__card h1,
+.rtt-status__card p {
+  margin: 0;
+}
+
+.rtt-status__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 6px;
 }
 
 /* Paginazione di CKAN */

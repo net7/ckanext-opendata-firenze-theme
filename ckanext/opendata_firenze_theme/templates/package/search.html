@@ -33,7 +33,8 @@
     </div>
     <div class="rtt-catalog__pager">{{ page.pager(q=q) }}</div>
     {% else %}
-    {% snippet 'snippets/opendata_firenze_theme/catalog/no-results.html' %}
+    {% set facet_data = h.odf_facet_groups(search_facets or {}) %}
+    {% snippet 'snippets/opendata_firenze_theme/catalog/no-results.html', q=q, has_filters=facet_data.active %}
     {% endif %}
   </div>
 </main>

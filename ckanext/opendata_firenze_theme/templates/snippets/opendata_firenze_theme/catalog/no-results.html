@@ -1,10 +1,40 @@
 {#
-  Stato "nessun risultato" del catalogo. Nessun parametro.
+  Stato "nessun risultato" del catalogo (come noresults.jsx del mockup): card
+  con icona, titolo (per query o per filtri), messaggio e azioni, seguita da
+  "I dataset più richiesti". Nessuna dipendenza da JS.
+
+  q            - query di ricerca corrente ('' se assente)
+  has_filters  - True se ci sono filtri faccetta attivi
 #}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
 <div class="rtt-noresults">
-  <span class="rtt-noresults__icon" aria-hidden="true">{{ icon('search-lg', 32) }}</span>
-  <h2 class="rtt-h3">{{ _('Nessun dataset trovato') }}</h2>
-  <p class="rtt-body">{{ _('Prova a cambiare i filtri o i termini di ricerca.') }}</p>
-  <a class="rtt-btn rtt-btn--primary" href="{{ h.url_for('dataset.search') }}">{{ _('Azzera i filtri') }}</a>
+  <div class="rtt-noresults__card">
+    <span class="rtt-noresults__icon" aria-hidden="true">{{ icon('search-lg', 32) }}</span>
+    {% if q %}
+    <h2 class="rtt-h3">{{ _('Nessun dataset per') }} &laquo;{{ q }}&raquo;</h2>
+    <p class="rtt-body">{{ _('Prova con parole più generiche o un altro termine. Se cerchi un tema, sfoglialo dai filtri.') }}</p>
+    {% else %}
+    <h2 class="rtt-h3">{{ _('Nessun dataset con questi filtri') }}</h2>
+    <p class="rtt-body">{{ _('Nessun dataset ha tutte queste caratteristiche insieme. Togli un filtro per vedere più risultati.') }}</p>
+    {% endif %}
+    <div class="rtt-noresults__actions">
+      {% if has_filters %}
+      <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.search') }}">{{ _('Azzera i filtri') }}</a>
+      {% endif %}
+      {% if q %}
+      <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.search') }}">{{ _('Svuota la ricerca') }}</a>
+      {% endif %}
+      <a class="rtt-btn rtt-btn--primary" href="{{ h.url_for('/contact') }}">{{ _('Chiedi un dato mancante') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+    </div>
+  </div>
+  {% set top = h.odf_most_viewed(3) %}
+  {% if top %}
+  <div class="rtt-noresults__top">
+    <h3 class="rtt-h5 rtt-noresults__top-title">{{ _('I dataset più richiesti') }}</h3>
+    <div class="rtt-grid rtt-grid--3">
+      {% for pkg in top %}{{ dataset_card(pkg, compact=True) }}{% endfor %}
+    </div>
+  </div>
+  {% endif %}
 </div>
