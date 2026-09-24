@@ -322,16 +322,25 @@ ANNUARIO_CHAPTERS = (
 
 
 def odf_annuario_chapters():
-    """Capitoli dell'Annuario con il numero di dataset collegati.
+    """I 13 capitoli dell'Annuario (indice 1-based + nome).
 
-    I conteggi arrivano dal facet `extras_capitolo` (una sola query); il campo è
-    popolato solo se i dataset hanno l'extra `capitolo`.
+    Nessuna query: il conteggio per capitolo si chiede a `odf_annuario_count`
+    solo per il capitolo visualizzato. Il facet `extras_capitolo` di Solr è
+    tokenizzato (restituisce le singole parole: "ambient", "territorio"), quindi
+    non può dare il numero di dataset di un capitolo.
     """
-    data = _search(rows=0, **{"facet.field": ["extras_capitolo"], "facet.limit": 100})
-    counts = {item["name"]: item["count"] for item in _facet_items(data, "extras_capitolo")}
-    return [
-        {"index": index, "name": name, "count": counts.get(name, 0)} for index, name in enumerate(ANNUARIO_CHAPTERS, start=1)
-    ]
+    return [{"index": index, "name": name} for index, name in enumerate(ANNUARIO_CHAPTERS, start=1)]
+
+
+def odf_annuario_count(chapter):
+    """Numero di dataset di un capitolo dell'Annuario (extra `capitolo`).
+
+    Il campo `extras_capitolo` è tokenizzato in Solr: il conteggio va fatto con
+    una query sul valore esatto del capitolo (0 se il capitolo è vuoto/assente).
+    """
+    if not chapter:
+        return 0
+    return _search(rows=0, fq=f'extras_capitolo:"{chapter}"')["count"]
 
 
 def odf_annuario_datasets(chapter, limit=12):
@@ -640,6 +649,7 @@ def get_helpers():
         "odf_geo_search_query": odf_geo_search_query,
         "odf_news": odf_news,
         "odf_annuario_chapters": odf_annuario_chapters,
+        "odf_annuario_count": odf_annuario_count,
         "odf_annuario_datasets": odf_annuario_datasets,
         "odf_pkg_extra": odf_pkg_extra,
         "odf_dataset_formats": odf_dataset_formats,

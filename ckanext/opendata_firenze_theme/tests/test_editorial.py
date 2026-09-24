@@ -4,6 +4,8 @@ Il form di Collaborazione (ckanext-contact) è testato in `test_contact.py`,
 che salta se l'estensione non è installata.
 """
 
+import re
+
 import pytest
 from ckan.tests import factories
 
@@ -37,6 +39,10 @@ def test_annuario_lists_chapter_datasets(app):
     body = _body(app.get("/annuario-statistico?capitolo=Trasporti"))
     assert "Trasporti di prova" in body
     assert "Nessun dataset di questo capitolo" not in body
+    # il contatore del capitolo riflette i dataset (non resta a 0). Il numero
+    # esatto dipende dall'indice Solr, non pulito tra le run: basta che sia >= 1.
+    match = re.search(r"(\d+) dataset pubblicat", body)
+    assert match and int(match.group(1)) >= 1
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

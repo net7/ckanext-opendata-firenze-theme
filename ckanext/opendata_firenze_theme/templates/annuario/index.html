@@ -11,6 +11,7 @@
 {% if selected not in names %}{% set selected = names[0] if names else '' %}{% endif %}
 {% set current = chapters|selectattr('name', 'equalto', selected)|list|first %}
 {% set datasets = h.odf_annuario_datasets(selected) %}
+{% set chapter_count = h.odf_annuario_count(selected) %}
 <main class="rtt-editorial-page" id="content" tabindex="-1">
   {% call page_head(
       _('Annuario Statistico del Comune di Firenze'),
@@ -37,7 +38,7 @@
         <div class="rtt-annuario__chapter-head">
           <span class="rtt-annuario__kicker">{{ _('Capitolo') }} {{ '%02d'|format(current.index if current else 0) }} {{ _('di') }} {{ chapters|length }}</span>
           <h2 class="rtt-h2 rtt-annuario__title">{{ selected }}</h2>
-          <span class="rtt-body-sm">{{ ungettext('{num} dataset pubblicato nel catalogo', '{num} dataset pubblicati nel catalogo', current.count if current else 0).format(num=current.count if current else 0) }}</span>
+          <span class="rtt-body-sm">{{ ungettext('{num} dataset pubblicato nel catalogo', '{num} dataset pubblicati nel catalogo', chapter_count).format(num=chapter_count) }}</span>
         </div>
         {% if datasets %}
         <div class="rtt-grid rtt-grid--2">
