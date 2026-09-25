@@ -1,0 +1,42 @@
+/*
+ * ckanext-opendata-firenze-theme — stili del tema.
+ *
+ * I token del design system di Firenze sono in assets/css/tokens/ (fig-tokens,
+ * semantic, typography) e vengono concatenati prima di questo file nel bundle
+ * "opendata_firenze_theme-css" (vedi assets/webassets.yml). Qui vanno gli stili
+ * del tema veri e propri.
+ *
+ * Font: Titillium Web self-hosted (public/fonts/titillium-web/, @font-face in
+ * assets/css/fonts.css; vedi docs/adr/0001).
+ */
+
+/* Base: font e colore di testo dal design system. */
+body {
+  font-family: var(--rtt-font-ui);
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.rtt-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 64px;
+  box-sizing: border-box;
+}
+
+.rtt-icon {
+  display: block;
+  flex-shrink: 0;
+}
+

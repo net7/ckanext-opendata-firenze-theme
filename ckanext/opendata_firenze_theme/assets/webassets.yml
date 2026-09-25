@@ -8,7 +8,16 @@ opendata_firenze_theme-css:
     - css/tokens/fig-tokens.css
     - css/tokens/semantic.css
     - css/tokens/typography.css
-    - css/opendata_firenze_theme.css
+    - css/base.css
+    - css/shell.css
+    - css/snippets.css
+    - css/home.css
+    - css/catalog.css
+    - css/responsive.css
+    - css/dataset.css
+    - css/resource.css
+    - css/editorial.css
+    - css/components.css
 
 opendata_firenze_theme-js:
   filters: rjsmin

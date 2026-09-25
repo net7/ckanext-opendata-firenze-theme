@@ -1,0 +1,550 @@
+/* ---- Catalogo -------------------------------------------------------- */
+
+.rtt-catalog {
+  background: var(--grad-surface);
+  min-height: 600px;
+}
+
+.rtt-catalog__inner {
+  padding-top: 24px;
+  padding-bottom: 72px;
+}
+
+.rtt-catalog .rtt-breadcrumbs {
+  margin-bottom: 56px;
+}
+
+.rtt-catalog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 8px;
+  flex-wrap: wrap;
+}
+
+.rtt-catalog__titles {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rtt-catalog__add {
+  flex-shrink: 0;
+}
+
+.rtt-catalog__title {
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.rtt-catalog__count {
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--neutral-neutral-600);
+}
+
+.rtt-catalog__search {
+  max-width: 720px;
+  margin-bottom: 16px;
+}
+
+.rtt-catalog__results {
+  margin-top: 4px;
+}
+
+.rtt-catalog__pager {
+  display: flex;
+  justify-content: center;
+  padding-top: 24px;
+}
+
+/* Faccette */
+.rtt-facets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.rtt-facets__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.rtt-facets__applied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.rtt-facets__applied-label {
+  margin-right: 2px;
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 28px;
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-facets__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 4px 0 10px;
+  border-radius: 999px;
+  background: var(--neutral-neutral-100);
+  color: var(--neutral-neutral-800);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-300);
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.rtt-facets__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.rtt-facets__remove:hover {
+  background: var(--neutral-neutral-200);
+}
+
+.rtt-facets__clear {
+  padding: 0 4px;
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 28px;
+  color: var(--primary-primary-700);
+  text-decoration: underline;
+}
+
+.rtt-facets__clear:visited {
+  color: var(--primary-primary-700);
+}
+
+.rtt-facets__sortrow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* Gruppo faccetta a tendina (stile DS Facet) */
+.rtt-facet {
+  position: relative;
+  display: inline-flex;
+}
+
+.rtt-facet__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--rtt-radius-md);
+  background: transparent;
+  cursor: pointer;
+  list-style: none;
+  white-space: nowrap;
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--neutral-neutral-800);
+  transition: background-color var(--rtt-duration) var(--rtt-ease), color var(--rtt-duration) var(--rtt-ease);
+}
+
+.rtt-facet__trigger::-webkit-details-marker {
+  display: none;
+}
+
+.rtt-facet__trigger:hover,
+.rtt-facet__trigger.is-active:hover {
+  background: var(--lilac-100);
+}
+
+.rtt-facet__trigger.is-active {
+  padding: 0 8px 0 10px;
+  background: transparent;
+  color: var(--neutral-neutral-900);
+  font-weight: 700;
+}
+
+.rtt-facet__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--primary-primary-600);
+  color: var(--basics-white-100);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.rtt-facet__chevron {
+  color: var(--neutral-neutral-700);
+  transition: transform var(--rtt-duration) var(--rtt-ease);
+}
+
+.rtt-facet__trigger.is-active .rtt-facet__chevron {
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-facet[open] .rtt-facet__chevron {
+  transform: rotate(180deg);
+}
+
+.rtt-facet__panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  min-width: 248px;
+  max-width: min(340px, calc(100vw - 32px));
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: var(--rtt-radius-lg);
+  background: var(--basics-white-100);
+  box-shadow: var(--rtt-shadow-lg);
+}
+
+.rtt-facet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 4px 6px 8px;
+  border-bottom: 1px solid var(--neutral-neutral-200);
+}
+
+.rtt-facet__title {
+  font-family: var(--rtt-font-ui);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--neutral-neutral-700);
+}
+
+.rtt-facet__items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.rtt-facet__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border-radius: var(--rtt-radius);
+  font-family: var(--rtt-font-ui);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--neutral-neutral-800);
+  text-decoration: none;
+}
+
+.rtt-facet__item:hover {
+  background: var(--neutral-neutral-50);
+}
+
+.rtt-facet__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border-radius: var(--rtt-radius);
+  background: var(--basics-white-100);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-800);
+  color: var(--basics-white-100);
+}
+
+.rtt-facet__item.is-active .rtt-facet__box {
+  background: #232327;
+  box-shadow: inset 0 0 0 1px #232327;
+}
+
+.rtt-facet__label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.rtt-facet__count {
+  flex-shrink: 0;
+  font-family: var(--rtt-font-ui);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-facet__foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  padding: 8px 6px 2px;
+  border-top: 1px solid var(--neutral-neutral-200);
+}
+
+.rtt-facet__link {
+  padding: 4px 6px;
+  border-radius: var(--rtt-radius);
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--primary-primary-700);
+  text-decoration: none;
+}
+
+.rtt-facet__link:visited {
+  color: var(--primary-primary-700);
+}
+
+.rtt-facet__link:hover {
+  background: var(--lilac-50);
+  text-decoration: underline;
+}
+
+/* "Ordina per" (InlineSelect del DS) */
+.rtt-sort {
+  position: relative;
+  display: inline-flex;
+}
+
+.rtt-sort__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.rtt-sort__summary::-webkit-details-marker {
+  display: none;
+}
+
+.rtt-sort__label {
+  font-family: var(--rtt-font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-sort__control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--neutral-neutral-600);
+  font-family: var(--rtt-font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-sort__chevron {
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-sort__panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 180px;
+  margin-top: 4px;
+  padding: 6px;
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: var(--rtt-radius-lg);
+  background: var(--basics-white-100);
+  box-shadow: var(--rtt-shadow-lg);
+}
+
+/* Nessun risultato: card di stato (come noresults.jsx) + "I dataset più
+   richiesti" sotto. La card contiene icona, titolo, messaggio e azioni; il resto
+   della pagina resta sullo sfondo neutro del catalogo. */
+.rtt-noresults {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.rtt-noresults__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  padding: 64px 24px;
+  background: var(--basics-white-100);
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: var(--rtt-radius-lg);
+}
+
+.rtt-noresults__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--rtt-radius-full);
+  background: var(--neutral-neutral-100);
+  color: var(--neutral-neutral-700);
+}
+
+.rtt-noresults__card h2,
+.rtt-noresults__card p {
+  margin: 0;
+}
+
+.rtt-noresults__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.rtt-noresults__top {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rtt-noresults__top-title {
+  margin: 0;
+  color: var(--neutral-neutral-900);
+}
+
+/* Pagina di errore (404 e altri codici): card di stato a tutta larghezza, con
+   le stesse proporzioni della card "nessun risultato" del catalogo. */
+.rtt-status {
+  background: var(--grad-surface);
+  padding: 64px 0 96px;
+}
+
+.rtt-status__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 64px 32px;
+  text-align: center;
+  background: var(--basics-white-100);
+  border: 1px solid var(--neutral-neutral-200);
+  border-radius: var(--rtt-radius-lg);
+}
+
+.rtt-status__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--rtt-radius-full);
+  background: var(--primary-primary-50);
+  color: var(--primary-primary-700);
+}
+
+.rtt-status__card h1,
+.rtt-status__card p {
+  margin: 0;
+}
+
+.rtt-status__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* Paginazione di CKAN */
+.rtt-catalog .pagination {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rtt-catalog .pagination .page-item .page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: var(--rtt-radius-md);
+  background: var(--basics-white-100);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-300);
+  color: var(--neutral-neutral-800);
+  text-decoration: none;
+  font-family: var(--rtt-font-ui);
+  font-size: 14px;
+}
+
+.rtt-catalog .pagination .page-item.active .page-link {
+  background: var(--primary-primary-500-base);
+  color: var(--basics-white-100);
+  box-shadow: none;
+}
+
+/* CKAN rende la pagina corrente come <span class="page-item active"> (senza
+   .page-link): la si stila come le altre per non lasciarla "nuda". */
+.rtt-catalog .pagination .page-item.active {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: var(--rtt-radius-md);
+  background: var(--primary-primary-500-base);
+  color: var(--basics-white-100);
+  font-family: var(--rtt-font-ui);
+  font-size: 14px;
+}
+
