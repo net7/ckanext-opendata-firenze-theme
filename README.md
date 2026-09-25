@@ -25,13 +25,13 @@ Per usarlo in un altro ambiente: `pip install -e .` e aggiungere
 ckanext/opendata_firenze_theme/
 ├── plugin.py                 IConfigurer + ITemplateHelpers + IBlueprint
 ├── views.py                  rotte editoriali (/annuario-statistico, /sviluppatori-e-lod)
-├── helpers.py                helper dei template (KPI, temi, faccette, dataset, …)
+├── helpers/                  helper dei template per area (_common, catalog, home, dataset, …)
 ├── templates/                override (base/page/header/footer) + home/package/annuario/sviluppatori/contact
-│   └── snippets/opendata_firenze_theme/   snippet riusabili (section, page-head, chip, card, …)
+│   └── snippets/opendata_firenze_theme/   snippet riusabili (section, page-head, chip, card, sviluppatori/tab-*)
 ├── assets/
 │   ├── webassets.yml         bundle CSS/JS
-│   ├── css/                  stili del tema + token del design system
-│   └── js/                   moduli JS (carosello, header, faccette, console SQL, …)
+│   ├── css/                  partial per area (base/shell/snippets/home/catalog/…) + tokens del design system
+│   └── js/                   moduli IIFE (shell, components, home, dataset, contact)
 ├── public/                   file statici non WebAssets (immagini, font, logo)
 ├── docs/adr/                 decisioni di progetto
 ├── tests/
