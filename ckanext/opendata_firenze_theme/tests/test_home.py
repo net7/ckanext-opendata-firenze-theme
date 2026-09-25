@@ -51,7 +51,7 @@ def test_theme_counts_from_dcat_theme(with_plugins, with_request_context):
     from ckanext.opendata_firenze_theme import helpers
 
     fake = {"search_facets": {"dcat_theme": {"items": [{"name": "ENVI", "count": 2}]}}}
-    with mock.patch.object(helpers, "_search", return_value=fake):
+    with mock.patch.object(helpers._common, "_search", return_value=fake):
         assert helpers.odf_theme_counts() == {"ENVI": 2}
 
 
@@ -64,7 +64,7 @@ def test_featured_datasets_hvd_then_recent(with_plugins, with_request_context):
             return {"results": [{"id": "a"}], "count": 1}
         return {"results": [{"id": "a"}, {"id": "b"}, {"id": "c"}]}
 
-    with mock.patch.object(helpers, "_search", side_effect=fake_search):
+    with mock.patch.object(helpers._common, "_search", side_effect=fake_search):
         got = helpers.odf_featured_datasets(limit=3)
     # prima l'HVD, poi i recenti senza duplicati
     assert [p["id"] for p in got] == ["a", "b", "c"]

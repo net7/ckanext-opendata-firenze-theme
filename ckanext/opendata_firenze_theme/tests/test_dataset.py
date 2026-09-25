@@ -105,6 +105,6 @@ def test_dataset_related_helper(with_plugins, with_request_context):
         "extras": [{"key": "theme", "value": '[".../data-theme/ENVI"]'}],
     }
     found = {"results": [{"id": "self"}, {"id": "a"}, {"id": "b"}, {"id": "c"}]}
-    with mock.patch.object(helpers, "_search", return_value=found):
+    with mock.patch.object(helpers._common, "_search", return_value=found):
         related = helpers.odf_dataset_related(pkg, limit=2)
     assert [r["id"] for r in related] == ["a", "b"]
