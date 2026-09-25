@@ -90,3 +90,53 @@ def test_no_duplicate_ids(app):
     ids = re.findall(r'\sid="([^"]+)"', body)
     dupes = {i: n for i, n in Counter(ids).items() if n > 1}
     assert not dupes, f"id duplicati nel DOM: {dupes}"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_template_helpers_registered():
+    """Il tema registra l'insieme completo degli helper dei template.
+
+    Guardia sulle riorganizzazioni del package `helpers`: se un helper viene
+    rinominato o non è più importato in `get_helpers()`, i template lo perdono
+    in silenzio (verrebbe reso come vuoto, non come errore). L'elenco è
+    esplicito: va aggiornato quando si aggiunge/rimuove un helper.
+    """
+    from ckanext.opendata_firenze_theme import helpers
+
+    expected = {
+        "odf_dataset_count",
+        "odf_package_theme",
+        "odf_facet_all_url",
+        "odf_facet_groups",
+        "odf_home_kpis",
+        "odf_themes",
+        "odf_featured_datasets",
+        "odf_most_viewed",
+        "odf_geo_datasets",
+        "odf_geo_search_query",
+        "odf_news",
+        "odf_annuario_chapters",
+        "odf_annuario_count",
+        "odf_annuario_datasets",
+        "odf_pkg_extra",
+        "odf_dataset_formats",
+        "odf_format_is_geo",
+        "odf_dataset_badges",
+        "odf_dataset_geometry",
+        "odf_dataset_is_geo",
+        "odf_number",
+        "odf_dataset_openness",
+        "odf_dataset_related",
+        "odf_dataset_contact",
+        "odf_dataset_downloads",
+        "odf_resource_download_url",
+        "odf_resource_view_title",
+        "odf_dataset_size",
+        "odf_sql_console_enabled",
+        "odf_datastore_resource_id",
+        "odf_date",
+        "odf_frequency_label",
+        "odf_filesize",
+    }
+    assert set(helpers.get_helpers()) == expected

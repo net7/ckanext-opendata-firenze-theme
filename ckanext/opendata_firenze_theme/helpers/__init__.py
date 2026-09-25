@@ -5,7 +5,7 @@ Re-export dei moduli del package: template e test li usano come `h.odf_*` /
 `format`, le query Solr (sostituibili nei test) in `_common`.
 """
 
-from . import _common
+from . import _common  # noqa: F401  (esposto per i test: helpers._common._search)
 from ._common import odf_number
 from .catalog import odf_facet_all_url, odf_facet_groups, odf_package_theme
 from .constants import (
@@ -49,7 +49,6 @@ from .home import (
 from .resource import odf_resource_download_url, odf_resource_view_title
 
 __all__ = [
-    "_common",
     "odf_number",
     "odf_facet_all_url",
     "odf_facet_groups",
