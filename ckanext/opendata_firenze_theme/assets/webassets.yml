@@ -14,7 +14,11 @@ opendata_firenze_theme-js:
   filters: rjsmin
   output: opendata_firenze_theme/%(version)s-opendata_firenze_theme.js
   contents:
-    - js/opendata_firenze_theme.js
+    - js/shell.js
+    - js/components.js
+    - js/home.js
+    - js/dataset.js
+    - js/contact.js
   extra:
     preload:
       - base/main
