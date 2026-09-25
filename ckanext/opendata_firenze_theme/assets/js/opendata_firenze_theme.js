@@ -1,7 +1,22 @@
 /* opendata_firenze_theme
  *
- * Comportamenti dello shell: header a scomparsa, menu mobile, selettore lingua,
- * reveal-on-scroll. Caricato in fondo al <body> (templates/base.html).
+ * Comportamenti progressivi del tema: senza JS la pagina resta usabile. IIFE
+ * autonomo (nessuna dipendenza da jQuery/sandbox di CKAN, nessuna variabile
+ * globale), caricato in fondo al <body> (templates/base.html). Moduli:
+ *
+ *   - initReveal          reveal-on-scroll (.rtt-reveal/.rtt-stagger)
+ *   - initHeader          header a scomparsa + menu mobile
+ *   - initChipRemove      rimozione chip [data-rtt-chip-remove] + evento
+ *                         "rtt-chip-remove"
+ *   - initFacetDismiss    chiusura dropdown faccette/"Ordina per"/"Scarica"
+ *   - initLineClamp       "Mostra tutto/meno" della descrizione dataset
+ *   - initSqlConsole      console SQL (datastore_search_sql, POST + CSRF)
+ *   - initPagerLabels     etichette accessibili del pager di CKAN
+ *   - initCommentCounter  contatore caratteri del form Collaborazione
+ *   - initCopyButtons     pulsanti "Copia" dei blocchi di codice
+ *   - initCarousels       carosello della home (indicatori + frecce)
+ *   - initContactTipo     etichetta/placeholder dinamici del form Collaborazione
+ *   - initPlaceholderLinks link segnaposto [data-rtt-placeholder]
  */
 (function () {
   "use strict";
