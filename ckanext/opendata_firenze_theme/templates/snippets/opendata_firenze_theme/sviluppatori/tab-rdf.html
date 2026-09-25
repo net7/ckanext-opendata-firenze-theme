@@ -1,0 +1,71 @@
+{#
+  Tab "RDF e LOD" della pagina Sviluppatori. Nessun parametro.
+#}
+{% from 'snippets/opendata_firenze_theme/sviluppatori/macros.html' import code_block, endpoint_table %}
+{% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{% set api_ext = h.url_for('/api/3/action', _external=True) %}
+{% set rdf_ext = h.url_for('/catalog.rdf', _external=True) %}
+{% set rdf_rows = [
+  ('catalog.rdf', _('Catalogo completo in RDF/XML'), 'GET'),
+  ('package_metadata_rdf_dcat_ap_it', _('Metadato del dataset conforme a DCAT-AP_IT'), 'GET'),
+  ('package_show_dcatap_it', _('Stesso profilo, serializzato in JSON-LD'), 'GET'),
+  ('sparql', _('Endpoint SPARQL sul grafo del catalogo'), 'GET / POST'),
+] %}
+{% set rdf_action %}<span class="rtt-body-sm">{{ _('Profilo DCAT-AP_IT') }}</span>{% endset %}
+{% set lod_action %}<span class="rtt-body-sm">{{ _('Naviga risorsa per risorsa con LodView o LodLive') }}</span>{% endset %}
+
+{% call panel(_('Risorse RDF'), action=rdf_action) %}
+  {{ endpoint_table(rdf_rows) }}
+{% endcall %}
+
+{% call panel(_('Catalogo completo in RDF/XML')) %}
+  {% call code_block() %}curl -H "Accept: application/rdf+xml" "{{ rdf_ext }}"
+
+# Metadato di un singolo dataset, in JSON-LD
+curl "{{ api_ext }}/package_show_dcatap_it?id=zone-30"{% endcall %}
+{% endcall %}
+
+{% call panel(_('Linked Open Data per ambito'), action=lod_action) %}
+  {% set ambiti = [
+    {'titolo': _('Storia e Memoria'), 'interlink': 'Wikidata, WikiVoyage, Fondazione CDEC', 'dataset': ['Esercizi storici', 'Lapidi Dantesche', 'Lapidi della Resistenza', "Luoghi di culto · Chiesa Cattolica", "Pietre d'inciampo", 'Stradario storico', 'Toponomastica Femminile']},
+    {'titolo': _('Il verde a Firenze'), 'interlink': 'Wikidata, GBIF, IPNI, Encyclopedia Of Life, iNaturalist, Royal Botanic Gardens (KEW)', 'dataset': ['Alberi', 'Aree Verdi']},
+    {'titolo': _('Cultura e Turismo'), 'interlink': 'Wikidata, Ministero della Cultura, Catalogo Beni Culturali, Sistema Archivistico Nazionale', 'dataset': ['Architettura e Monumenti', "Architetture del '900", 'Fontane monumentali', "Gallerie d'arte", 'Librerie', 'Musei', 'Teatri']},
+  ] %}
+  {# I dataset LOD non sono ancora in catalogo: i link a LodView/LodLive sono
+     segnaposto, come nel mockup (vedi docs/adr/0005). #}
+  {% for amb in ambiti %}
+  <div class="rtt-lod">
+    <h3 class="rtt-h5">{{ amb.titolo }}</h3>
+    <ul class="rtt-lod__list">
+      {% for nome in amb.dataset %}
+      <li>
+        <span>{{ nome }}</span>
+        <span class="rtt-lod__links">
+          <a class="rtt-link rtt-body-sm" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">LodView</a>
+          <a class="rtt-link rtt-body-sm" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">LodLive</a>
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+    <p class="rtt-body-sm">{{ _('Interlinking con') }} {{ amb.interlink }}.</p>
+  </div>
+  {% endfor %}
+{% endcall %}
+
+{% call panel(_('Come interrogare i Linked Open Data')) %}
+  <p class="rtt-body">{{ _("SPARQL è il linguaggio standard W3C per interrogare dati RDF ed è alla base del web semantico: per interrogare direttamente il grafo del catalogo ci si collega all'endpoint SPARQL, senza passare dalle API REST del datastore.") }}</p>
+  {# endpoint SPARQL non ancora attivo: link segnaposto (vedi docs/adr/0005) #}
+  <a class="rtt-btn rtt-btn--outline" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">{{ _("Vai all'endpoint SPARQL") }}{{ icon('arrow-top-right', 20, 'rtt-btn__icon') }}</a>
+{% endcall %}
+
+{% call panel(_('Archivi nazionali')) %}
+  <p class="rtt-body">{{ _('I metadati sono armonizzati e riversati verso i cataloghi nazionali: la scheda pubblicata qui e quella nazionale descrivono la stessa risorsa.') }}</p>
+  {# URL esterni non ancora confermati: link segnaposto (vedi docs/adr/0005) #}
+  <ul class="rtt-doclinks">
+    <li><a class="rtt-link" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">{{ icon('doc', 20, 'rtt-link__icon') }}{{ _('Scheda del Comune di Firenze su dati.gov.it') }}</a></li>
+    <li><a class="rtt-link" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">{{ icon('doc', 20, 'rtt-link__icon') }}{{ _('Repertorio Nazionale dei Dati Territoriali · geodati.gov.it (RNDT)') }}</a></li>
+    <li><a class="rtt-link" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">{{ icon('doc', 20, 'rtt-link__icon') }}{{ _('Profilo DCAT-AP_IT · specifica AGID') }}</a></li>
+  </ul>
+{% endcall %}

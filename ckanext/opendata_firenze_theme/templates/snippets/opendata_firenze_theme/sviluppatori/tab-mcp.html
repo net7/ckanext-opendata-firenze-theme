@@ -1,0 +1,31 @@
+{#
+  Tab "MCP Server" della pagina Sviluppatori. Nessun parametro.
+#}
+{% from 'snippets/opendata_firenze_theme/sviluppatori/macros.html' import code_block, endpoint_table %}
+{% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import status_chip %}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{% call panel(_('MCP Server pubblico'), action=status_chip(_('Beta'), 'in-attivazione')) %}
+  <div class="rtt-mcp">
+    <span class="rtt-iconwrap" aria-hidden="true">{{ icon('server-stack', 32) }}</span>
+    <p class="rtt-body">{{ _('Un server MCP espone il catalogo ai modelli linguistici: ricerca dataset, lettura dei metadati e query tabellari, sempre in sola lettura. Nessun dato personale transita dal servizio.') }}</p>
+  </div>
+  {% call code_block() %}{
+  "mcpServers": {
+    "opendata-firenze": {
+      "url": "{{ h.url_for('/', _external=True) }}mcp",
+      "transport": "http"
+    }
+  }
+}{% endcall %}
+{% endcall %}
+
+{% call panel(_('Strumenti esposti')) %}
+  {{ endpoint_table([
+    ('search_datasets', _('Ricerca nel catalogo per parole chiave e tema'), 'tool'),
+    ('get_dataset', _('Metadati completi di un dataset'), 'tool'),
+    ('query_resource', _('SELECT sul datastore di una risorsa tabellare'), 'tool'),
+  ]) }}
+  <p class="rtt-body-sm">{{ _("Il servizio è in beta: l'elenco degli strumenti può cambiare. Segnalaci come lo stai usando dalla") }} <a href="{{ h.url_for('/contact') }}">{{ _('pagina Collaborazione') }}</a>.</p>
+{% endcall %}

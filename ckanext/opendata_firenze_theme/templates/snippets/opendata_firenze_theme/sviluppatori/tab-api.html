@@ -1,0 +1,30 @@
+{#
+  Tab "API del catalogo" della pagina Sviluppatori.
+  Parametri: api (base URL dell'action API, senza dominio).
+#}
+{% from 'snippets/opendata_firenze_theme/sviluppatori/macros.html' import code_block, endpoint_table %}
+{% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import chip %}
+
+{% set api_ext = h.url_for('/api/3/action', _external=True) %}
+{% set api_rows = [
+  ('package_search', _('Ricerca sul catalogo, con faccette e paginazione'), 'GET'),
+  ('package_show', _('Metadati completi di un dataset e delle sue risorse'), 'GET'),
+  ('resource_show', _('Metadati di una singola risorsa distribuita'), 'GET'),
+  ('datastore_search', _('Righe di una risorsa tabellare, filtrabili'), 'GET'),
+  ('datastore_search_sql', _('Query SQL in sola lettura sul datastore'), 'GET'),
+  ('organization_list', _('Elenco delle strutture titolari dei dati'), 'GET'),
+] %}
+{% set base_action %}<span class="rtt-body-sm">{{ _('Base') }} · {{ api }}</span>{% endset %}
+
+{% call panel(_('Endpoint CKAN'), action=base_action) %}
+  {{ endpoint_table(api_rows) }}
+  <p class="rtt-body-sm">{{ _('Le risposte sono JSON. Il campo') }} <code>success</code> {{ _("indica l'esito; i dati stanno sempre in") }} <code>result</code>.</p>
+{% endcall %}
+
+{% call panel(_('Prima chiamata'), action=chip('cURL', 'sm')) %}
+  {% call code_block() %}curl "{{ api_ext }}/package_search?q=biblioteche&amp;rows=5"
+
+# Metadati di un dataset, con le statistiche di download
+curl "{{ api_ext }}/package_show?id=biblioteche-sdiaf&amp;stats=1"{% endcall %}
+{% endcall %}

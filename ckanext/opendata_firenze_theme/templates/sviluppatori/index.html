@@ -1,38 +1,12 @@
 {% extends "page.html" %}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% from 'snippets/opendata_firenze_theme/page-head.html' import page_head %}
-{% from 'snippets/opendata_firenze_theme/chip.html' import chip, status_chip %}
-{% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
-
-{# Blocco di codice con il pulsante "Copia" (il JS copia il testo, nascondendolo
-   se manca la clipboard API). #}
-{% macro code_block() -%}
-<div class="rtt-code-wrap">
-  <pre class="rtt-code"><code>{{ caller() }}</code></pre>
-  <button type="button" class="rtt-code__copy" data-rtt-copy data-label-copied="{{ _('Copiato') }}">{{ icon('clipboard', 16, 'rtt-code__copy-icon') }}<span data-rtt-copy-label>{{ _('Copia') }}</span></button>
-</div>
-{%- endmacro %}
-
-{# Tabella degli endpoint: righe (endpoint, descrizione, metodo). #}
-{% macro endpoint_table(rows) -%}
-<div class="rtt-table rtt-table--endpoints">
-  <table>
-    <thead><tr><th scope="col">{{ _('Endpoint') }}</th><th scope="col">{{ _('Cosa restituisce') }}</th><th scope="col">{{ _('Metodo') }}</th></tr></thead>
-    <tbody>
-      {% for name, what, metodo in rows %}
-      <tr><td>{{ name }}</td><td>{{ what }}</td><td>{{ chip(metodo, 'sm') }}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-{%- endmacro %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import status_chip %}
 
 {% block subtitle %}{{ _('Sviluppatori & LOD') }}{% endblock %}
 
 {% block content %}
 {% set api = h.url_for('/api/3/action') %}
-{% set api_ext = h.url_for('/api/3/action', _external=True) %}
-{% set rdf_ext = h.url_for('/catalog.rdf', _external=True) %}
 {% set tab = request.args.get('tab', 'api') %}
 {% set tabs = [
   {'value': 'api', 'label': _('API del catalogo'), 'icon': 'code-bracket'},
@@ -40,24 +14,7 @@
   {'value': 'geo', 'label': _('Servizi geografici'), 'icon': 'map'},
   {'value': 'mcp', 'label': _('MCP Server'), 'icon': 'server-stack'},
 ] %}
-{% set api_rows = [
-  ('package_search', _('Ricerca sul catalogo, con faccette e paginazione'), 'GET'),
-  ('package_show', _('Metadati completi di un dataset e delle sue risorse'), 'GET'),
-  ('resource_show', _('Metadati di una singola risorsa distribuita'), 'GET'),
-  ('datastore_search', _('Righe di una risorsa tabellare, filtrabili'), 'GET'),
-  ('datastore_search_sql', _('Query SQL in sola lettura sul datastore'), 'GET'),
-  ('organization_list', _('Elenco delle strutture titolari dei dati'), 'GET'),
-] %}
-{% set rdf_rows = [
-  ('catalog.rdf', _('Catalogo completo in RDF/XML'), 'GET'),
-  ('package_metadata_rdf_dcat_ap_it', _('Metadato del dataset conforme a DCAT-AP_IT'), 'GET'),
-  ('package_show_dcatap_it', _('Stesso profilo, serializzato in JSON-LD'), 'GET'),
-  ('sparql', _('Endpoint SPARQL sul grafo del catalogo'), 'GET / POST'),
-] %}
 {% set svil_aside %}<div class="rtt-editorial-page__badges">{{ status_chip(_('Nessuna autenticazione'), 'aperto') }}{{ status_chip('CC BY 4.0', 'graduatorie') }}</div><span class="rtt-body-sm">{{ _('Base URL') }} · {{ api }}</span>{% endset %}
-{% set base_action %}<span class="rtt-body-sm">{{ _('Base') }} · {{ api }}</span>{% endset %}
-{% set rdf_action %}<span class="rtt-body-sm">{{ _('Profilo DCAT-AP_IT') }}</span>{% endset %}
-{% set lod_action %}<span class="rtt-body-sm">{{ _('Naviga risorsa per risorsa con LodView o LodLive') }}</span>{% endset %}
 <main class="rtt-editorial-page" id="content" tabindex="-1">
   {% call page_head(
       _('Sviluppatori & Linked Open Data'),
@@ -75,128 +32,13 @@
     </nav>
 
     {% if tab == 'rdf' %}
-    {% call panel(_('Risorse RDF'), action=rdf_action) %}
-      {{ endpoint_table(rdf_rows) }}
-    {% endcall %}
-
-    {% call panel(_('Catalogo completo in RDF/XML')) %}
-      {% call code_block() %}curl -H "Accept: application/rdf+xml" "{{ rdf_ext }}"
-
-# Metadato di un singolo dataset, in JSON-LD
-curl "{{ api_ext }}/package_show_dcatap_it?id=zone-30"{% endcall %}
-    {% endcall %}
-
-    {% call panel(_('Linked Open Data per ambito'), action=lod_action) %}
-      {% set ambiti = [
-        {'titolo': _('Storia e Memoria'), 'interlink': 'Wikidata, WikiVoyage, Fondazione CDEC', 'dataset': ['Esercizi storici', 'Lapidi Dantesche', 'Lapidi della Resistenza', "Luoghi di culto · Chiesa Cattolica", "Pietre d'inciampo", 'Stradario storico', 'Toponomastica Femminile']},
-        {'titolo': _('Il verde a Firenze'), 'interlink': 'Wikidata, GBIF, IPNI, Encyclopedia Of Life, iNaturalist, Royal Botanic Gardens (KEW)', 'dataset': ['Alberi', 'Aree Verdi']},
-        {'titolo': _('Cultura e Turismo'), 'interlink': 'Wikidata, Ministero della Cultura, Catalogo Beni Culturali, Sistema Archivistico Nazionale', 'dataset': ['Architettura e Monumenti', "Architetture del '900", 'Fontane monumentali', "Gallerie d'arte", 'Librerie', 'Musei', 'Teatri']},
-      ] %}
-      {# I dataset LOD non sono ancora in catalogo: i link a LodView/LodLive sono
-         segnaposto, come nel mockup (vedi docs/adr/0005). #}
-      {% for amb in ambiti %}
-      <div class="rtt-lod">
-        <h3 class="rtt-h5">{{ amb.titolo }}</h3>
-        <ul class="rtt-lod__list">
-          {% for nome in amb.dataset %}
-          <li>
-            <span>{{ nome }}</span>
-            <span class="rtt-lod__links">
-              <a class="rtt-link rtt-body-sm" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">LodView</a>
-              <a class="rtt-link rtt-body-sm" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">LodLive</a>
-            </span>
-          </li>
-          {% endfor %}
-        </ul>
-        <p class="rtt-body-sm">{{ _('Interlinking con') }} {{ amb.interlink }}.</p>
-      </div>
-      {% endfor %}
-    {% endcall %}
-
-    {% call panel(_('Come interrogare i Linked Open Data')) %}
-      <p class="rtt-body">{{ _("SPARQL è il linguaggio standard W3C per interrogare dati RDF ed è alla base del web semantico: per interrogare direttamente il grafo del catalogo ci si collega all'endpoint SPARQL, senza passare dalle API REST del datastore.") }}</p>
-      {# endpoint SPARQL non ancora attivo: link segnaposto (vedi docs/adr/0005) #}
-      <a class="rtt-btn rtt-btn--outline" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">{{ _("Vai all'endpoint SPARQL") }}{{ icon('arrow-top-right', 20, 'rtt-btn__icon') }}</a>
-    {% endcall %}
-
-    {% call panel(_('Archivi nazionali')) %}
-      <p class="rtt-body">{{ _('I metadati sono armonizzati e riversati verso i cataloghi nazionali: la scheda pubblicata qui e quella nazionale descrivono la stessa risorsa.') }}</p>
-      {# URL esterni non ancora confermati: link segnaposto (vedi docs/adr/0005) #}
-      <ul class="rtt-doclinks">
-        <li><a class="rtt-link" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">{{ icon('doc', 20, 'rtt-link__icon') }}{{ _('Scheda del Comune di Firenze su dati.gov.it') }}</a></li>
-        <li><a class="rtt-link" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">{{ icon('doc', 20, 'rtt-link__icon') }}{{ _('Repertorio Nazionale dei Dati Territoriali · geodati.gov.it (RNDT)') }}</a></li>
-        <li><a class="rtt-link" href="#" data-rtt-placeholder title="{{ _('Non ancora disponibile') }}">{{ icon('doc', 20, 'rtt-link__icon') }}{{ _('Profilo DCAT-AP_IT · specifica AGID') }}</a></li>
-      </ul>
-    {% endcall %}
-
+    {% snippet 'snippets/opendata_firenze_theme/sviluppatori/tab-rdf.html' %}
     {% elif tab == 'geo' %}
-    {% call panel(_('Servizi WMS e WMTS'), action=chip('tms.comune.fi.it', 'sm')) %}
-      <p class="rtt-body">{{ _('I layer geografici sono serviti dal tile server comunale in WGS84 / EPSG:4326 e sono caricabili direttamente in QGIS, ArcGIS o in una mappa Leaflet.') }}</p>
-      {% call code_block() %}# WMS tiled · GetCapabilities
-https://tms.comune.fi.it/tiles/service/wms?tiled=TRUE&amp;request=GetCapabilities&amp;service=WMS&amp;version=1.3.0
-
-# WMTS · GetCapabilities
-https://tms.comune.fi.it/tiles/service/wmts?request=GetCapabilities&amp;service=WMTS&amp;version=1.3.0{% endcall %}
-    {% endcall %}
-
-    {% call panel(_('Caricare un layer in QGIS')) %}
-      <ol class="rtt-editorial-page__steps">
-        <li>{{ _('Livello → Aggiungi livello → Aggiungi livello WMS/WMTS.') }}</li>
-        <li>{{ _("Nuova connessione, incolla l'URL di GetCapabilities qui sopra.") }}</li>
-        <li>{{ _('Connetti, scegli il layer e conferma il sistema di riferimento EPSG:4326.') }}</li>
-      </ol>
-      <p class="rtt-body-sm">{{ _('Per i dataset scaricabili preferisci GeoJSON o SHP: contengono le geometrie, il WMS solo la rappresentazione.') }}</p>
-    {% endcall %}
-
-    {% call panel(_('Dataset con estensione spaziale')) %}
-      {% set geo_packages = h.odf_geo_datasets(12) %}
-      {% if geo_packages %}
-      <div class="rtt-chip-row">
-        {% for pkg in geo_packages %}
-        <a class="rtt-chip-link" href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ chip(pkg.title, 'sm') }}</a>
-        {% endfor %}
-      </div>
-      {% endif %}
-      <a class="rtt-actionlink" href="{{ h.url_for('dataset.search', q=h.odf_geo_search_query()) }}">{{ _('Filtra il catalogo per geodati') }}{{ icon('arrow-right', 20, 'rtt-actionlink__icon') }}</a>
-    {% endcall %}
-
+    {% snippet 'snippets/opendata_firenze_theme/sviluppatori/tab-geo.html' %}
     {% elif tab == 'mcp' %}
-    {% call panel(_('MCP Server pubblico'), action=status_chip(_('Beta'), 'in-attivazione')) %}
-      <div class="rtt-mcp">
-        <span class="rtt-iconwrap" aria-hidden="true">{{ icon('server-stack', 32) }}</span>
-        <p class="rtt-body">{{ _('Un server MCP espone il catalogo ai modelli linguistici: ricerca dataset, lettura dei metadati e query tabellari, sempre in sola lettura. Nessun dato personale transita dal servizio.') }}</p>
-      </div>
-      {% call code_block() %}{
-  "mcpServers": {
-    "opendata-firenze": {
-      "url": "{{ h.url_for('/', _external=True) }}mcp",
-      "transport": "http"
-    }
-  }
-}{% endcall %}
-    {% endcall %}
-
-    {% call panel(_('Strumenti esposti')) %}
-      {{ endpoint_table([
-        ('search_datasets', _('Ricerca nel catalogo per parole chiave e tema'), 'tool'),
-        ('get_dataset', _('Metadati completi di un dataset'), 'tool'),
-        ('query_resource', _('SELECT sul datastore di una risorsa tabellare'), 'tool'),
-      ]) }}
-      <p class="rtt-body-sm">{{ _("Il servizio è in beta: l'elenco degli strumenti può cambiare. Segnalaci come lo stai usando dalla") }} <a href="{{ h.url_for('/contact') }}">{{ _('pagina Collaborazione') }}</a>.</p>
-    {% endcall %}
-
+    {% snippet 'snippets/opendata_firenze_theme/sviluppatori/tab-mcp.html' %}
     {% else %}
-    {% call panel(_('Endpoint CKAN'), action=base_action) %}
-      {{ endpoint_table(api_rows) }}
-      <p class="rtt-body-sm">{{ _('Le risposte sono JSON. Il campo') }} <code>success</code> {{ _("indica l'esito; i dati stanno sempre in") }} <code>result</code>.</p>
-    {% endcall %}
-
-    {% call panel(_('Prima chiamata'), action=chip('cURL', 'sm')) %}
-      {% call code_block() %}curl "{{ api_ext }}/package_search?q=biblioteche&amp;rows=5"
-
-# Metadati di un dataset, con le statistiche di download
-curl "{{ api_ext }}/package_show?id=biblioteche-sdiaf&amp;stats=1"{% endcall %}
-    {% endcall %}
+    {% snippet 'snippets/opendata_firenze_theme/sviluppatori/tab-api.html', api=api %}
     {% endif %}
   </div>
 </main>

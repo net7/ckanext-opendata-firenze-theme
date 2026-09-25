@@ -1,0 +1,29 @@
+{#
+  Macro condivise della pagina Sviluppatori & LOD, usate dai tab
+  (tab-api/tab-rdf/tab-geo/tab-mcp).
+#}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import chip %}
+
+{# Blocco di codice con il pulsante "Copia" (il JS copia il testo, nascondendolo
+   se manca la clipboard API). #}
+{% macro code_block() -%}
+<div class="rtt-code-wrap">
+  <pre class="rtt-code"><code>{{ caller() }}</code></pre>
+  <button type="button" class="rtt-code__copy" data-rtt-copy data-label-copied="{{ _('Copiato') }}">{{ icon('clipboard', 16, 'rtt-code__copy-icon') }}<span data-rtt-copy-label>{{ _('Copia') }}</span></button>
+</div>
+{%- endmacro %}
+
+{# Tabella degli endpoint: righe (endpoint, descrizione, metodo). #}
+{% macro endpoint_table(rows) -%}
+<div class="rtt-table rtt-table--endpoints">
+  <table>
+    <thead><tr><th scope="col">{{ _('Endpoint') }}</th><th scope="col">{{ _('Cosa restituisce') }}</th><th scope="col">{{ _('Metodo') }}</th></tr></thead>
+    <tbody>
+      {% for name, what, metodo in rows %}
+      <tr><td>{{ name }}</td><td>{{ what }}</td><td>{{ chip(metodo, 'sm') }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{%- endmacro %}
