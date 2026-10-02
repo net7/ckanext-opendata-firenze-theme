@@ -1,5 +1,7 @@
 """Helper della scheda dataset: badge, formati, metadati, QA, risorse."""
 
+import re
+
 import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
@@ -128,31 +130,86 @@ def odf_dataset_related(pkg, limit=3):
     return [r for r in data["results"] if r.get("id") != pkg.get("id")][:limit]
 
 
+_SERIES_SORT = "title_string asc"
+_YEAR_RE = re.compile(r"\b(?:19|20)\d{2}\b")
+
+
+def _series_item(result):
+    """Voce del pannello serie: nome, titolo e formati (da Solr, senza `resources`)."""
+    return {
+        "name": result.get("name"),
+        "title": result.get("title") or result.get("name"),
+        "formats": odf_dataset_formats(result),
+    }
+
+
+def _series_siblings(pkg, fq, limit):
+    """Altri dataset che soddisfano `fq`, escluso sé stesso (via package_search)."""
+    data = _common._search(rows=limit + 1, fq=fq, sort=_SERIES_SORT)
+    items = []
+    for result in data["results"]:
+        if result.get("id") == pkg.get("id"):
+            continue
+        items.append(_series_item(result))
+        if len(items) >= limit:
+            break
+    return items
+
+
 def odf_dataset_series(pkg, limit=20):
     """Altri dataset della stessa serie (extra `serie`), escluso sé stesso.
 
-    Alimenta il pannello "Altri dataset della serie" (la SeriePanel del mockup):
-    una voce per dataset che condivide la stessa serie, con `name`, `title` e i
-    `formats` (da Solr, dove non c'è `resources`). Lista vuota se il dataset non
-    ha serie o è l'unico della serie.
+    Alimenta il ramo "Altri dataset della serie" della SeriePanel: una voce per
+    dataset che condivide la stessa serie, con `name`, `title` e i `formats`
+    (da Solr, dove non c'è `resources`). Lista vuota se il dataset non ha serie
+    o è l'unico della serie.
+
+    Soluzione **temporanea**: sarà sostituita dal modello serie di DCAT 3
+    (`dcat:inSeries`), come tracciato in DP07; il ramo temporale usa già lo
+    standard `is_version_of` (vedi `odf_dataset_revisions`).
     """
     serie = odf_pkg_extra(pkg, "serie")
     if not serie:
         return []
-    data = _common._search(rows=limit + 1, fq=f'extras_serie:"{serie}"', sort="title_string asc")
-    items = []
-    for r in data["results"]:
-        if r.get("id") == pkg.get("id"):
+    return _series_siblings(pkg, f'extras_serie:"{serie}"', limit)
+
+
+def _is_version_of_roots(pkg):
+    """Valori di `is_version_of` (dct:isVersionOf): lista o stringa CSV."""
+    raw = odf_pkg_extra(pkg, "is_version_of")
+    if not raw:
+        return []
+    values = raw if isinstance(raw, (list, tuple)) else str(raw).split(",")
+    return [str(value).strip() for value in values if str(value).strip()]
+
+
+def _revision_year(*texts):
+    """Anno a 4 cifre contenuto nel titolo/nome, o None (per l'etichetta "Anno…")."""
+    for text in texts:
+        if not text:
             continue
-        items.append(
-            {
-                "name": r.get("name"),
-                "title": r.get("title") or r.get("name"),
-                "formats": odf_dataset_formats(r),
-            }
-        )
-        if len(items) >= limit:
-            break
+        match = _YEAR_RE.search(str(text))
+        if match:
+            return match.group(0)
+    return None
+
+
+def odf_dataset_revisions(pkg, limit=20):
+    """Revisioni temporali: dataset che condividono lo stesso `is_version_of`.
+
+    `is_version_of` (`dct:isVersionOf`) è il meccanismo **standard** di DCAT-AP
+    2.0 per le annualità: le revisioni dello stesso indicatore puntano tutte
+    alla stessa risorsa radice. Alimenta il ramo "Revisioni temporali" della
+    SeriePanel, con l'`year` estratto dal titolo per l'etichetta "Anno <anno>".
+    Lista vuota se il dataset non è una revisione o è l'unica.
+    """
+    roots = _is_version_of_roots(pkg)
+    if not roots:
+        return []
+    fq = " OR ".join(f'extras_is_version_of:"{root}"' for root in roots)
+    items = _series_siblings(pkg, fq, limit)
+    for item in items:
+        item["year"] = _revision_year(item["title"], item["name"])
     return items
 
 

@@ -176,6 +176,43 @@ def test_series_panel_renders(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_revisions_panel_renders(with_plugins, with_request_context):
+    """Il ramo "Revisioni temporali" ha la precedenza e usa l'anno del titolo."""
+    from unittest import mock
+
+    from ckanext.opendata_firenze_theme import helpers
+
+    root = "https://opendata-firenze.test/dataset/popolazione"
+    pkg = {
+        "id": "self",
+        "name": "self",
+        "title": "Popolazione residente 2025",
+        "extras": [
+            {"key": "is_version_of", "value": root},
+            {"key": "serie", "value": "Popolazione"},
+        ],
+    }
+    found = {
+        "results": [
+            {"id": "self", "name": "self", "title": "Popolazione residente 2025"},
+            {"id": "a", "name": "pop-2024", "title": "Popolazione residente 2024", "res_format": ["CSV"]},
+        ]
+    }
+    with mock.patch.object(helpers._common, "_search", return_value=found):
+        html = _render(
+            "{% from 'snippets/opendata_firenze_theme/dataset/serie.html' import series_panel %}"
+            "{{ series_panel(pkg) }}",
+            pkg=pkg,
+        )
+    assert "Revisioni temporali" in html
+    assert "Revisioni precedenti · 1" in html
+    assert "Anno 2024" in html
+    assert "/dataset/pop-2024" in html
+    # con le revisioni il ramo serie non deve comparire
+    assert "Altri dataset della serie" not in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_dataset_aside_realtime_label(with_plugins, with_request_context):
     """Il riquadro "In sintesi" mostra "Aggiornato" solo per i dataset realtime."""
     pkg = {

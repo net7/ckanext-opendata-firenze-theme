@@ -138,6 +138,44 @@ def test_dataset_series_helper(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_revisions_helper(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    # senza is_version_of non si interroga il catalogo
+    assert helpers.odf_dataset_revisions({"id": "x"}) == []
+
+    root = "https://opendata-firenze.test/dataset/popolazione"
+    pkg = {"id": "self", "extras": [{"key": "is_version_of", "value": root}]}
+    found = {
+        "results": [
+            {"id": "self", "name": "self", "title": "Popolazione residente 2025"},
+            {"id": "a", "name": "pop-2024", "title": "Popolazione residente 2024", "res_format": ["CSV"]},
+            {"id": "b", "name": "pop-2023", "title": "Popolazione residente 2023"},
+            {"id": "c", "name": "pop-storico", "title": "Popolazione (storico)"},
+        ]
+    }
+    with mock.patch.object(helpers._common, "_search", return_value=found) as search:
+        revisions = helpers.odf_dataset_revisions(pkg)
+    # sé stesso escluso, formati da Solr e anno estratto dal titolo (None se assente)
+    assert [r["name"] for r in revisions] == ["pop-2024", "pop-2023", "pop-storico"]
+    assert [r["year"] for r in revisions] == ["2024", "2023", None]
+    assert revisions[0]["formats"] == ["CSV"]
+    assert f'extras_is_version_of:"{root}"' in search.call_args.kwargs["fq"]
+
+    # più valori (dcatapit li serializza separati da virgola): tutti nella query
+    multi = {
+        "id": "self",
+        "extras": [{"key": "is_version_of", "value": f"{root},https://example.test/x"}],
+    }
+    with mock.patch.object(helpers._common, "_search", return_value=found) as search:
+        helpers.odf_dataset_revisions(multi)
+    fq = search.call_args.kwargs["fq"]
+    assert f'extras_is_version_of:"{root}"' in fq
+    assert 'extras_is_version_of:"https://example.test/x"' in fq
+    assert " OR " in fq
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_time_ago_helper(with_plugins, with_request_context):
     from datetime import datetime, timedelta, timezone
 

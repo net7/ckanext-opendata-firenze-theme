@@ -590,8 +590,8 @@
   text-decoration: underline;
 }
 
-/* Pannello "Altri dataset della serie" (SeriePanel del mockup): accordion
-   nativo (<details>) con l'elenco dei dataset della serie e i chip formato. */
+/* Pannello serie/revisioni (SeriePanel del mockup): accordion nativo
+   (<details>) con l'elenco degli altri dataset/revisioni e i chip formato. */
 .rtt-series {
   margin-top: 4px;
 }

@@ -128,6 +128,7 @@ def test_template_helpers_registered():
         "odf_number",
         "odf_dataset_openness",
         "odf_dataset_related",
+        "odf_dataset_revisions",
         "odf_dataset_series",
         "odf_dataset_contact",
         "odf_dataset_downloads",
