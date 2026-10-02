@@ -98,6 +98,12 @@ def test_dataset_helpers(with_plugins, with_request_context):
     assert helpers.odf_pkg_extra({"extras": [{"key": "serie", "value": "S"}]}, "serie") == "S"
     assert helpers.odf_pkg_extra({"extras": []}, "serie") is None
 
+    # i campi schema dcatapit escono in cima al package (convert_from_extras)
+    assert helpers.odf_pkg_extra({"is_version_of": "u"}, "is_version_of") == "u"
+    assert helpers.odf_pkg_extra({"is_version_of": "u", "extras": []}, "is_version_of") == "u"
+    # l'extra esatto ha la precedenza sul top-level
+    assert helpers.odf_pkg_extra({"serie": "TOP", "extras": [{"key": "serie", "value": "S"}]}, "serie") == "S"
+
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_realtime_badge_truthiness(with_plugins, with_request_context):
@@ -138,41 +144,114 @@ def test_dataset_series_helper(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.ckan_config("ckan.site_url", "https://opendata-firenze.test")
 def test_dataset_revisions_helper(with_plugins, with_request_context):
     from ckanext.opendata_firenze_theme import helpers
 
-    # senza is_version_of non si interroga il catalogo
-    assert helpers.odf_dataset_revisions({"id": "x"}) == []
+    # nessuna revisione -> lista vuota
+    with mock.patch.object(helpers._common, "_search", return_value={"results": []}):
+        assert helpers.odf_dataset_revisions({"id": "x", "name": "x"}) == []
 
-    root = "https://opendata-firenze.test/dataset/popolazione"
-    pkg = {"id": "self", "extras": [{"key": "is_version_of", "value": root}]}
+    # dataset CORRENTE (senza is_version_of): cerca chi lo referenzia
+    canonical = {"id": "self", "name": "popolazione", "title": "Popolazione residente"}
     found = {
         "results": [
-            {"id": "self", "name": "self", "title": "Popolazione residente 2025"},
+            {"id": "self", "name": "popolazione", "title": "Popolazione residente"},
             {"id": "a", "name": "pop-2024", "title": "Popolazione residente 2024", "res_format": ["CSV"]},
             {"id": "b", "name": "pop-2023", "title": "Popolazione residente 2023"},
-            {"id": "c", "name": "pop-storico", "title": "Popolazione (storico)"},
         ]
     }
     with mock.patch.object(helpers._common, "_search", return_value=found) as search:
-        revisions = helpers.odf_dataset_revisions(pkg)
-    # sé stesso escluso, formati da Solr e anno estratto dal titolo (None se assente)
-    assert [r["name"] for r in revisions] == ["pop-2024", "pop-2023", "pop-storico"]
-    assert [r["year"] for r in revisions] == ["2024", "2023", None]
+        revisions = helpers.odf_dataset_revisions(canonical)
+    assert [r["name"] for r in revisions] == ["pop-2024", "pop-2023"]
+    assert [r["year"] for r in revisions] == ["2024", "2023"]
     assert revisions[0]["formats"] == ["CSV"]
-    assert f'extras_is_version_of:"{root}"' in search.call_args.kwargs["fq"]
+    # la ricerca usa la URL di scheda del corrente (in fq cita is_version_of)
+    fqs = [call.kwargs["fq"] for call in search.call_args_list]
+    assert any("/dataset/popolazione" in fq for fq in fqs)
+
+    # REVISIONE: elenca il corrente (risolto) + gli altri con lo stesso is_version_of
+    root = "https://opendata-firenze.test/dataset/popolazione"
+    revision = {"id": "a", "name": "pop-2024", "is_version_of": root}
+    siblings = {
+        "results": [
+            {"id": "a", "name": "pop-2024", "title": "Popolazione residente 2024"},
+            {"id": "b", "name": "pop-2023", "title": "Popolazione residente 2023"},
+        ]
+    }
+    with mock.patch.object(helpers._common, "_search", return_value=siblings) as search, mock.patch(
+        "ckanext.opendata_firenze_theme.helpers.dataset._dataset_by_uri_root",
+        return_value={"id": "self", "name": "popolazione", "title": "Popolazione residente"},
+    ):
+        revisions = helpers.odf_dataset_revisions(revision)
+    assert [r["name"] for r in revisions] == ["popolazione", "pop-2023"]
+    fqs = [call.kwargs["fq"] for call in search.call_args_list]
+    assert f'extras_is_version_of:"{root}"' in fqs
 
     # più valori (dcatapit li serializza separati da virgola): tutti nella query
-    multi = {
-        "id": "self",
-        "extras": [{"key": "is_version_of", "value": f"{root},https://example.test/x"}],
-    }
-    with mock.patch.object(helpers._common, "_search", return_value=found) as search:
+    multi = {"id": "a", "name": "pop-2024", "is_version_of": f"{root},https://example.test/x"}
+    with mock.patch.object(helpers._common, "_search", return_value={"results": []}) as search, mock.patch(
+        "ckanext.opendata_firenze_theme.helpers.dataset._dataset_by_uri_root", return_value=None
+    ):
         helpers.odf_dataset_revisions(multi)
-    fq = search.call_args.kwargs["fq"]
-    assert f'extras_is_version_of:"{root}"' in fq
-    assert 'extras_is_version_of:"https://example.test/x"' in fq
-    assert " OR " in fq
+    fqs = [call.kwargs["fq"] for call in search.call_args_list]
+    assert f'extras_is_version_of:"{root}"' in fqs
+    assert 'extras_is_version_of:"https://example.test/x"' in fqs
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.ckan_config("ckan.site_url", "https://opendata-firenze.test")
+def test_dataset_revision_root(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    # corrente -> la propria URL di scheda
+    assert (
+        helpers.odf_dataset_revision_root({"id": "u", "name": "popolazione"})
+        == "https://opendata-firenze.test/dataset/popolazione"
+    )
+    # revisione -> la radice puntata
+    assert (
+        helpers.odf_dataset_revision_root({"id": "u", "is_version_of": "https://x.test/dataset/p"})
+        == "https://x.test/dataset/p"
+    )
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_revisions_end_to_end(with_request_context):
+    """Integrazione reale (Solr + filtro): il pannello trova la revisione, il
+    catalogo la nasconde. Copre i punti che hanno già generato bug: lettura di
+    `is_version_of`, phrase-query Solr sull'URL, filtro del catalogo."""
+    import uuid
+
+    from ckan.plugins import toolkit
+    from ckan.tests import factories
+
+    from ckanext.opendata_firenze_theme import helpers
+
+    # `ckan.site_url` non è sovrascrivibile col marker: si usa quello reale
+    base = (toolkit.config.get("ckan.site_url") or "").rstrip("/")
+    tag = uuid.uuid4().hex[:8]
+    canonical_name = f"canon-{tag}"
+    revision_name = f"rev-{tag}"
+    factories.Dataset(name=canonical_name, title=f"Indicatore {tag}")
+    factories.Dataset(
+        name=revision_name,
+        title=f"Indicatore 2024 {tag}",
+        extras=[{"key": "is_version_of", "value": f"{base}/dataset/{canonical_name}"}],
+    )
+
+    canonical = toolkit.get_action("package_show")({"ignore_auth": True}, {"id": canonical_name})
+    revisions = helpers.odf_dataset_revisions(canonical)
+    assert [r["name"] for r in revisions] == [revision_name]
+    assert revisions[0]["year"] == "2024"
+
+    def count(fq):
+        return toolkit.get_action("package_search")({"ignore_auth": True}, {"fq": fq, "rows": 1})["count"]
+
+    # il catalogo mostra il corrente e nasconde la revisione
+    assert count(f'name:"{canonical_name}"') == 1
+    assert count(f'name:"{revision_name}"') == 0
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

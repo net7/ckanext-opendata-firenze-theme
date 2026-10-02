@@ -164,7 +164,14 @@ def test_series_panel_renders(with_plugins, with_request_context):
             {"id": "a", "name": "a", "title": "Altra banca dati", "res_format": ["CSV"]},
         ]
     }
-    with mock.patch.object(helpers._common, "_search", return_value=found):
+
+    def fake_search(**kwargs):
+        # il ramo "Revisioni temporali" cerca per is_version_of: qui non ce ne sono
+        if "is_version_of" in (kwargs.get("fq") or ""):
+            return {"results": []}
+        return found
+
+    with mock.patch.object(helpers._common, "_search", side_effect=fake_search):
         html = _render(
             "{% from 'snippets/opendata_firenze_theme/dataset/serie.html' import series_panel %}"
             "{{ series_panel(pkg) }}",
@@ -176,25 +183,23 @@ def test_series_panel_renders(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.ckan_config("ckan.site_url", "https://opendata-firenze.test")
 def test_revisions_panel_renders(with_plugins, with_request_context):
     """Il ramo "Revisioni temporali" ha la precedenza e usa l'anno del titolo."""
     from unittest import mock
 
     from ckanext.opendata_firenze_theme import helpers
 
-    root = "https://opendata-firenze.test/dataset/popolazione"
+    # dataset corrente (senza is_version_of): le revisioni sono chi lo punta
     pkg = {
         "id": "self",
-        "name": "self",
+        "name": "popolazione",
         "title": "Popolazione residente 2025",
-        "extras": [
-            {"key": "is_version_of", "value": root},
-            {"key": "serie", "value": "Popolazione"},
-        ],
+        "extras": [{"key": "serie", "value": "Popolazione"}],
     }
     found = {
         "results": [
-            {"id": "self", "name": "self", "title": "Popolazione residente 2025"},
+            {"id": "self", "name": "popolazione", "title": "Popolazione residente 2025"},
             {"id": "a", "name": "pop-2024", "title": "Popolazione residente 2024", "res_format": ["CSV"]},
         ]
     }

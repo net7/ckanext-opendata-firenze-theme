@@ -12,19 +12,26 @@ from .format import odf_filesize
 
 
 def odf_pkg_extra(pkg, key, default=None):
-    """Valore di un extra del dataset (None se assente).
+    """Valore di un campo/extra del dataset (None se assente).
 
-    ckanext-dcat, nelle viste (`for_view`), rinomina le chiavi degli extra con
-    l'etichetta leggibile (es. `theme` -> `Theme`): il confronto è quindi
-    case-insensitive, così il tema regge quella normalizzazione.
+    Il valore può stare in tre posti:
+    - in `extras` (lista o dict), per gli extra "liberi" (es. `serie`, `hvd`);
+    - **in cima al package**, per i campi dello schema dcatapit che
+      `package_show` sposta lì con `convert_from_extras` (es. `is_version_of`);
+    - con la chiave rinominata con l'etichetta leggibile: ckanext-dcat, nelle
+      viste (`for_view`), rinomina gli extra (es. `theme` -> `Theme`), quindi il
+      confronto sugli extras è case-insensitive.
     """
     extras = _common._pkg_extras(pkg)
     if key in extras:
         return extras.get(key, default)
+    value = pkg.get(key)
+    if value is not None and value != "":
+        return value
     target = str(key).lower()
-    for name, value in extras.items():
+    for name, extra_value in extras.items():
         if str(name).lower() == target:
-            return value
+            return extra_value
     return default
 
 
@@ -144,7 +151,12 @@ def _series_item(result):
 
 
 def _series_siblings(pkg, fq, limit):
-    """Altri dataset che soddisfano `fq`, escluso sé stesso (via package_search)."""
+    """Altri dataset che soddisfano `fq`, escluso sé stesso (via package_search).
+
+    Nel caso delle revisioni `fq` cita `extras_is_version_of`: il filtro del
+    catalogo (vedi `before_dataset_search` nel plugin) le lascia passare proprio
+    perché la ricerca le nomina esplicitamente.
+    """
     data = _common._search(rows=limit + 1, fq=fq, sort=_SERIES_SORT)
     items = []
     for result in data["results"]:
@@ -183,6 +195,45 @@ def _is_version_of_roots(pkg):
     return [str(value).strip() for value in values if str(value).strip()]
 
 
+def _dataset_uris(pkg):
+    """URI con cui un altro dataset può riferirsi a questo (per `is_version_of`).
+
+    Copre le convenzioni più probabili: il campo `uri`, la URL della scheda
+    (`<site_url>/dataset/<nome>`) e la forma con l'id usata dall'export RDF di
+    ckanext-dcat (`<site_url>/dataset/<id>`).
+    """
+    base = (toolkit.config.get("ckan.site_url") or "").rstrip("/")
+    uris = []
+    if pkg.get("uri"):
+        uris.append(str(pkg["uri"]).strip())
+    if base:
+        for key in ("name", "id"):
+            if pkg.get(key):
+                uris.append(f"{base}/dataset/{pkg[key]}")
+    return list(dict.fromkeys(uri for uri in uris if uri))
+
+
+def _dataset_name_from_uri(uri):
+    """Nome/id del dataset a partire dal suo URI di scheda (`.../dataset/<x>`)."""
+    marker = "/dataset/"
+    if marker in uri:
+        return uri.rsplit(marker, 1)[-1].strip("/") or None
+    return None
+
+
+def _dataset_by_uri_root(root):
+    """Risolve il dataset "corrente" dall'`is_version_of` di una revisione."""
+    for value in (root if isinstance(root, (list, tuple)) else [root]):
+        name = _dataset_name_from_uri(str(value))
+        if not name:
+            continue
+        try:
+            return toolkit.get_action("package_show")({"ignore_auth": True}, {"id": name})
+        except Exception:
+            continue
+    return None
+
+
 def _revision_year(*texts):
     """Anno a 4 cifre contenuto nel titolo/nome, o None (per l'etichetta "Anno…")."""
     for text in texts:
@@ -194,23 +245,68 @@ def _revision_year(*texts):
     return None
 
 
-def odf_dataset_revisions(pkg, limit=20):
-    """Revisioni temporali: dataset che condividono lo stesso `is_version_of`.
+def odf_dataset_revision_root(pkg):
+    """Valore per la ricerca delle revisioni (link "Vedi le revisioni").
 
-    `is_version_of` (`dct:isVersionOf`) è il meccanismo **standard** di DCAT-AP
-    2.0 per le annualità: le revisioni dello stesso indicatore puntano tutte
-    alla stessa risorsa radice. Alimenta il ramo "Revisioni temporali" della
-    SeriePanel, con l'`year` estratto dal titolo per l'etichetta "Anno <anno>".
-    Lista vuota se il dataset non è una revisione o è l'unica.
+    Dataset corrente (senza `is_version_of`): la URL della **scheda**, che è la
+    convenzione documentata (quella che un redattore copia). Revisione: la radice
+    a cui punta (`is_version_of`).
+
+    Nota: `odf_dataset_revisions` (il pannello) è più tollerante e accetta anche
+    il campo `uri` e la forma con l'id; il link invece usa una sola URL.
     """
     roots = _is_version_of_roots(pkg)
-    if not roots:
-        return []
-    fq = " OR ".join(f'extras_is_version_of:"{root}"' for root in roots)
-    items = _series_siblings(pkg, fq, limit)
+    if roots:
+        return roots[0]
+    base = (toolkit.config.get("ckan.site_url") or "").rstrip("/")
+    if base and pkg.get("name"):
+        return f"{base}/dataset/{pkg['name']}"
+    uris = _dataset_uris(pkg)
+    return uris[0] if uris else ""
+
+
+def odf_dataset_revisions(pkg, limit=20):
+    """Revisioni temporali (`dct:isVersionOf`) per il pannello della scheda.
+
+    Convenzione: il dataset **corrente** non ha `is_version_of` ed è quello
+    visibile in catalogo; le **revisioni** precedenti lo puntano con
+    `is_version_of = <URL della sua scheda>`. Così il catalogo mostra una sola
+    voce per indicatore (vedi `before_dataset_search` nel plugin) e le revisioni
+    restano raggiungibili dal pannello.
+
+    - Sul corrente: elenca le revisioni che lo puntano.
+    - Su una revisione: elenca il corrente + le altre revisioni.
+    L'`year` (dal titolo) dà l'etichetta "Anno <anno>".
+    """
+    roots = _is_version_of_roots(pkg)
+    items = []
+    fqs = []
+    if roots:
+        canonical = _dataset_by_uri_root(roots)
+        if canonical and canonical.get("id") != pkg.get("id"):
+            items.append(_series_item(canonical))
+        fqs = [f'extras_is_version_of:"{root}"' for root in roots]
+    else:
+        uris = _dataset_uris(pkg)
+        if not uris:
+            return []
+        fqs = [f'extras_is_version_of:"{uri}"' for uri in uris]
+    # Una query per URI: con `OR` nel fq il parser Solr scavalca i filtri che
+    # CKAN antepone (`+capacity:public`, `+state:(active)`) e matcha tutto.
+    seen = {pkg.get("id")} | {item.get("name") for item in items}
+    for fq in fqs:
+        for item in _series_siblings(pkg, fq, limit):
+            if item.get("name") in seen:
+                continue
+            seen.add(item.get("name"))
+            items.append(item)
+            if len(items) >= limit:
+                break
+        if len(items) >= limit:
+            break
     for item in items:
-        item["year"] = _revision_year(item["title"], item["name"])
-    return items
+        item["year"] = _revision_year(item.get("title"), item.get("name"))
+    return items[:limit]
 
 
 def odf_dataset_contact(pkg):

@@ -128,6 +128,7 @@ def test_template_helpers_registered():
         "odf_number",
         "odf_dataset_openness",
         "odf_dataset_related",
+        "odf_dataset_revision_root",
         "odf_dataset_revisions",
         "odf_dataset_series",
         "odf_dataset_contact",
@@ -143,3 +144,26 @@ def test_template_helpers_registered():
         "odf_time_ago",
     }
     assert set(helpers.get_helpers()) == expected
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_search_hides_revisions():
+    """Il catalogo nasconde le revisioni, ma il pannello/la ricerca esplicita no."""
+    from ckanext.opendata_firenze_theme.plugin import OpendataFirenzeThemePlugin
+
+    plugin = OpendataFirenzeThemePlugin()
+
+    # catalogo normale: esclude i dataset con `is_version_of`
+    params = plugin.before_dataset_search({"q": "*:*", "fq": "x:1"})
+    assert params["fq"] == "x:1 -extras_is_version_of:[* TO *]"
+
+    # il pannello e il link "Vedi le revisioni" citano is_version_of: bypass
+    params = plugin.before_dataset_search({"q": 'extras_is_version_of:"u"'})
+    assert "fq" not in params
+    params = plugin.before_dataset_search({"q": "*:*", "fq": 'extras_is_version_of:"u"'})
+    assert params["fq"] == 'extras_is_version_of:"u"'
+
+    # un testo generico che contiene solo la parola "is_version_of" non bypassa
+    params = plugin.before_dataset_search({"q": "is_version_of senza il campo"})
+    assert "-extras_is_version_of:[* TO *]" in params["fq"]
