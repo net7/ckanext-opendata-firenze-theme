@@ -590,6 +590,76 @@
   text-decoration: underline;
 }
 
+/* Pannello "Altri dataset della serie" (SeriePanel del mockup): accordion
+   nativo (<details>) con l'elenco dei dataset della serie e i chip formato. */
+.rtt-series {
+  margin-top: 4px;
+}
+
+.rtt-series__trigger {
+  cursor: pointer;
+  padding: 8px 0;
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--rtt-link);
+  /* come gli altri accordion del tema (facet, sort, download): niente
+     triangolino nativo del <details>, la disclosure la dà il testo. */
+  list-style: none;
+}
+
+.rtt-series__trigger::-webkit-details-marker {
+  display: none;
+}
+
+.rtt-series__trigger:hover {
+  text-decoration: underline;
+}
+
+.rtt-series__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.rtt-series__item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+/* separatore solo tra le voci (il mockup non lo mette sul primo elemento) */
+.rtt-series__item + .rtt-series__item {
+  border-top: 1px solid var(--neutral-neutral-200);
+}
+
+.rtt-series__link {
+  flex-grow: 1;
+  min-width: 120px;
+  font-family: var(--rtt-font-ui);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--rtt-link);
+  text-decoration: none;
+}
+
+.rtt-series__link:hover {
+  text-decoration: underline;
+}
+
+.rtt-series__formats {
+  display: inline-flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .rtt-contacts {
   display: flex;
   flex-direction: column;

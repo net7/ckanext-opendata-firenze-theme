@@ -11,10 +11,10 @@ import pytest
 PLUGIN = "opendata_firenze_theme"
 
 
-def _render(src):
+def _render(src, **context):
     from flask import render_template_string
 
-    return render_template_string(src)
+    return render_template_string(src, **context)
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
@@ -130,6 +130,73 @@ def test_page_head_crumb_kicker(with_plugins, with_request_context):
     )
     assert 'class="rtt-crumb-kicker"' in html
     assert "Catalogo" in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_meta_table_shows_zero_skips_empty(with_plugins, with_request_context):
+    """0 è un valore valido e va mostrato; None/stringa vuota saltano la riga."""
+    html = _render(
+        "{% from 'snippets/opendata_firenze_theme/dataset/meta_table.html' import meta_table %}"
+        "{{ meta_table([('Download', 0), ('Licenza', none), ('Vuoto', '')]) }}"
+    )
+    assert "Download" in html
+    assert "<td>0</td>" in html
+    assert "Licenza" not in html
+    assert "Vuoto" not in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_series_panel_renders(with_plugins, with_request_context):
+    """La SeriePanel mostra gli altri dataset della stessa serie (escluso sé)."""
+    from unittest import mock
+
+    from ckanext.opendata_firenze_theme import helpers
+
+    pkg = {
+        "id": "self",
+        "name": "self",
+        "title": "Self",
+        "extras": [{"key": "serie", "value": "Open SDIAF"}],
+    }
+    found = {
+        "results": [
+            {"id": "self", "name": "self", "title": "Self"},
+            {"id": "a", "name": "a", "title": "Altra banca dati", "res_format": ["CSV"]},
+        ]
+    }
+    with mock.patch.object(helpers._common, "_search", return_value=found):
+        html = _render(
+            "{% from 'snippets/opendata_firenze_theme/dataset/serie.html' import series_panel %}"
+            "{{ series_panel(pkg) }}",
+            pkg=pkg,
+        )
+    assert "Altri dataset della serie" in html
+    assert "Altra banca dati" in html
+    assert "/dataset/a" in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_aside_realtime_label(with_plugins, with_request_context):
+    """Il riquadro "In sintesi" mostra "Aggiornato" solo per i dataset realtime."""
+    pkg = {
+        "metadata_created": "2026-09-01T10:00:00",
+        "metadata_modified": "2026-09-01T10:00:00",
+        "frequency": "REALTIME",
+        "license_title": "CC-BY 4.0",
+        "resources": [],
+        "tracking_summary": {"total": 5, "recent": 2},
+        "extras": [],
+    }
+    src = (
+        "{% from 'snippets/opendata_firenze_theme/dataset/aside.html' import dataset_aside %}"
+        "{{ dataset_aside(pkg, [], {}, is_realtime) }}"
+    )
+    rt = _render(src, pkg=pkg, is_realtime=True)
+    assert "Aggiornato" in rt
+    assert "Ultima modifica" not in rt
+    plain = _render(src, pkg=pkg, is_realtime=False)
+    assert "Ultima modifica" in plain
+    assert "Aggiornato" not in plain
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

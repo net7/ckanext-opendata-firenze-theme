@@ -6,7 +6,7 @@
 <div class="rtt-stagger rtt-temi">
   {% for t in h.odf_themes() %}
   <div class="rtt-tema-wrap">
-    <a class="rtt-tema" href="{{ h.url_for('dataset.search', theme=t.code) }}">
+    <a class="rtt-tema" href="{{ h.url_for('dataset.search', dcat_theme=t.code) }}">
       <span class="rtt-tema__body">
         <span class="rtt-tema__name">{{ t.label }}</span>
         <span class="rtt-tema__count">{{ ungettext('{num} dataset', '{num} dataset', t.count).format(num=t.count) }}</span>

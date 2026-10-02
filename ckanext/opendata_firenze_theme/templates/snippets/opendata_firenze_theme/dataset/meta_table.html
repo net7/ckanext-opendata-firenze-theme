@@ -1,7 +1,8 @@
 {#
   Tabella chiave/valore dei metadati.
 
-  rows - lista di coppie (chiave, valore); le righe senza valore sono saltate.
+  rows - lista di coppie (chiave, valore); le righe senza valore sono saltate
+         (None o stringa vuota), mentre 0 è un valore valido e viene mostrato.
          Il valore può essere una stringa o un dict {label, href} per i link.
   mono - valori in monospace (extras, API).
 #}
@@ -10,7 +11,7 @@
   <table>
     <tbody>
       {% for key, value in rows %}
-      {% if value %}
+      {% if value is not none and value != '' %}
       <tr>
         <th scope="row">{{ key }}</th>
         <td>{% if value is mapping and value.href %}<a href="{{ value.href }}">{{ value.label }}</a>{% else %}{{ value }}{% endif %}</td>

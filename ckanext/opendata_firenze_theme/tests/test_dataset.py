@@ -92,6 +92,70 @@ def test_dataset_helpers(with_plugins, with_request_context):
     kinds = {b["kind"] for b in helpers.odf_dataset_badges(pkg)}
     assert kinds == {"hvd", "geo"}
 
+    # ckanext-dcat rinomina le chiavi con l'etichetta nelle viste: `theme` -> `Theme`
+    assert helpers.odf_pkg_extra({"extras": [{"key": "Theme", "value": "x"}]}, "theme") == "x"
+    assert helpers.odf_pkg_extra({"extras": {"Theme": "y"}}, "theme") == "y"
+    assert helpers.odf_pkg_extra({"extras": [{"key": "serie", "value": "S"}]}, "serie") == "S"
+    assert helpers.odf_pkg_extra({"extras": []}, "serie") is None
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_realtime_badge_truthiness(with_plugins, with_request_context):
+    """`realtime` segue `_truthy`: "false" non è realtime (fonte unica per
+    badge e aside, altrimenti l'aside mostrerebbe "Aggiornato" a vuoto)."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    def kinds(value):
+        pkg = {"extras": [{"key": "realtime", "value": value}]}
+        return {b["kind"] for b in helpers.odf_dataset_badges(pkg)}
+
+    assert "realtime" in kinds("true")
+    assert "realtime" in kinds("1")
+    assert "realtime" not in kinds("false")
+    assert "realtime" not in kinds("0")
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_series_helper(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    # senza serie non si interroga il catalogo
+    assert helpers.odf_dataset_series({"id": "x"}) == []
+
+    pkg = {"id": "self", "extras": [{"key": "serie", "value": "Open SDIAF"}]}
+    found = {
+        "results": [
+            {"id": "self", "name": "self", "title": "Sé stesso"},
+            {"id": "a", "name": "a", "title": "A", "res_format": ["CSV", "CSV", "GeoJSON"]},
+            {"id": "b", "name": "b", "title": "B"},
+        ]
+    }
+    with mock.patch.object(helpers._common, "_search", return_value=found):
+        series = helpers.odf_dataset_series(pkg)
+    # sé stesso escluso, formati deduplicati da Solr (res_format)
+    assert [s["name"] for s in series] == ["a", "b"]
+    assert series[0]["formats"] == ["CSV", "GEOJSON"]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_time_ago_helper(with_plugins, with_request_context):
+    from datetime import datetime, timedelta, timezone
+
+    from ckanext.opendata_firenze_theme import helpers
+
+    now = datetime.now(timezone.utc)
+    assert helpers.odf_time_ago(None) == ""
+    assert helpers.odf_time_ago((now - timedelta(minutes=5)).isoformat()) == "pochi minuti fa"
+    assert helpers.odf_time_ago((now - timedelta(hours=1)).isoformat()) == "1 ora fa"
+    assert helpers.odf_time_ago((now - timedelta(hours=3)).isoformat()) == "3 ore fa"
+    assert helpers.odf_time_ago((now - timedelta(days=1)).isoformat()) == "1 giorno fa"
+    assert helpers.odf_time_ago((now - timedelta(days=2)).isoformat()) == "2 giorni fa"
+    # oltre i 30 giorni ricade sulla data assoluta
+    old = now - timedelta(days=400)
+    assert helpers.odf_time_ago(old.isoformat()) == old.strftime("%d/%m/%Y")
+    # valore non parsabile: nessun errore, resta la stringa troncata
+    assert helpers.odf_time_ago("not-a-date") == "not-a-date"
+
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_dataset_related_helper(with_plugins, with_request_context):

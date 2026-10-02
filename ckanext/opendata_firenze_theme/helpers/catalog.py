@@ -12,22 +12,29 @@ from .constants import FACET_ORDER, THEME_CODES
 def odf_package_theme(pkg):
     """Codice del tema DCAT-AP_IT di un package, o None.
 
-    Il tema arriva come URI (spesso una lista JSON) nel campo `theme` o
-    nell'extra omonimo; si tiene solo se corrisponde a uno dei 13 temi
-    (dcatapit usa `OP_DATPRO` = "Other" come default, che non mostriamo).
+    dcatapit espone il tema in forme diverse a seconda del contesto:
+    - campo `theme` (URI o lista JSON) — non valorizzato via `for_view`;
+    - extra `theme` (URI o lista JSON) — aggiunto da dcatapit per l'API;
+    - extra `Theme` (maiuscolo) — la forma che arriva alle pagine;
+    - extra `themes_aggregate` = [{"theme": "TRAN", ...}] — forma grezza.
+    Si tiene solo se corrisponde a uno dei 13 temi (dcatapit usa `OP_DATPRO`
+    = "Other" come default, che non mostriamo).
     """
-    raw = pkg.get("theme")
-    if not raw:
-        extras = pkg.get("extras") or []
-        if isinstance(extras, dict):
-            raw = extras.get("theme")
-        else:
-            for extra in extras:
-                if extra.get("key") == "theme":
-                    raw = extra.get("value")
-                    break
-    if not raw:
+    extras = pkg.get("extras") or []
+    if isinstance(extras, dict):
+        extras = [{"key": key, "value": value} for key, value in extras.items()]
+
+    def _extra(name):
+        # dcatapit capitalizza il campo (`Theme`) in alcune viste: confronto
+        # case-insensitive per non perdere il tema.
+        for extra in extras:
+            if str(extra.get("key") or "").lower() == name:
+                return extra.get("value")
         return None
+
+    raw = pkg.get("theme") or _extra("theme")
+    if not raw:
+        return _theme_from_aggregate(_extra("themes_aggregate") or pkg.get("themes_aggregate"))
     if isinstance(raw, str):
         try:
             raw = json.loads(raw)
@@ -39,6 +46,21 @@ def odf_package_theme(pkg):
         return None
     code = raw.rstrip("/").rsplit("/", 1)[-1]
     return code if code in THEME_CODES else None
+
+
+def _theme_from_aggregate(raw):
+    """Codice del tema da `themes_aggregate` ([{"theme": "TRAN", ...}])."""
+    if not raw:
+        return None
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except ValueError:
+            return None
+    if isinstance(raw, list) and raw and isinstance(raw[0], dict):
+        code = raw[0].get("theme")
+        return code if code in THEME_CODES else None
+    return None
 
 
 def odf_facet_all_url(facet, values):

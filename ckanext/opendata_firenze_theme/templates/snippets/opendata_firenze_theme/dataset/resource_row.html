@@ -22,10 +22,10 @@
       {% endif %}
     </div>
   </div>
-  {% if size or views %}
+  {% if size or views is not none %}
   <div class="rtt-resrow__meta">
     {% if size %}<span>{{ size }}</span>{% endif %}
-    {% if views %}{% if size %}<span aria-hidden="true">·</span>{% endif %}<span>{{ _('Download:') }} {{ views }}</span>{% endif %}
+    {% if views is not none %}{% if size %}<span aria-hidden="true">·</span>{% endif %}<span>{{ _('Download:') }} {{ h.odf_number(views) }}</span>{% endif %}
   </div>
   {% endif %}
 </li>

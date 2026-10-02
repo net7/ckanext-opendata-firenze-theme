@@ -29,7 +29,7 @@
         <div class="rtt-resource__intro">
           {{ format_chip(fmt or _('n.d.'), 'geo' if geo else 'neutral') }}
           <h1 class="rtt-h1 rtt-resource__title">{{ h.resource_display_name(res) }}</h1>
-          <p class="rtt-body-sm rtt-resource__meta">{{ _('Risorsa del dataset') }} «<a href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ dataset_title }}</a>»{% if size %} · {{ size }}{% endif %}{% if downloads %} · {{ _('Download:') }} {{ downloads }}{% endif %}</p>
+          <p class="rtt-body-sm rtt-resource__meta">{{ _('Risorsa del dataset') }} «<a href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ dataset_title }}</a>»{% if size %} · {{ size }}{% endif %}{% if downloads is not none %} · {{ _('Download:') }} {{ h.odf_number(downloads) }}{% endif %}</p>
           {% if res.description %}<p class="rtt-body-lg rtt-resource__desc">{{ h.markdown_extract(res.description, extract_length=400) }}</p>{% endif %}
         </div>
         <div class="rtt-resource__actions">

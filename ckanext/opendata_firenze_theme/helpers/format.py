@@ -35,6 +35,40 @@ def odf_date(value, fmt="%d/%m/%Y"):
         return text[:10]
 
 
+def odf_time_ago(value):
+    """Tempo relativo in italiano ('pochi minuti fa', '3 ore fa', '2 giorni fa').
+
+    Usato per i dataset "in aggiornamento continuo" (extra `realtime`), dove il
+    mockup mostra "Aggiornato: pochi minuti fa" invece della data assoluta.
+    Per valori vecchi (o non parsabili) ricade sulla data assoluta `odf_date`.
+    """
+    if not value:
+        return ""
+    from datetime import datetime, timezone
+
+    try:
+        if hasattr(value, "timestamp"):
+            when = value
+        else:
+            when = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=timezone.utc)
+        delta = datetime.now(timezone.utc) - when
+    except (TypeError, ValueError):
+        return odf_date(value)
+
+    minutes = max(delta.total_seconds(), 0) / 60
+    if minutes < 60:
+        return "pochi minuti fa"
+    hours = int(minutes // 60)
+    if hours < 24:
+        return f"{hours} ora fa" if hours == 1 else f"{hours} ore fa"
+    days = hours // 24
+    if days < 30:
+        return f"{days} giorno fa" if days == 1 else f"{days} giorni fa"
+    return odf_date(value)
+
+
 def odf_frequency_label(code):
     """Etichetta italiana di un codice frequenza EU (fallback: codice)."""
     if not code:

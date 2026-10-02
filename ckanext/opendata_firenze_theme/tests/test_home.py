@@ -56,6 +56,21 @@ def test_theme_counts_from_dcat_theme(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_home_theme_link_uses_dcat_theme(with_plugins, with_request_context):
+    """Il link "Esplora per tema" filtra con `dcat_theme`, non con `theme`."""
+    from flask import render_template_string
+
+    from ckanext.opendata_firenze_theme import helpers
+
+    fake = {"search_facets": {"dcat_theme": {"items": [{"name": "TRAN", "count": 2}]}}}
+    with mock.patch.object(helpers._common, "_search", return_value=fake):
+        html = render_template_string("{% include 'snippets/opendata_firenze_theme/home/temi.html' %}")
+    assert "dcat_theme=TRAN" in html
+    # il vecchio parametro errato non deve comparire
+    assert "?theme=TRAN" not in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_featured_datasets_hvd_then_recent(with_plugins, with_request_context):
     from ckanext.opendata_firenze_theme import helpers
 

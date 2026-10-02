@@ -43,6 +43,13 @@ def test_package_theme_helper():
     assert helpers.odf_package_theme({"extras": [{"key": "theme", "value": '["%sTRAN"]' % base}]}) == "TRAN"
     # OP_DATPRO (default dcatapit = "Other") non e' uno dei 13 temi
     assert helpers.odf_package_theme({"extras": [{"key": "theme", "value": '["%sOP_DATPRO"]' % base}]}) is None
+    # dcatapit espone il campo con la MAIUSCOLA nelle pagine for_view (`Theme`)
+    assert helpers.odf_package_theme({"extras": [{"key": "Theme", "value": '["%sENVI"]' % base}]}) == "ENVI"
+    # fallback sulla forma grezza `themes_aggregate`
+    aggr = {"extras": [{"key": "themes_aggregate", "value": '[{"theme": "SOCI", "subthemes": []}]'}]}
+    assert helpers.odf_package_theme(aggr) == "SOCI"
+    # extras come dict
+    assert helpers.odf_package_theme({"extras": {"Theme": '["%sTRAN"]' % base}}) == "TRAN"
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

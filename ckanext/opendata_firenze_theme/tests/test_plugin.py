@@ -128,6 +128,7 @@ def test_template_helpers_registered():
         "odf_number",
         "odf_dataset_openness",
         "odf_dataset_related",
+        "odf_dataset_series",
         "odf_dataset_contact",
         "odf_dataset_downloads",
         "odf_resource_download_url",
@@ -138,5 +139,6 @@ def test_template_helpers_registered():
         "odf_date",
         "odf_frequency_label",
         "odf_filesize",
+        "odf_time_ago",
     }
     assert set(helpers.get_helpers()) == expected

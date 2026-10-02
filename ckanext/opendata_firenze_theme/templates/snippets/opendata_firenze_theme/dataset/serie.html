@@ -1,0 +1,32 @@
+{#
+  Pannello "Altri dataset della serie": i dataset che condividono l'extra
+  `serie` (es. "Open SDIAF"). È la SeriePanel del mockup, ramo "Altri dataset
+  della serie" (il ramo "Revisioni temporali" del mockup non ha una sorgente
+  dati in CKAN). Compare solo se il dataset ha una serie e almeno un altro
+  dataset da mostrare.
+#}
+{% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
+{% from 'snippets/opendata_firenze_theme/chip.html' import format_chip %}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{% macro series_panel(pkg) -%}
+{% set serie = h.odf_pkg_extra(pkg, 'serie') %}
+{% set siblings = h.odf_dataset_series(pkg) %}
+{% if serie and siblings %}
+{% set action %}<a class="rtt-btn rtt-btn--outline rtt-btn--sm" href="{{ h.url_for('dataset.search', q='extras_serie:"' ~ serie ~ '"') }}">{{ icon('arrow-right', 20, 'rtt-btn__icon') }}{{ _('Vedi la serie') }}</a>{% endset %}
+{% call panel(_('Altri dataset della serie'), action=action) %}
+  <p class="rtt-body-sm rtt-panel__note">{{ _('Fa parte della serie «{serie}», insieme ad altri {num} dataset.').format(serie=serie, num=siblings|length) }}</p>
+  <details class="rtt-series">
+    <summary class="rtt-series__trigger">{{ _('Altri dataset · {num}').format(num=siblings|length) }}</summary>
+    <ul class="rtt-series__list">
+      {% for s in siblings %}
+      <li class="rtt-series__item">
+        <a class="rtt-series__link" href="{{ h.url_for('dataset.read', id=s.name) }}">{{ s.title }}</a>
+        {% if s.formats %}<span class="rtt-series__formats">{% for f in s.formats[:3] %}{{ format_chip(f, 'geo' if h.odf_format_is_geo(f) else 'neutral') }}{% endfor %}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </details>
+{% endcall %}
+{% endif %}
+{%- endmacro %}

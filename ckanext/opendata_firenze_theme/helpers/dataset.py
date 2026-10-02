@@ -10,15 +10,36 @@ from .format import odf_filesize
 
 
 def odf_pkg_extra(pkg, key, default=None):
-    """Valore di un extra del dataset (None se assente)."""
-    return _common._pkg_extras(pkg).get(key, default)
+    """Valore di un extra del dataset (None se assente).
+
+    ckanext-dcat, nelle viste (`for_view`), rinomina le chiavi degli extra con
+    l'etichetta leggibile (es. `theme` -> `Theme`): il confronto è quindi
+    case-insensitive, così il tema regge quella normalizzazione.
+    """
+    extras = _common._pkg_extras(pkg)
+    if key in extras:
+        return extras.get(key, default)
+    target = str(key).lower()
+    for name, value in extras.items():
+        if str(name).lower() == target:
+            return value
+    return default
 
 
 def odf_dataset_formats(pkg):
-    """Formati distinti delle risorse, nell'ordine di pubblicazione."""
+    """Formati distinti delle risorse, nell'ordine di pubblicazione.
+
+    Legge sia `resources` (risultato di `package_show`) sia `res_format`
+    (risultato di `package_search`, dove Solr appiattisce i formati in una
+    lista): il pannello "Altri dataset della serie" lavora su risultati di
+    ricerca, che non hanno `resources`, mentre la scheda dataset ha `resources`.
+    """
+    raw = pkg.get("res_format")
+    res_format = raw if isinstance(raw, list) else ([raw] if raw else [])
+    formats_raw = [res.get("format") for res in (pkg.get("resources") or [])] + list(res_format)
     seen, formats = set(), []
-    for res in pkg.get("resources") or []:
-        fmt = (res.get("format") or "").strip().upper()
+    for f in formats_raw:
+        fmt = (f or "").strip().upper()
         if fmt and fmt not in seen:
             seen.add(fmt)
             formats.append(fmt)
@@ -103,8 +124,36 @@ def odf_dataset_related(pkg, limit=3):
     tema = odf_package_theme(pkg)
     if not tema:
         return []
-    data = _common._search(rows=limit + 1, fq=f"theme:{tema}", sort="metadata_modified desc")
+    data = _common._search(rows=limit + 1, fq=f"dcat_theme:{tema}", sort="metadata_modified desc")
     return [r for r in data["results"] if r.get("id") != pkg.get("id")][:limit]
+
+
+def odf_dataset_series(pkg, limit=20):
+    """Altri dataset della stessa serie (extra `serie`), escluso sé stesso.
+
+    Alimenta il pannello "Altri dataset della serie" (la SeriePanel del mockup):
+    una voce per dataset che condivide la stessa serie, con `name`, `title` e i
+    `formats` (da Solr, dove non c'è `resources`). Lista vuota se il dataset non
+    ha serie o è l'unico della serie.
+    """
+    serie = odf_pkg_extra(pkg, "serie")
+    if not serie:
+        return []
+    data = _common._search(rows=limit + 1, fq=f'extras_serie:"{serie}"', sort="title_string asc")
+    items = []
+    for r in data["results"]:
+        if r.get("id") == pkg.get("id"):
+            continue
+        items.append(
+            {
+                "name": r.get("name"),
+                "title": r.get("title") or r.get("name"),
+                "formats": odf_dataset_formats(r),
+            }
+        )
+        if len(items) >= limit:
+            break
+    return items
 
 
 def odf_dataset_contact(pkg):

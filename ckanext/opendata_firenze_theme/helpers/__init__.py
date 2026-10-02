@@ -27,6 +27,7 @@ from .dataset import (
     odf_dataset_is_geo,
     odf_dataset_openness,
     odf_dataset_related,
+    odf_dataset_series,
     odf_dataset_size,
     odf_datastore_resource_id,
     odf_format_is_geo,
@@ -34,7 +35,7 @@ from .dataset import (
     odf_sql_console_enabled,
 )
 from .editorial import odf_annuario_chapters, odf_annuario_count, odf_annuario_datasets
-from .format import FREQUENCY_LABELS, odf_date, odf_filesize, odf_frequency_label
+from .format import FREQUENCY_LABELS, odf_date, odf_filesize, odf_frequency_label, odf_time_ago
 from .home import (
     odf_dataset_count,
     odf_featured_datasets,
@@ -69,6 +70,7 @@ __all__ = [
     "odf_dataset_is_geo",
     "odf_dataset_openness",
     "odf_dataset_related",
+    "odf_dataset_series",
     "odf_dataset_size",
     "odf_datastore_resource_id",
     "odf_format_is_geo",
@@ -81,6 +83,7 @@ __all__ = [
     "odf_date",
     "odf_filesize",
     "odf_frequency_label",
+    "odf_time_ago",
     "odf_dataset_count",
     "odf_featured_datasets",
     "odf_geo_datasets",
@@ -120,6 +123,7 @@ def get_helpers():
         "odf_number": odf_number,
         "odf_dataset_openness": odf_dataset_openness,
         "odf_dataset_related": odf_dataset_related,
+        "odf_dataset_series": odf_dataset_series,
         "odf_dataset_contact": odf_dataset_contact,
         "odf_dataset_downloads": odf_dataset_downloads,
         "odf_resource_download_url": odf_resource_download_url,
@@ -130,4 +134,5 @@ def get_helpers():
         "odf_date": odf_date,
         "odf_frequency_label": odf_frequency_label,
         "odf_filesize": odf_filesize,
+        "odf_time_ago": odf_time_ago,
     }

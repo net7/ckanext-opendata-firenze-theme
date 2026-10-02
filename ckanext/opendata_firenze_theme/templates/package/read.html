@@ -9,10 +9,12 @@
 {% from 'snippets/opendata_firenze_theme/dataset/resource_row.html' import resource_row %}
 {% from 'snippets/opendata_firenze_theme/dataset/aside.html' import dataset_aside %}
 {% from 'snippets/opendata_firenze_theme/dataset/api.html' import api_panel %}
+{% from 'snippets/opendata_firenze_theme/dataset/serie.html' import series_panel %}
 
 {% block content %}
 {% set tema = h.odf_package_theme(pkg) %}
 {% set badges = h.odf_dataset_badges(pkg) %}
+{% set is_realtime = badges|selectattr('kind', 'equalto', 'realtime')|list %}
 {% set downloads = h.odf_dataset_downloads(pkg) %}
 {% set quality = h.odf_dataset_openness(pkg) %}
 {% set contact = h.odf_dataset_contact(pkg) %}
@@ -35,7 +37,7 @@
       {{ breadcrumbs([
         {'label': _('Home'), 'href': h.url_for('home.index')},
         {'label': _('Catalogo'), 'href': h.url_for('dataset.search')},
-        {'label': tema_label(tema), 'href': h.url_for('dataset.search', theme=tema)} if tema else None,
+        {'label': tema_label(tema), 'href': h.url_for('dataset.search', dcat_theme=tema)} if tema else None,
         {'label': h.dataset_display_name(pkg)},
       ]|select|list) }}
       <div class="rtt-dataset__head">
@@ -111,6 +113,8 @@
         <p class="rtt-body">{{ _('Questo dataset non ha risorse.') }}</p>
         {% endif %}
       {% endcall %}
+
+      {{ series_panel(pkg) }}
       {% else %}
       {% call panel(_('Metadati DCAT-AP_IT'), action=meta_action) %}
         {{ meta_table([
@@ -141,7 +145,7 @@
       {% endif %}
     </div>
 
-    {{ dataset_aside(pkg, related, contact) }}
+    {{ dataset_aside(pkg, related, contact, is_realtime) }}
   </div>
 </main>
 {% endblock %}
