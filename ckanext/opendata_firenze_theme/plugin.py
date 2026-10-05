@@ -36,9 +36,9 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
 
         Convenzione: il dataset **corrente** non ha `is_version_of` ed è l'unico
         visibile in catalogo; le revisioni precedenti lo puntano e qui vengono
-        escluse. Restano raggiungibili dal pannello "Revisioni temporali" e dal
-        link "Vedi le revisioni", che cercano esplicitamente `is_version_of`: in
-        quel caso il filtro non si applica. Vedi `odf_dataset_revisions`.
+        escluse. Restano raggiungibili dal pannello "Revisioni temporali", che
+        cerca esplicitamente `extras_is_version_of`: in quel caso il filtro non
+        si applica. Vedi `odf_dataset_revisions`.
         """
         haystack = " ".join(str(search_params.get(key) or "") for key in ("q", "fq"))
         if "extras_is_version_of" in haystack:

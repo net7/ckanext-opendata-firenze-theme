@@ -128,7 +128,6 @@ def test_template_helpers_registered():
         "odf_number",
         "odf_dataset_openness",
         "odf_dataset_related",
-        "odf_dataset_revision_root",
         "odf_dataset_revisions",
         "odf_dataset_series",
         "odf_dataset_contact",
@@ -158,7 +157,7 @@ def test_search_hides_revisions():
     params = plugin.before_dataset_search({"q": "*:*", "fq": "x:1"})
     assert params["fq"] == "x:1 -extras_is_version_of:[* TO *]"
 
-    # il pannello e il link "Vedi le revisioni" citano is_version_of: bypass
+    # il pannello "Revisioni temporali" cita is_version_of: bypass
     params = plugin.before_dataset_search({"q": 'extras_is_version_of:"u"'})
     assert "fq" not in params
     params = plugin.before_dataset_search({"q": "*:*", "fq": 'extras_is_version_of:"u"'})

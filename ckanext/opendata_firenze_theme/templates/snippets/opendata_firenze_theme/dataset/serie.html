@@ -4,37 +4,48 @@
   - "Revisioni temporali": dataset che condividono lo stesso `is_version_of`
     (dct:isVersionOf). È il meccanismo standard di DCAT-AP 2.0 per le annualità:
     le revisioni dello stesso indicatore puntano tutte alla stessa risorsa
-    radice. L'etichetta è "Anno <anno>" quando il titolo della revisione
-    contiene un anno, altrimenti il titolo del dataset.
+    radice. L'etichetta è "Anno <anno>" (anno da `temporal_start`, poi `version`,
+    poi il titolo), altrimenti il titolo del dataset.
   - "Altri dataset della serie": dataset che condividono l'extra `serie`
     (scelta provvisoria in attesa di DP07: DCAT-AP 2.0; ADR 0012 nel repo
     `opendata-firenze-config`).
 
   Il ramo temporale ha la precedenza, come nel mockup. Il pannello compare
-  solo se c'è almeno un altro dataset da mostrare.
+  solo se c'è almeno un altro dataset da mostrare. Ogni voce: titolo (link alla
+  scheda), chip formato, peso e download del primo file (come il mockup).
 #}
 {% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
 {% from 'snippets/opendata_firenze_theme/chip.html' import format_chip %}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 
-{% macro series_panel(pkg) -%}
-{% set revisions = h.odf_dataset_revisions(pkg) %}
-{% if revisions %}
-{% set root = h.odf_dataset_revision_root(pkg) %}
-{% set action %}<a class="rtt-btn rtt-btn--outline rtt-btn--sm" href="{{ h.url_for('dataset.search', q='extras_is_version_of:"' ~ root ~ '"') }}">{{ icon('arrow-right', 20, 'rtt-btn__icon') }}{{ _('Vedi le revisioni') }}</a>{% endset %}
-{% call panel(_('Revisioni temporali'), action=action) %}
-  <p class="rtt-body-sm rtt-panel__note">{{ _('Questo dataset viene aggiornato periodicamente: qui trovi le revisioni pubblicate negli anni precedenti.') }}</p>
-  <details class="rtt-series">
-    <summary class="rtt-series__trigger">{{ _('Revisioni precedenti · {num}').format(num=revisions|length) }}</summary>
+{% macro _series_accordion(label, items, temporale) -%}
+<details class="rtt-accordion">
+  <summary class="rtt-accordion__head">
+    <span class="rtt-accordion__title">{{ label }}</span>
+    <span class="rtt-accordion__chevron" aria-hidden="true">{{ icon('chevron-right', 20) }}</span>
+  </summary>
+  <div class="rtt-accordion__body">
     <ul class="rtt-series__list">
-      {% for r in revisions %}
+      {% for it in items %}
+      {% set titolo = (_('Anno {year}').format(year=it.year) if it.year else it.title) if temporale else it.title %}
       <li class="rtt-series__item">
-        <a class="rtt-series__link" href="{{ h.url_for('dataset.read', id=r.name) }}">{{ _('Anno {year}').format(year=r.year) if r.year else r.title }}</a>
-        {% if r.formats %}<span class="rtt-series__formats">{% for f in r.formats[:3] %}{{ format_chip(f, 'geo' if h.odf_format_is_geo(f) else 'neutral') }}{% endfor %}</span>{% endif %}
+        <a class="rtt-series__link" href="{{ h.url_for('dataset.read', id=it.name) }}">{{ titolo }}</a>
+        {% if it.formats %}<span class="rtt-series__formats">{% for f in it.formats[:3] %}{{ format_chip(f, 'geo' if h.odf_format_is_geo(f) else 'neutral') }}{% endfor %}</span>{% endif %}
+        {% if it.size %}<span class="rtt-series__size">{{ it.size }}</span>{% endif %}
+        {% if it.download %}<a class="rtt-btn rtt-btn--outline rtt-btn--sm rtt-btn--icon" href="{{ it.download }}" aria-label="{{ _('Scarica {label}').format(label=titolo) }}">{{ icon('download', 20, 'rtt-btn__icon') }}</a>{% endif %}
       </li>
       {% endfor %}
     </ul>
-  </details>
+  </div>
+</details>
+{%- endmacro %}
+
+{% macro series_panel(pkg) -%}
+{% set revisions = h.odf_dataset_revisions(pkg) %}
+{% if revisions %}
+{% call panel(_('Revisioni temporali')) %}
+  <p class="rtt-body-sm rtt-panel__note">{{ _('Questo dataset viene aggiornato periodicamente: qui trovi le revisioni pubblicate negli anni precedenti.') }}</p>
+  {{ _series_accordion(_('Revisioni precedenti · {num}').format(num=revisions|length), revisions, True) }}
 {% endcall %}
 {% else %}
 {% set serie = h.odf_pkg_extra(pkg, 'serie') %}
@@ -43,17 +54,7 @@
 {% set action %}<a class="rtt-btn rtt-btn--outline rtt-btn--sm" href="{{ h.url_for('dataset.search', q='extras_serie:"' ~ serie ~ '"') }}">{{ icon('arrow-right', 20, 'rtt-btn__icon') }}{{ _('Vedi la serie') }}</a>{% endset %}
 {% call panel(_('Altri dataset della serie'), action=action) %}
   <p class="rtt-body-sm rtt-panel__note">{{ _('Fa parte della serie «{serie}», insieme ad altri {num} dataset.').format(serie=serie, num=siblings|length) }}</p>
-  <details class="rtt-series">
-    <summary class="rtt-series__trigger">{{ _('Altri dataset · {num}').format(num=siblings|length) }}</summary>
-    <ul class="rtt-series__list">
-      {% for s in siblings %}
-      <li class="rtt-series__item">
-        <a class="rtt-series__link" href="{{ h.url_for('dataset.read', id=s.name) }}">{{ s.title }}</a>
-        {% if s.formats %}<span class="rtt-series__formats">{% for f in s.formats[:3] %}{{ format_chip(f, 'geo' if h.odf_format_is_geo(f) else 'neutral') }}{% endfor %}</span>{% endif %}
-      </li>
-      {% endfor %}
-    </ul>
-  </details>
+  {{ _series_accordion(_('Altri dataset · {num}').format(num=siblings|length), siblings, False) }}
 {% endcall %}
 {% endif %}
 {% endif %}

@@ -119,7 +119,12 @@ include `package/snippets/resources_list.html`, `package/snippets/tags.html`,
   dcatapit); form → `package/snippets/package_metadata_fields.html`.
 - API + console SQL → action API + `datastore_search_sql`; snippet custom.
 - Aside "In sintesi" / Titolare → `secondary_content` + `package/snippets/info.html`.
-- Dataset correlati → helper (serie dcatapit / `isVersionOf`).
+- Pannello di contesto (SeriePanel del mockup) → `dataset/serie.html`:
+  - "Revisioni temporali" (annualità) → `odf_dataset_revisions` (`dct:isVersionOf`);
+    accordion con titolo cliccabile, chip formato, peso e download; anno da
+    `temporal_start`/`version`/titolo.
+  - "Altri dataset della serie" → `odf_dataset_series` (extra custom `serie`).
+- Dataset correlati (stesso tema DCAT-AP_IT) → `odf_dataset_related` (`dcat_theme`).
 
 ### Risorsa — `screens/risorsa.jsx` → `package/resource_read.html`
 
@@ -159,9 +164,9 @@ tutti i campi inviati tranne `subject` (vedi
 
 - `identificatore`, `tema`, `titolare`/`rights_holder`, `email` contatto,
   `licenza`, `frequency`, `pubblicato`/`modified`, `lingua`, `parole chiave`,
-  `hvd`, `serie` → **dcatapit** / campi DCAT (in gran parte già presenti).
+  `hvd`, `is_version_of` → **dcatapit** / campi DCAT (in gran parte già presenti).
 - `geometria`/geodati, ISO 19115 → **spatial** (facet da configurare/verificare).
-- `capitolo` (Annuario), `realtime`, `uso`, `fratelli` → **extras custom**
+- `capitolo` (Annuario), `realtime`, `uso`, `serie` → **extras custom**
   (`ckanext-scheming` **non** installato).
 - `qualita` (openness) → **ckanext-qa**.
 - `download`/`viste` → tracking CKAN (da abilitare) o `ckanext-googleanalytics`.

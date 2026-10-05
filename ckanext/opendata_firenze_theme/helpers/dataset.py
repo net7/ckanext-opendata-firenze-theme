@@ -142,11 +142,21 @@ _YEAR_RE = re.compile(r"\b(?:19|20)\d{2}\b")
 
 
 def _series_item(result):
-    """Voce del pannello serie: nome, titolo e formati (da Solr, senza `resources`)."""
+    """Voce del pannello serie/revisioni.
+
+    Oltre a nome/titolo/formati include l'anno (`year`, per l'etichetta "Anno …")
+    e il primo file scaricabile (`download`, `size`): i risultati di
+    `package_search` portano già `resources`.
+    """
+    resources = result.get("resources") or []
+    first = resources[0] if resources else {}
     return {
         "name": result.get("name"),
         "title": result.get("title") or result.get("name"),
         "formats": odf_dataset_formats(result),
+        "year": _revision_year_from(result),
+        "download": _common._resource_download_url(result, first) if first else "",
+        "size": odf_filesize(first.get("size")),
     }
 
 
@@ -246,24 +256,31 @@ def _revision_year(*texts):
     return None
 
 
-def odf_dataset_revision_root(pkg):
-    """Valore per la ricerca delle revisioni (link "Vedi le revisioni").
+def _year_in(value):
+    """Anno a 4 cifre contenuto in un valore (es. '01-01-2024' -> '2024')."""
+    if not value:
+        return None
+    match = _YEAR_RE.search(str(value))
+    return match.group(0) if match else None
 
-    Dataset corrente (senza `is_version_of`): la URL della **scheda**, che è la
-    convenzione documentata (quella che un redattore copia). Revisione: la radice
-    a cui punta (`is_version_of`).
 
-    Nota: `odf_dataset_revisions` (il pannello) è più tollerante e accetta anche
-    il campo `uri` e la forma con l'id; il link invece usa una sola URL.
+def _revision_year_from(result):
+    """Anno della revisione, dalla fonte più affidabile alla meno affidabile.
+
+    1. periodo di riferimento `temporal_start`/`temporal_end` (dcatapit): è il
+       posto semanticamente giusto per l'annualità;
+    2. `version`, se contiene un anno;
+    3. titolo/nome (ultima spiaggia: il titolo può avere un range o un anno non
+       di edizione, quindi non è affidabile).
     """
-    roots = _is_version_of_roots(pkg)
-    if roots:
-        return roots[0]
-    base = (toolkit.config.get("ckan.site_url") or "").rstrip("/")
-    if base and pkg.get("name"):
-        return f"{base}/dataset/{pkg['name']}"
-    uris = _dataset_uris(pkg)
-    return uris[0] if uris else ""
+    for key in ("temporal_start", "temporal_end"):
+        year = _year_in(odf_pkg_extra(result, key))
+        if year:
+            return year
+    year = _year_in(result.get("version"))
+    if year:
+        return year
+    return _revision_year(result.get("title"), result.get("name"))
 
 
 def odf_dataset_revisions(pkg, limit=20):
@@ -277,7 +294,8 @@ def odf_dataset_revisions(pkg, limit=20):
 
     - Sul corrente: elenca le revisioni che lo puntano.
     - Su una revisione: elenca il corrente + le altre revisioni.
-    L'`year` (dal titolo) dà l'etichetta "Anno <anno>".
+    L'`year` (da `temporal_start`, poi `version`, poi il titolo) dà l'etichetta
+    "Anno <anno>"; `download`/`size` vengono dal primo file di ogni revisione.
     """
     roots = _is_version_of_roots(pkg)
     items = []
@@ -305,8 +323,6 @@ def odf_dataset_revisions(pkg, limit=20):
                 break
         if len(items) >= limit:
             break
-    for item in items:
-        item["year"] = _revision_year(item.get("title"), item.get("name"))
     return items[:limit]
 
 

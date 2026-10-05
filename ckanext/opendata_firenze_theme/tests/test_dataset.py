@@ -157,15 +157,31 @@ def test_dataset_revisions_helper(with_plugins, with_request_context):
     found = {
         "results": [
             {"id": "self", "name": "popolazione", "title": "Popolazione residente"},
-            {"id": "a", "name": "pop-2024", "title": "Popolazione residente 2024", "res_format": ["CSV"]},
-            {"id": "b", "name": "pop-2023", "title": "Popolazione residente 2023"},
+            {
+                "id": "a",
+                "name": "pop-2024",
+                "title": "Popolazione residente 2024",
+                "resources": [{"url": "https://x.test/pop-2024.csv", "format": "CSV", "size": 1536}],
+            },
+            {
+                "id": "b",
+                "name": "pop-2023",
+                "title": "Popolazione residente",
+                "extras": [{"key": "temporal_start", "value": "01-01-2023"}],
+                "resources": [{"url": "https://x.test/pop-2023.csv", "format": "CSV"}],
+            },
         ]
     }
     with mock.patch.object(helpers._common, "_search", return_value=found) as search:
         revisions = helpers.odf_dataset_revisions(canonical)
     assert [r["name"] for r in revisions] == ["pop-2024", "pop-2023"]
+    # anno: dal titolo (2024) e dal periodo di riferimento (2023)
     assert [r["year"] for r in revisions] == ["2024", "2023"]
     assert revisions[0]["formats"] == ["CSV"]
+    # download e peso dal primo file della revisione
+    assert revisions[0]["download"] == "https://x.test/pop-2024.csv"
+    assert revisions[0]["size"] == "1,5 KB"
+    assert revisions[1]["size"] == ""
     # la ricerca usa la URL di scheda del corrente (in fq cita is_version_of)
     fqs = [call.kwargs["fq"] for call in search.call_args_list]
     assert any("/dataset/popolazione" in fq for fq in fqs)
@@ -200,20 +216,24 @@ def test_dataset_revisions_helper(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
-@pytest.mark.ckan_config("ckan.site_url", "https://opendata-firenze.test")
-def test_dataset_revision_root(with_plugins, with_request_context):
-    from ckanext.opendata_firenze_theme import helpers
+def test_revision_year_fallback(with_plugins, with_request_context):
+    """L'anno della revisione viene da temporal_start, poi version, poi il titolo."""
+    from ckanext.opendata_firenze_theme.helpers.dataset import _revision_year_from
 
-    # corrente -> la propria URL di scheda
-    assert (
-        helpers.odf_dataset_revision_root({"id": "u", "name": "popolazione"})
-        == "https://opendata-firenze.test/dataset/popolazione"
-    )
-    # revisione -> la radice puntata
-    assert (
-        helpers.odf_dataset_revision_root({"id": "u", "is_version_of": "https://x.test/dataset/p"})
-        == "https://x.test/dataset/p"
-    )
+    # 1. periodo di riferimento (vince su tutto)
+    assert _revision_year_from(
+        {"title": "Dati 1999", "version": "2001", "extras": [{"key": "temporal_start", "value": "01-01-2024"}]}
+    ) == "2024"
+    # 1b. temporal_end, se manca temporal_start
+    assert _revision_year_from(
+        {"title": "Dati", "extras": [{"key": "temporal_end", "value": "31-12-2022"}]}
+    ) == "2022"
+    # 2. versione
+    assert _revision_year_from({"title": "Dati 1999", "version": "2001"}) == "2001"
+    # 3. titolo (ultima spiaggia)
+    assert _revision_year_from({"title": "Dati 1999"}) == "1999"
+    # 4. nessuna fonte -> None
+    assert _revision_year_from({"title": "Dati"}) is None
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

@@ -161,7 +161,12 @@ def test_series_panel_renders(with_plugins, with_request_context):
     found = {
         "results": [
             {"id": "self", "name": "self", "title": "Self"},
-            {"id": "a", "name": "a", "title": "Altra banca dati", "res_format": ["CSV"]},
+            {
+                "id": "a",
+                "name": "a",
+                "title": "Altra banca dati",
+                "resources": [{"url": "https://x.test/a.csv", "format": "CSV"}],
+            },
         ]
     }
 
@@ -178,14 +183,18 @@ def test_series_panel_renders(with_plugins, with_request_context):
             pkg=pkg,
         )
     assert "Altri dataset della serie" in html
+    assert "rtt-accordion" in html
     assert "Altra banca dati" in html
     assert "/dataset/a" in html
+    # download del file del dataset della serie + link al catalogo
+    assert "https://x.test/a.csv" in html
+    assert "Vedi la serie" in html
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.ckan_config("ckan.site_url", "https://opendata-firenze.test")
 def test_revisions_panel_renders(with_plugins, with_request_context):
-    """Il ramo "Revisioni temporali" ha la precedenza e usa l'anno del titolo."""
+    """Il ramo "Revisioni temporali": accordion con anno, link e download."""
     from unittest import mock
 
     from ckanext.opendata_firenze_theme import helpers
@@ -200,7 +209,12 @@ def test_revisions_panel_renders(with_plugins, with_request_context):
     found = {
         "results": [
             {"id": "self", "name": "popolazione", "title": "Popolazione residente 2025"},
-            {"id": "a", "name": "pop-2024", "title": "Popolazione residente 2024", "res_format": ["CSV"]},
+            {
+                "id": "a",
+                "name": "pop-2024",
+                "title": "Popolazione residente 2024",
+                "resources": [{"url": "https://x.test/pop-2024.csv", "format": "CSV", "size": 1536}],
+            },
         ]
     }
     with mock.patch.object(helpers._common, "_search", return_value=found):
@@ -210,9 +224,13 @@ def test_revisions_panel_renders(with_plugins, with_request_context):
             pkg=pkg,
         )
     assert "Revisioni temporali" in html
+    assert "rtt-accordion" in html
     assert "Revisioni precedenti · 1" in html
     assert "Anno 2024" in html
     assert "/dataset/pop-2024" in html
+    # download del file della revisione; niente link al catalogo
+    assert "https://x.test/pop-2024.csv" in html
+    assert "Vedi le revisioni" not in html
     # con le revisioni il ramo serie non deve comparire
     assert "Altri dataset della serie" not in html
 
