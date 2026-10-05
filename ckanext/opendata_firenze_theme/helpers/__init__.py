@@ -6,7 +6,7 @@ Re-export dei moduli del package: template e test li usano come `h.odf_*` /
 """
 
 from . import _common  # noqa: F401  (esposto per i test: helpers._common._search)
-from ._common import odf_number
+from ._common import odf_default_locale, odf_number
 from .catalog import odf_facet_all_url, odf_facet_groups, odf_package_theme
 from .constants import (
     ANNUARIO_CHAPTERS,
@@ -52,6 +52,7 @@ from .resource import odf_resource_download_url, odf_resource_preview_url, odf_r
 
 __all__ = [
     "odf_number",
+    "odf_default_locale",
     "odf_facet_all_url",
     "odf_facet_groups",
     "odf_package_theme",
@@ -124,6 +125,7 @@ def get_helpers():
         "odf_dataset_geometry": odf_dataset_geometry,
         "odf_dataset_is_geo": odf_dataset_is_geo,
         "odf_number": odf_number,
+        "odf_default_locale": odf_default_locale,
         "odf_dataset_openness": odf_dataset_openness,
         "odf_dataset_related": odf_dataset_related,
         "odf_dataset_revisions": odf_dataset_revisions,

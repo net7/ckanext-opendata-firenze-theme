@@ -26,6 +26,16 @@ def odf_number(value):
         return ""
 
 
+def odf_default_locale():
+    """Codice della lingua di default (es. 'it'): in URL non vuole prefisso.
+
+    CKAN aggiunge il prefisso di lingua solo a quelle non di default. Il
+    selettore lingua del tema usa questo helper per generare l'URL della lingua
+    di default senza prefisso (es. `/dataset/...`, non `/it/dataset/...`).
+    """
+    return toolkit.config.get("ckan.locale_default") or ""
+
+
 def _search(**params):
     """package_search difensivo (Solr spento/non configurato -> risultato vuoto)."""
     try:

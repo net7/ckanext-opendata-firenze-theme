@@ -4,6 +4,7 @@
 #}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% set current_lang = request.environ.CKAN_LANG %}
+{% set default_locale = h.odf_default_locale() %}
 {% if h.get_available_locales()|length > 1 %}
 <details class="rtt-lang">
   <summary class="rtt-lang__trigger" aria-label="{{ _('Cambia lingua') }}">
@@ -12,7 +13,7 @@
   <ul class="rtt-lang__menu">
     {% for locale in h.get_available_locales() %}
     <li>
-      <a class="rtt-lang__item{{ ' is-active' if locale.short_name == current_lang }}" href="{% url_for h.current_url(), locale=locale.short_name %}" lang="{{ locale.short_name.replace('_', '-') }}"{% if locale.short_name == current_lang %} aria-current="true"{% endif %}>{{ locale.short_name|upper }}</a>
+      <a class="rtt-lang__item{{ ' is-active' if locale.short_name == current_lang }}" href="{% url_for h.current_url(), locale=('default' if locale.short_name == default_locale else locale.short_name) %}" lang="{{ locale.short_name.replace('_', '-') }}"{% if locale.short_name == current_lang %} aria-current="true"{% endif %}>{{ locale.short_name|upper }}</a>
     </li>
     {% endfor %}
   </ul>
