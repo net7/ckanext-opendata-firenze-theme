@@ -10,6 +10,7 @@
 {% from 'snippets/opendata_firenze_theme/dataset/aside.html' import dataset_aside %}
 {% from 'snippets/opendata_firenze_theme/dataset/api.html' import api_panel %}
 {% from 'snippets/opendata_firenze_theme/dataset/serie.html' import series_panel %}
+{% from 'snippets/opendata_firenze_theme/dataset/preview_modal.html' import resource_preview_modal %}
 
 {% block content %}
 {% set tema = h.odf_package_theme(pkg) %}
@@ -148,4 +149,6 @@
     {{ dataset_aside(pkg, related, contact, is_realtime) }}
   </div>
 </main>
+
+{{ resource_preview_modal() }}
 {% endblock %}

@@ -133,6 +133,7 @@ def test_template_helpers_registered():
         "odf_dataset_contact",
         "odf_dataset_downloads",
         "odf_resource_download_url",
+        "odf_resource_preview_url",
         "odf_resource_view_title",
         "odf_dataset_size",
         "odf_sql_console_enabled",

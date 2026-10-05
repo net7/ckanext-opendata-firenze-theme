@@ -262,6 +262,79 @@ def test_dataset_aside_realtime_label(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_row_preview_button(with_plugins, with_request_context):
+    """Il link "Vedi anteprima" è aggiornato dal JS alla modale (con fallback)."""
+    pkg = {"name": "demo", "type": "dataset"}
+    res = {
+        "id": "r1",
+        "name": "Eventi (CSV)",
+        "format": "CSV",
+        "url_type": "upload",
+        "url": "",
+        "size": 1536,
+        "tracking_summary": {"total": 3},
+    }
+    html = _render(
+        "{% from 'snippets/opendata_firenze_theme/dataset/resource_row.html' import resource_row %}"
+        "{{ resource_row(pkg, res) }}",
+        pkg=pkg,
+        res=res,
+    )
+    assert "data-rtt-preview" in html
+    assert 'data-preview-name="Eventi (CSV)"' in html
+    assert 'data-preview-format="CSV"' in html
+    assert 'data-preview-full="/dataset/demo/resource/r1"' in html
+    # senza JS resta un link valido alla scheda risorsa (progressive enhancement)
+    assert '<a class="rtt-btn rtt-btn--text rtt-btn--sm" href="/dataset/demo/resource/r1" data-rtt-preview' in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_preview_modal_renders(with_plugins, with_request_context):
+    html = _render(
+        "{% from 'snippets/opendata_firenze_theme/dataset/preview_modal.html'"
+        " import resource_preview_modal %}{{ resource_preview_modal() }}"
+    )
+    assert "<dialog" in html
+    assert "data-rtt-preview-modal" in html
+    assert "data-rtt-preview-iframe" in html
+    assert "data-rtt-preview-close" in html
+    assert "Vedi la scheda della risorsa" in html
+    assert "Nessuna anteprima disponibile per questa risorsa." in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_preview_url_first_view(with_plugins, with_request_context):
+    """L'URL della modale è la prima vista della risorsa."""
+    from unittest import mock
+
+    from ckanext.opendata_firenze_theme import helpers
+
+    with mock.patch.object(
+        helpers.resource.toolkit,
+        "get_action",
+        return_value=lambda context, data: [{"id": "v1"}],
+    ):
+        url = helpers.odf_resource_preview_url({"name": "demo", "type": "dataset"}, {"id": "r1"})
+    assert url == "/dataset/demo/resource/r1/view/v1"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_preview_url_without_views(with_plugins, with_request_context):
+    """Senza viste (o senza id) l'helper non espone un URL."""
+    from unittest import mock
+
+    from ckanext.opendata_firenze_theme import helpers
+
+    with mock.patch.object(
+        helpers.resource.toolkit,
+        "get_action",
+        return_value=lambda context, data: [],
+    ):
+        assert helpers.odf_resource_preview_url({"name": "demo"}, {"id": "r1"}) == ""
+    assert helpers.odf_resource_preview_url({"name": "demo"}, {}) == ""
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_chip(with_plugins, with_request_context):
     html = _render("{% from 'snippets/opendata_firenze_theme/chip.html' import chip %}{{ chip('CSV', size='sm') }}")
     assert 'class="rtt-chip rtt-chip--sm"' in html

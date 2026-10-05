@@ -18,6 +18,7 @@ opendata_firenze_theme-css:
     - css/resource.css
     - css/editorial.css
     - css/components.css
+    - css/modal.css
 
 opendata_firenze_theme-js:
   filters: rjsmin

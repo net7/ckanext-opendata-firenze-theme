@@ -1,0 +1,30 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{#
+  Modale "Vedi anteprima" della scheda dataset (ResourcePreviewModal del
+  mockup): quick look del widget CKAN della risorsa, senza cambiare pagina.
+
+  Un solo <dialog> per pagina; il link `data-rtt-preview` di ogni riga
+  risorsa lo popola via JS (dataset.js) con nome, formato e URL della vista.
+  Se la risorsa non ha viste si mostra lo stato vuoto con il download.
+#}
+{% macro resource_preview_modal() -%}
+<dialog class="rtt-modal" data-rtt-preview-modal aria-labelledby="rtt-preview-title">
+  <header class="rtt-modal__head">
+    <div class="rtt-modal__intro">
+      <span class="rtt-format-chip rtt-format-chip--neutral" data-rtt-preview-chip hidden></span>
+      <h2 class="rtt-h4 rtt-modal__title" id="rtt-preview-title" data-rtt-preview-title></h2>
+    </div>
+    <button type="button" class="rtt-modal__close" data-rtt-preview-close aria-label="{{ _('Chiudi anteprima') }}">{{ icon('close', 24) }}</button>
+  </header>
+  <div class="rtt-modal__body">
+    <iframe class="rtt-modal__iframe" data-rtt-preview-iframe title="{{ _('Anteprima della risorsa') }}" hidden></iframe>
+    <p class="rtt-body rtt-modal__empty" data-rtt-preview-empty hidden>{{ _('Nessuna anteprima disponibile per questa risorsa.') }}</p>
+    <a class="rtt-btn rtt-btn--primary rtt-btn--sm" data-rtt-preview-download hidden href="#">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica la risorsa') }}</a>
+  </div>
+  <footer class="rtt-modal__foot">
+    <a class="rtt-btn rtt-btn--text rtt-btn--sm" data-rtt-preview-full href="#">{{ icon('arrow-top-right', 20, 'rtt-btn__icon') }}{{ _('Vedi la scheda della risorsa') }}</a>
+    <button type="button" class="rtt-btn rtt-btn--outline rtt-btn--sm" data-rtt-preview-close>{{ _('Chiudi') }}</button>
+  </footer>
+</dialog>
+{%- endmacro %}

@@ -111,10 +111,13 @@ include `package/snippets/resources_list.html`, `package/snippets/tags.html`,
 - Tab "Vista essenziale / Metadati avanzati" → JS + override `read.html`.
 - Descrizione → campo `notes`.
 - Risorse scaricabili → `package/snippets/resources_list.html` /
-  `resource_item.html`.
-- Anteprima risorsa (modale) → resource views: `package/snippets/resource_view.html`,
-  `resource_views_list.html`; tabella con `datatables_view`/datastore, mappa con
-  `geoview`.
+  `resource_item.html`; la riga è `dataset/resource_row.html`.
+- Anteprima risorsa (modale) → `dataset/preview_modal.html` + `dataset.js`
+  (`initResourcePreview`): il link "Vedi anteprima" (che senza JS resta un
+  link alla scheda risorsa) apre un `<dialog>` che incorpora la prima vista
+  CKAN della risorsa (`odf_resource_preview_url`: `datatables_view`/datastore
+  per le tabelle, `geoview`/`geojson_view` per le mappe). Senza viste: stato
+  vuoto con download. Footer con link alla scheda risorsa.
 - Metadati DCAT-AP_IT / extras → `package/snippets/additional_info.html` (+ campi
   dcatapit); form → `package/snippets/package_metadata_fields.html`.
 - API + console SQL → action API + `datastore_search_sql`; snippet custom.

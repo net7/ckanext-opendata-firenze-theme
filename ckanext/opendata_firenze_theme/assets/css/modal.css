@@ -1,0 +1,89 @@
+/* Modale "Vedi anteprima" della scheda dataset (ResourcePreviewModal del
+   mockup): quick look del widget CKAN della risorsa, senza cambiare pagina.
+   <dialog> nativo: Esc, focus trap e backdrop restano a carico del browser. */
+.rtt-modal {
+  width: min(760px, calc(100vw - 40px));
+  max-height: 85vh;
+  padding: 0;
+  border: 0;
+  border-radius: var(--rtt-radius-xl);
+  box-shadow: var(--rtt-shadow-xl);
+  background: var(--basics-white-100);
+  color: var(--neutral-neutral-900);
+  overflow: hidden;
+}
+
+.rtt-modal::backdrop {
+  background: var(--overlays-backdrop-black-50);
+}
+
+.rtt-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 16px;
+}
+
+.rtt-modal__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.rtt-modal__title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.rtt-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--rtt-radius-full);
+  background: transparent;
+  color: var(--neutral-neutral-600);
+  cursor: pointer;
+}
+
+.rtt-modal__close:hover {
+  background: var(--neutral-neutral-100);
+}
+
+.rtt-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.rtt-modal__iframe {
+  display: block;
+  width: 100%;
+  min-height: 480px;
+  border: 0;
+  border-radius: var(--rtt-radius-md);
+  box-shadow: inset 0 0 0 1px var(--neutral-neutral-300);
+}
+
+.rtt-modal__empty {
+  margin: 0;
+  color: var(--neutral-neutral-700);
+}
+
+.rtt-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 24px;
+}

@@ -48,7 +48,7 @@ from .home import (
     odf_theme_counts,
     odf_themes,
 )
-from .resource import odf_resource_download_url, odf_resource_view_title
+from .resource import odf_resource_download_url, odf_resource_preview_url, odf_resource_view_title
 
 __all__ = [
     "odf_number",
@@ -96,6 +96,7 @@ __all__ = [
     "odf_theme_counts",
     "odf_themes",
     "odf_resource_download_url",
+    "odf_resource_preview_url",
     "odf_resource_view_title",
 ]
 
@@ -130,6 +131,7 @@ def get_helpers():
         "odf_dataset_contact": odf_dataset_contact,
         "odf_dataset_downloads": odf_dataset_downloads,
         "odf_resource_download_url": odf_resource_download_url,
+        "odf_resource_preview_url": odf_resource_preview_url,
         "odf_resource_view_title": odf_resource_view_title,
         "odf_dataset_size": odf_dataset_size,
         "odf_sql_console_enabled": odf_sql_console_enabled,

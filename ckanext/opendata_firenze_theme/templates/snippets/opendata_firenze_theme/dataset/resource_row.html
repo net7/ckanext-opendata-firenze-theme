@@ -2,11 +2,14 @@
 {% from 'snippets/opendata_firenze_theme/chip.html' import format_chip %}
 
 {# Riga risorsa del pannello "Risorse scaricabili": card grigia (ListItem del
-   design system) con nome, chip formato, azioni e meta peso · download. #}
+   design system) con nome, chip formato, azioni e meta peso · download.
+   "Vedi anteprima" è un link alla scheda risorsa che il JS trasforma nella
+   modale (preview_modal.html) col widget CKAN: senza JS resta un link valido. #}
 {% macro resource_row(pkg, res) -%}
 {% set fmt = (res.format or '')|upper %}
 {% set href = h.url_for('resource.read', id=pkg.name, resource_id=res.id) %}
 {% set download = h.url_for('resource.download', id=pkg.name, resource_id=res.id) if res.url_type == 'upload' else (res.url if res.url and h.is_url(res.url) else '') %}
+{% set preview = h.odf_resource_preview_url(pkg, res) %}
 {% set size = h.odf_filesize(res.size) %}
 {% set views = (res.tracking_summary or {}).get('total') %}
 <li class="rtt-resrow">
@@ -16,7 +19,13 @@
     </div>
     <div class="rtt-resrow__actions">
       {{ format_chip(fmt or _('n.d.'), 'geo' if h.odf_format_is_geo(fmt) else 'neutral') }}
-      <a class="rtt-btn rtt-btn--text rtt-btn--sm" href="{{ href }}">{{ _('Vedi anteprima') }}</a>
+      <a class="rtt-btn rtt-btn--text rtt-btn--sm" href="{{ href }}" data-rtt-preview
+        data-preview-name="{{ res.name or res.id }}"
+        data-preview-format="{{ fmt or _('n.d.') }}"
+        data-preview-geo="{{ 'true' if h.odf_format_is_geo(fmt) else 'false' }}"
+        data-preview-view="{{ preview }}"
+        data-preview-full="{{ href }}"
+        data-preview-download="{{ download }}">{{ _('Vedi anteprima') }}</a>
       {% if download %}
       <a class="rtt-btn rtt-btn--primary rtt-btn--sm" href="{{ download }}">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica') }}</a>
       {% endif %}
