@@ -124,6 +124,8 @@ include `package/snippets/resources_list.html`, `package/snippets/tags.html`,
     accordion con titolo cliccabile, chip formato, peso e download; anno da
     `temporal_start`/`version`/titolo.
   - "Altri dataset della serie" → `odf_dataset_series` (extra custom `serie`).
+  - azione del pannello: bottone "Scarica tutta la serie" del mockup (**solo
+    visivo**, senza handler).
 - Dataset correlati (stesso tema DCAT-AP_IT) → `odf_dataset_related` (`dcat_theme`).
 
 ### Risorsa — `screens/risorsa.jsx` → `package/resource_read.html`

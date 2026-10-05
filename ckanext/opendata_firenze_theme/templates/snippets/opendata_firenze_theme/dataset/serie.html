@@ -13,6 +13,8 @@
   Il ramo temporale ha la precedenza, come nel mockup. Il pannello compare
   solo se c'è almeno un altro dataset da mostrare. Ogni voce: titolo (link alla
   scheda), chip formato, peso e download del primo file (come il mockup).
+  Azione del pannello: bottone "Scarica tutta la serie" del mockup (solo visivo,
+  senza handler: da collegare a un backend quando esisterà).
 #}
 {% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
 {% from 'snippets/opendata_firenze_theme/chip.html' import format_chip %}
@@ -40,10 +42,14 @@
 </details>
 {%- endmacro %}
 
+{% macro _download_all_button() -%}
+<button type="button" class="rtt-btn rtt-btn--outline rtt-btn--sm">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica tutta la serie') }}</button>
+{%- endmacro %}
+
 {% macro series_panel(pkg) -%}
 {% set revisions = h.odf_dataset_revisions(pkg) %}
 {% if revisions %}
-{% call panel(_('Revisioni temporali')) %}
+{% call panel(_('Revisioni temporali'), action=_download_all_button()) %}
   <p class="rtt-body-sm rtt-panel__note">{{ _('Questo dataset viene aggiornato periodicamente: qui trovi le revisioni pubblicate negli anni precedenti.') }}</p>
   {{ _series_accordion(_('Revisioni precedenti · {num}').format(num=revisions|length), revisions, True) }}
 {% endcall %}
@@ -51,8 +57,7 @@
 {% set serie = h.odf_pkg_extra(pkg, 'serie') %}
 {% set siblings = h.odf_dataset_series(pkg) %}
 {% if serie and siblings %}
-{% set action %}<a class="rtt-btn rtt-btn--outline rtt-btn--sm" href="{{ h.url_for('dataset.search', q='extras_serie:"' ~ serie ~ '"') }}">{{ icon('arrow-right', 20, 'rtt-btn__icon') }}{{ _('Vedi la serie') }}</a>{% endset %}
-{% call panel(_('Altri dataset della serie'), action=action) %}
+{% call panel(_('Altri dataset della serie'), action=_download_all_button()) %}
   <p class="rtt-body-sm rtt-panel__note">{{ _('Fa parte della serie «{serie}», insieme ad altri {num} dataset.').format(serie=serie, num=siblings|length) }}</p>
   {{ _series_accordion(_('Altri dataset · {num}').format(num=siblings|length), siblings, False) }}
 {% endcall %}

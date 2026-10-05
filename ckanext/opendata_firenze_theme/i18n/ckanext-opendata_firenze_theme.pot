@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-opendata-firenze-theme 0.0.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 12:38+0200\n"
+"POT-Creation-Date: 2026-10-05 12:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1001,45 +1001,45 @@ msgstr ""
 msgid "Vedi anteprima"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:30
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:32
 #, python-brace-format
 msgid "Anno {year}"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:35
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:37
 #, python-brace-format
 msgid "Scarica {label}"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:46
+msgid "Scarica tutta la serie"
+msgstr ""
+
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:52
 msgid "Revisioni temporali"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:47
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:53
 msgid ""
 "Questo dataset viene aggiornato periodicamente: qui trovi le revisioni "
 "pubblicate negli anni precedenti."
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:48
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:54
 #, python-brace-format
 msgid "Revisioni precedenti · {num}"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:54
-msgid "Vedi la serie"
-msgstr ""
-
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:55
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:60
 msgid "Altri dataset della serie"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:56
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:61
 #, python-brace-format
 msgid "Fa parte della serie «{serie}», insieme ad altri {num} dataset."
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:57
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/serie.html:62
 #, python-brace-format
 msgid "Altri dataset · {num}"
 msgstr ""

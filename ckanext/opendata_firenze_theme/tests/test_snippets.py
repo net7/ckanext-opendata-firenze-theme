@@ -186,9 +186,10 @@ def test_series_panel_renders(with_plugins, with_request_context):
     assert "rtt-accordion" in html
     assert "Altra banca dati" in html
     assert "/dataset/a" in html
-    # download del file del dataset della serie + link al catalogo
+    # download del file del dataset della serie + bottone (mockup) del pannello
     assert "https://x.test/a.csv" in html
-    assert "Vedi la serie" in html
+    assert "Scarica tutta la serie" in html
+    assert "Vedi la serie" not in html
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
@@ -228,8 +229,9 @@ def test_revisions_panel_renders(with_plugins, with_request_context):
     assert "Revisioni precedenti · 1" in html
     assert "Anno 2024" in html
     assert "/dataset/pop-2024" in html
-    # download del file della revisione; niente link al catalogo
+    # download del file della revisione + bottone (mockup) del pannello
     assert "https://x.test/pop-2024.csv" in html
+    assert "Scarica tutta la serie" in html
     assert "Vedi le revisioni" not in html
     # con le revisioni il ramo serie non deve comparire
     assert "Altri dataset della serie" not in html
