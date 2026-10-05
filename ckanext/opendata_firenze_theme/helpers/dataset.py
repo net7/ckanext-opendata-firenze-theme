@@ -176,9 +176,10 @@ def odf_dataset_series(pkg, limit=20):
     (da Solr, dove non c'è `resources`). Lista vuota se il dataset non ha serie
     o è l'unico della serie.
 
-    Soluzione **temporanea**: sarà sostituita dal modello serie di DCAT 3
-    (`dcat:inSeries`), come tracciato in DP07; il ramo temporale usa già lo
-    standard `is_version_of` (vedi `odf_dataset_revisions`).
+    Scelta **provvisoria** in attesa di DP07: si resta su DCAT-AP 2.0 con
+    l'extra custom `serie` (ADR 0012 nel repo `opendata-firenze-config`); il
+    ramo temporale usa già lo standard `is_version_of`
+    (vedi `odf_dataset_revisions`).
     """
     serie = odf_pkg_extra(pkg, "serie")
     if not serie:
