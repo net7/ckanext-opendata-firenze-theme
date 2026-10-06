@@ -143,20 +143,36 @@
 }
 
 .rtt-carousel__dots button {
-  height: 4px;
+  position: relative;
+  height: 24px;
   width: 24px;
   flex-shrink: 0;
   padding: 0;
   border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: width var(--rtt-duration) var(--rtt-ease);
+}
+
+/* La barra visibile resta 4px; l'area cliccabile è alta 24px (WCAG 2.5.8). */
+.rtt-carousel__dots button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  transform: translateY(-50%);
   border-radius: var(--rtt-radius-full);
   background: rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-  transition: width var(--rtt-duration) var(--rtt-ease),
-    background-color var(--rtt-duration) var(--rtt-ease);
+  transition: background-color var(--rtt-duration) var(--rtt-ease);
 }
 
 .rtt-carousel__dots button.is-active {
   width: 40px;
+}
+
+.rtt-carousel__dots button.is-active::before {
   background: var(--primary-primary-500-base);
 }
 

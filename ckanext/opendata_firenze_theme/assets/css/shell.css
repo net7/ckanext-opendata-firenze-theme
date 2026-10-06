@@ -220,6 +220,28 @@
   padding: 0 6px 0 12px;
 }
 
+/* Focus da tastiera sul campo di ricerca: il testo interno ha `outline:none`,
+   quindi l'indicatore va sul contenitore (WCAG 2.4.7). Stesso anello del resto
+   del tema. */
+.rtt-search__field:focus-within {
+  outline: 3px solid var(--rtt-focus-visible, #232327);
+  outline-offset: 2px;
+}
+
+/* Con :has() l'anello sul contenitore compare solo col focus nel campo di testo:
+   il pulsante di invio ha già il suo, così evitiamo il doppio anello. Il blocco
+   `:focus-within` qui sopra resta il fallback per i browser senza :has(). */
+@supports selector(:has(*)) {
+  .rtt-search__field:focus-within {
+    outline: none;
+  }
+
+  .rtt-search__field:has(input:focus-visible) {
+    outline: 3px solid var(--rtt-focus-visible, #232327);
+    outline-offset: 2px;
+  }
+}
+
 .rtt-search--sm .rtt-search__field {
   height: 40px;
 }
