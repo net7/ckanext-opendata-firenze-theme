@@ -437,6 +437,14 @@
   margin: 0;
 }
 
+.rtt-noresults__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 .rtt-noresults__actions {
   display: flex;
   flex-wrap: wrap;

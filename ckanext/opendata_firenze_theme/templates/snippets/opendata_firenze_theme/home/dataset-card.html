@@ -8,10 +8,12 @@
    il tema non e' un campo diretto (sta negli extras: vedi h.odf_package_theme) e
    i formati stanno nelle risorse, non in res_format. `show_hvd` aggiunge il chip
    "High Value Dataset" (usato nelle card "In evidenza", come nel mockup). #}
-{% macro dataset_card(pkg, compact=False, show_hvd=False) %}
+{% macro dataset_card(pkg, compact=False, show_hvd=False, show_realtime=False) %}
 {%- set tema = h.odf_package_theme(pkg) -%}
 {%- set hvd = h.odf_pkg_extra(pkg, 'hvd') or pkg.get('hvd') -%}
 {%- set is_hvd = hvd and hvd|string|lower in ['1', 'true', 'yes', 'si', 'sì', 'y'] -%}
+{%- set rt = h.odf_pkg_extra(pkg, 'realtime') -%}
+{%- set is_rt = show_realtime and rt and rt|string|lower in ['1', 'true', 'yes', 'si', 'sì', 'y'] -%}
 {%- set rf = pkg.res_format if pkg.res_format is not string else [pkg.res_format] -%}
 {%- set formats = [] -%}
 {%- for f in (rf or []) -%}{%- if f and f not in formats -%}{%- set _ = formats.append(f) -%}{%- endif -%}{%- endfor -%}
@@ -19,7 +21,7 @@
 <div class="rtt-dcard-wrap">
   <a class="rtt-dcard{% if compact %} rtt-dcard--compact{% endif %}" href="{{ h.url_for('dataset.read', id=pkg.name) }}">
     <span class="rtt-dcard__arrow" aria-hidden="true">{{ icon('arrow-right', 16) }}</span>
-    {% if tema %}<div class="rtt-dcard__overline">{{ tema_overline(tema) }}</div>{% endif %}
+    {% if tema or is_rt %}<div class="rtt-dcard__overline">{% if tema %}{{ tema_overline(tema) }}{% endif %}{% if is_rt %}<span class="rtt-live rtt-live--plain"><span class="rtt-live__dot" aria-hidden="true"></span>{{ _('in tempo reale') }}</span>{% endif %}</div>{% endif %}
     <h3 class="rtt-dcard__title">{{ pkg.title or pkg.name }}</h3>
     {% if not compact and pkg.notes %}<p class="rtt-dcard__desc">{{ pkg.notes|striptags|truncate(160) }}</p>{% endif %}
     {% if is_hvd or formats %}
@@ -53,7 +55,7 @@
     {% if tema %}
     <div class="rtt-dcard__overline">
       {{ tema_overline(tema) }}
-      {% if is_rt %}<span class="rtt-live"><span class="rtt-live__dot" aria-hidden="true"></span>{{ _('in tempo reale') }}</span>{% endif %}
+      {% if is_rt %}<span class="rtt-live rtt-live--plain"><span class="rtt-live__dot" aria-hidden="true"></span>{{ _('in tempo reale') }}</span>{% endif %}
     </div>
     {% endif %}
     <h3 class="rtt-dcard__title">{{ pkg.title or pkg.name }}</h3>

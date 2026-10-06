@@ -34,6 +34,22 @@ def test_catalog_no_results(app):
     assert "Chiedi un dato mancante" in body
 
 
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_catalog_no_results_shows_active_filters(app):
+    """Con filtri attivi e zero risultati compaiono i chip dei filtri rimovibili."""
+    response = app.get("/dataset?dcat_theme=TRAN&res_format=ZZZ")
+    assert response.status_code == 200
+    body = response.body
+    if isinstance(body, bytes):
+        body = body.decode("utf-8")
+    assert "Nessun dataset con questi filtri" in body
+    assert "rtt-noresults__filters" in body
+    assert "Temi: Trasporti" in body  # dcat_theme=TRAN -> etichetta del tema
+    assert "Formato dei file: ZZZ" in body
+    assert "Azzera i filtri" in body
+
+
 def test_package_theme_helper():
     from ckanext.opendata_firenze_theme import helpers
 

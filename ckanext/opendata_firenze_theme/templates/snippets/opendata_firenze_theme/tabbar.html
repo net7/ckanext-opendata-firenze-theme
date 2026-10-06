@@ -6,7 +6,7 @@
 {% set tabs = [
   {'label': _('Home'), 'href': h.url_for('home.index'), 'icon': 'home', 'match': '/'},
   {'label': _('Catalogo'), 'href': h.url_for('dataset.search'), 'icon': 'catalog', 'match': '/dataset'},
-  {'label': _('Annuario'), 'href': h.url_for('odf_pages.annuario'), 'icon': 'chart', 'match': '/annuario-statistico'},
+  {'label': _('Annuario'), 'href': h.url_for('odf_pages.annuario'), 'icon': 'book-open', 'match': '/annuario-statistico'},
   {'label': _('API'), 'href': h.url_for('odf_pages.sviluppatori'), 'icon': 'code', 'match': '/sviluppatori-e-lod'}
 ] %}
 <nav class="rtt-tabbar" aria-label="{{ _('Navigazione rapida') }}">

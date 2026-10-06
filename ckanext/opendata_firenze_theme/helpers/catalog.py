@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
-from .constants import FACET_ORDER, THEME_CODES
+from .constants import FACET_ORDER, THEME_CODES, THEMES
 
 
 def odf_package_theme(pkg):
@@ -79,16 +79,9 @@ def odf_facet_all_url(facet, values):
     return f"{url}?{query}" if query else url
 
 
-def odf_facet_groups(facets):
-    """Gruppi faccetta del catalogo pronti per il template.
-
-    Deduplica i gruppi con la stessa etichetta (`theme`/`dcat_theme`), li ordina
-    secondo `FACET_ORDER` (poi gli eventuali altri) e calcola le voci attive.
-    Ritorna `{'groups': [{'name', 'label', 'items', 'selected'}], 'active': bool}`.
-    """
-    if not facets:
-        return {"groups": [], "active": False}
-    labels = {
+def _facet_labels():
+    """Etichette dei gruppi faccetta (nome parametro -> etichetta italiana)."""
+    return {
         "theme": toolkit._("Temi"),
         "dcat_theme": toolkit._("Temi"),
         "res_format": toolkit._("Formato dei file"),
@@ -100,6 +93,41 @@ def odf_facet_groups(facets):
         "license_id": toolkit._("Licenza"),
         "hvd": toolkit._("Caratteristiche"),
     }
+
+
+def odf_active_filters():
+    """Filtri attivi letti dai parametri in URL (chip del "nessun risultato").
+
+    Non usa `search_facets`: quando una ricerca non ha risultati le faccette sono
+    vuote, quindi i filtri attivi (e rimovibili) vanno presi dai parametri.
+    Ritorna una lista di `{'name', 'label', 'value', 'display'}`.
+    """
+    from flask import request
+
+    labels = _facet_labels()
+    themes = dict(THEMES)
+    skip = {"q", "sort", "page"}
+    chips = []
+    for name, value in request.args.items(multi=True):
+        if name in skip:
+            continue
+        display = themes.get(value, value) if name in ("theme", "dcat_theme") else value
+        chips.append(
+            {"name": name, "label": labels.get(name, name), "value": value, "display": display}
+        )
+    return chips
+
+
+def odf_facet_groups(facets):
+    """Gruppi faccetta del catalogo pronti per il template.
+
+    Deduplica i gruppi con la stessa etichetta (`theme`/`dcat_theme`), li ordina
+    secondo `FACET_ORDER` (poi gli eventuali altri) e calcola le voci attive.
+    Ritorna `{'groups': [{'name', 'label', 'items', 'selected'}], 'active': bool}`.
+    """
+    if not facets:
+        return {"groups": [], "active": False}
+    labels = _facet_labels()
     seen = set()
     names = []
     for name in facets:

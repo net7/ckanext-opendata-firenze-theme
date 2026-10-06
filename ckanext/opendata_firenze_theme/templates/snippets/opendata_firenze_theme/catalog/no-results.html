@@ -1,13 +1,17 @@
 {#
   Stato "nessun risultato" del catalogo (come noresults.jsx del mockup): card
-  con icona, titolo (per query o per filtri), messaggio e azioni, seguita da
-  "I dataset più richiesti". Nessuna dipendenza da JS.
+  con icona, titolo (per query o per filtri), chip dei filtri attivi rimovibili,
+  messaggio e azioni, seguita da "I dataset più richiesti". Nessuna dipendenza
+  da JS.
 
-  q            - query di ricerca corrente ('' se assente)
-  has_filters  - True se ci sono filtri faccetta attivi
+  q        - query di ricerca corrente ('' se assente)
+  filters  - filtri attivi (h.odf_active_filters): chip rimovibili. Presi dai
+             parametri in URL, non dalle faccette (vuote quando non ci sono
+             risultati).
 #}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
+{% set has_filters = filters|length > 0 %}
 <div class="rtt-noresults">
   <div class="rtt-noresults__card">
     <span class="rtt-noresults__icon" aria-hidden="true">{{ icon('search-lg', 32) }}</span>
@@ -17,6 +21,14 @@
     {% else %}
     <h2 class="rtt-h3">{{ _('Nessun dataset con questi filtri') }}</h2>
     <p class="rtt-body">{{ _('Nessun dataset ha tutte queste caratteristiche insieme. Togli un filtro per vedere più risultati.') }}</p>
+    {% endif %}
+    {% if has_filters %}
+    <div class="rtt-noresults__filters">
+      <span class="rtt-facets__applied-label">{{ _('Filtri attivi:') }}</span>
+      {% for f in filters %}
+      <span class="rtt-facets__chip">{{ f.label }}: {{ f.display }}<a class="rtt-facets__remove" href="{{ h.remove_url_param(f.name, f.value) }}" aria-label="{{ _('Rimuovi filtro') }}: {{ f.display }}">{{ icon('close', 16) }}</a></span>
+      {% endfor %}
+    </div>
     {% endif %}
     <div class="rtt-noresults__actions">
       {% if has_filters %}

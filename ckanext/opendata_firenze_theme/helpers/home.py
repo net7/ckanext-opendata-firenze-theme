@@ -33,6 +33,17 @@ def odf_themes():
     return themes
 
 
+def odf_themes_visible():
+    """Temi da mostrare in home: solo quelli con dataset (come il mockup).
+
+    Se però non c'è alcun conteggio (facet non indicizzata / catalogo vuoto) si
+    ripiega su tutti e 13, così la sezione "Esplora per tema" non resta vuota.
+    """
+    themes = odf_themes()
+    with_data = [t for t in themes if t["count"]]
+    return with_data or themes
+
+
 def odf_dataset_count():
     """Numero di dataset pubblici nel catalogo."""
     return _common._search(rows=0)["count"]

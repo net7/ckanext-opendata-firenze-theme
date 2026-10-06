@@ -29,7 +29,8 @@ def test_home_renders(app):
     assert 'class="rtt-actionlink"' in body
     # l'azione di sezione e' markup, non deve finire escapata nel DOM
     assert '&lt;a class="rtt-actionlink"' not in body
-    # i 13 temi DCAT-AP_IT sono sempre elencati
+    # i temi sono elencati; senza conteggi (facet non indicizzata) si ripiega
+    # su tutti e 13
     assert body.count("rtt-tema__name") == 13
 
 
@@ -83,6 +84,33 @@ def test_featured_datasets_hvd_then_recent(with_plugins, with_request_context):
         got = helpers.odf_featured_datasets(limit=3)
     # prima l'HVD, poi i recenti senza duplicati
     assert [p["id"] for p in got] == ["a", "b", "c"]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_home_themes_visible_filters_and_falls_back(with_plugins, with_request_context):
+    """Solo i temi con dataset; senza conteggi si mostrano tutti e 13."""
+    from unittest import mock
+
+    from ckanext.opendata_firenze_theme import helpers
+    from ckanext.opendata_firenze_theme.helpers import home
+
+    with mock.patch.object(
+        home,
+        "odf_themes",
+        return_value=[
+            {"code": "TRAN", "label": "Trasporti", "count": 3},
+            {"code": "ENVI", "label": "Ambiente", "count": 0},
+        ],
+    ):
+        assert [t["code"] for t in helpers.odf_themes_visible()] == ["TRAN"]
+
+    with mock.patch.object(
+        home, "odf_themes", return_value=[{"code": "TRAN", "label": "Trasporti", "count": 0}]
+    ):
+        assert [t["code"] for t in helpers.odf_themes_visible()] == ["TRAN"]  # fallback
+
+    # senza conteggi (facet non indicizzata) il fallback reale è tutti e 13
+    assert len(helpers.odf_themes_visible()) == 13
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

@@ -72,7 +72,8 @@ e/o gli snippet `home/snippets/*`.
   `rows=0` per totali/facets: alfanumerici vs geodati, capitoli/tavole).
 - In evidenza (feature + carousel HVD) → snippet custom + helper (dataset HVD).
 - Esplora per tema (13 temi DCAT-AP_IT) → snippet custom; dati dal vocabolario
-  `ckanext-dcatapit`, facet `theme`.
+  `ckanext-dcatapit`, facet `theme`. Si mostrano solo i temi con dataset
+  (come il mockup), con fallback a tutti e 13 se mancano i conteggi.
 - I più consultati → snippet custom + helper (ordinamento per viste/download).
 - News → `ckanext-pages`; snippet custom.
 
@@ -82,13 +83,16 @@ e/o gli snippet `home/snippets/*`.
   `secondary_content` → `package/snippets/search_facets.html`. Faccette native da
   Solr (`c.search_facets`); lista faccette: `snippets/facet_list.html`.
 - Result row (tema, titolo, descrizione, chip formati, data) →
-  `snippets/package_item.html`.
+  `snippets/opendata_firenze_theme/home/dataset-card.html` (`dataset_card`);
+  nel catalogo con `show_realtime=True` mostra il badge "in tempo reale"
+  (variante `rtt-live--plain`, pallino + testo senza capsula come il mockup).
 - Paginazione → dentro `package/snippets/search_results.html`.
 - No results ("forse cercavi", filtri attivi, più richiesti) → stato vuoto di
   `search_results.html` + snippet custom. Implementato in
   `snippets/opendata_firenze_theme/catalog/no-results.html` (titolo per query o
-  filtri, azioni "Azzera i filtri"/"Svuota la ricerca"/"Chiedi un dato mancante",
-  "I dataset più richiesti"); "Forse cercavi" resta una decisione aperta.
+  filtri, chip dei filtri attivi rimovibili da `odf_active_filters`, azioni
+  "Azzera i filtri"/"Svuota la ricerca"/"Chiedi un dato mancante", "I dataset più
+  richiesti"); "Forse cercavi" resta una decisione aperta.
 - Facet bar orizzontale / faccette laterali / drawer mobile → snippet + JS.
 - Sort → ordinamento nativo di `package/search.html`.
 - Gruppi faccette: `Temi` (theme), `Formato` (`res_format`), `Aggiornamento`
@@ -106,7 +110,8 @@ include `package/snippets/resources_list.html`, `package/snippets/tags.html`,
 `package_organization`, `package_social`, `package_license`).
 
 - Testata (TemaOverline, badge HVD/Geodati/realtime, h1, descrizione troncata,
-  "Scarica", QualityGauge) → block di `read.html`/`read_base.html`.
+  "Scarica", QualityGauge) → block di `read.html`/`read_base.html`; su mobile il
+  breadcrumb diventa il kicker (`crumb_kicker`).
   - QualityGauge = openness di `ckanext-qa` (0–5) → helper da esporre.
   - `hvd` → dcatapit; `geometria`/`geo` → spatial; `realtime`/`uso`/`serie` →
     extras custom (vedi "Dati").
@@ -146,7 +151,8 @@ SideNav 13 capitoli + lista dataset per capitolo (rotta del tema, vedi
 [`adr/0005`](adr/0005-pagine-editoriali-come-rotte.md)). Il campo `capitolo` è un
 **extra custom** (CKAN lo indicizza come `extras_capitolo`); il capitolo attivo è
 `?capitolo=` e il conteggio dei dataset usa una query sul valore esatto
-(`odf_annuario_count`), perché il facet è tokenizzato.
+(`odf_annuario_count`), perché il facet è tokenizzato. La lista mostra tutti i
+dataset del capitolo (limite = conteggio), così numero e card coincidono.
 
 ### Sviluppatori — `screens/sviluppatori.jsx` → rotta del tema
 

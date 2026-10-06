@@ -7,7 +7,7 @@ Re-export dei moduli del package: template e test li usano come `h.odf_*` /
 
 from . import _common  # noqa: F401  (esposto per i test: helpers._common._search)
 from ._common import odf_default_locale, odf_number
-from .catalog import odf_facet_all_url, odf_facet_groups, odf_package_theme
+from .catalog import odf_active_filters, odf_facet_all_url, odf_facet_groups, odf_package_theme
 from .constants import (
     ANNUARIO_CHAPTERS,
     FACET_ORDER,
@@ -47,12 +47,14 @@ from .home import (
     odf_news,
     odf_theme_counts,
     odf_themes,
+    odf_themes_visible,
 )
 from .resource import odf_resource_download_url, odf_resource_preview_url, odf_resource_view_title
 
 __all__ = [
     "odf_number",
     "odf_default_locale",
+    "odf_active_filters",
     "odf_facet_all_url",
     "odf_facet_groups",
     "odf_package_theme",
@@ -96,6 +98,7 @@ __all__ = [
     "odf_news",
     "odf_theme_counts",
     "odf_themes",
+    "odf_themes_visible",
     "odf_resource_download_url",
     "odf_resource_preview_url",
     "odf_resource_view_title",
@@ -107,9 +110,11 @@ def get_helpers():
         "odf_dataset_count": odf_dataset_count,
         "odf_package_theme": odf_package_theme,
         "odf_facet_all_url": odf_facet_all_url,
+        "odf_active_filters": odf_active_filters,
         "odf_facet_groups": odf_facet_groups,
         "odf_home_kpis": odf_home_kpis,
         "odf_themes": odf_themes,
+        "odf_themes_visible": odf_themes_visible,
         "odf_featured_datasets": odf_featured_datasets,
         "odf_most_viewed": odf_most_viewed,
         "odf_geo_datasets": odf_geo_datasets,

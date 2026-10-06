@@ -29,12 +29,12 @@
     {% if page.items %}
     <h2 class="rtt-visually-hidden">{{ _('Risultati della ricerca') }}</h2>
     <div class="rtt-grid rtt-grid--2 rtt-catalog__results">
-      {% for pkg in page.items %}{{ dataset_card(pkg) }}{% endfor %}
+      {% for pkg in page.items %}{{ dataset_card(pkg, show_realtime=True) }}{% endfor %}
     </div>
     <div class="rtt-catalog__pager">{{ page.pager(q=q) }}</div>
     {% else %}
-    {% set facet_data = h.odf_facet_groups(search_facets or {}) %}
-    {% snippet 'snippets/opendata_firenze_theme/catalog/no-results.html', q=q, has_filters=facet_data.active %}
+    {% set active_filters = h.odf_active_filters() %}
+    {% snippet 'snippets/opendata_firenze_theme/catalog/no-results.html', q=q, filters=active_filters %}
     {% endif %}
   </div>
 </main>

@@ -1,6 +1,6 @@
 {% extends "package/read_base.html" %}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
-{% from 'snippets/opendata_firenze_theme/page-head.html' import breadcrumbs %}
+{% from 'snippets/opendata_firenze_theme/page-head.html' import breadcrumbs, crumb_kicker %}
 {% from 'snippets/opendata_firenze_theme/tema-overline.html' import tema_overline, tema_label %}
 {% from 'snippets/opendata_firenze_theme/chip.html' import format_chip, status_chip %}
 {% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
@@ -35,14 +35,16 @@
 <main class="rtt-dataset" id="content" tabindex="-1">
   <header class="rtt-dataset__header">
     <div class="rtt-container">
-      {{ breadcrumbs([
+      {% set crumbs = [
         {'label': _('Home'), 'href': h.url_for('home.index')},
         {'label': _('Catalogo'), 'href': h.url_for('dataset.search')},
         {'label': tema_label(tema), 'href': h.url_for('dataset.search', dcat_theme=tema)} if tema else None,
         {'label': h.dataset_display_name(pkg)},
-      ]|select|list) }}
+      ]|select|list %}
+      {{ breadcrumbs(crumbs) }}
       <div class="rtt-dataset__head">
         <div class="rtt-dataset__intro">
+          {{ crumb_kicker(crumbs) }}
           <div class="rtt-dataset__metas">
             {% if tema %}{{ tema_overline(tema) }}{% endif %}
             {% for b in badges %}

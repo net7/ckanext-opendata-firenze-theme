@@ -87,6 +87,22 @@
   box-shadow: 0 0 0 3px rgba(31, 157, 87, 0.18);
 }
 
+/* Variante "testo" per le card (come il mockup): pallino + testo, senza capsula. */
+.rtt-live--plain {
+  gap: 5px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 11.5px;
+  line-height: 16px;
+}
+
+.rtt-live--plain .rtt-live__dot {
+  width: 6px;
+  height: 6px;
+  box-shadow: none;
+}
+
 /* Menu "Scarica" (formati): trigger outlined del design system */
 .rtt-download {
   position: relative;

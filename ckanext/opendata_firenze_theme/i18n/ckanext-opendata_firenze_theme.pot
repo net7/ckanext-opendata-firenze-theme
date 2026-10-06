@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-opendata-firenze-theme 0.0.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 14:55+0200\n"
+"POT-Creation-Date: 2026-10-06 11:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,51 +18,51 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ckanext/opendata_firenze_theme/helpers/catalog.py:92
-#: ckanext/opendata_firenze_theme/helpers/catalog.py:93
+#: ckanext/opendata_firenze_theme/helpers/catalog.py:85
+#: ckanext/opendata_firenze_theme/helpers/catalog.py:86
 msgid "Temi"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/catalog.py:94
+#: ckanext/opendata_firenze_theme/helpers/catalog.py:87
 msgid "Formato dei file"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/catalog.py:95
+#: ckanext/opendata_firenze_theme/helpers/catalog.py:88
 msgid "Aggiornamento"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/catalog.py:96
+#: ckanext/opendata_firenze_theme/helpers/catalog.py:89
 msgid "Chi pubblica"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/catalog.py:97
+#: ckanext/opendata_firenze_theme/helpers/catalog.py:90
 msgid "Classificazione geografica"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/catalog.py:98
-#: ckanext/opendata_firenze_theme/templates/package/read.html:75
+#: ckanext/opendata_firenze_theme/helpers/catalog.py:91
+#: ckanext/opendata_firenze_theme/templates/package/read.html:77
 msgid "Gruppi"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/catalog.py:99
-#: ckanext/opendata_firenze_theme/templates/package/read.html:133
+#: ckanext/opendata_firenze_theme/helpers/catalog.py:92
+#: ckanext/opendata_firenze_theme/templates/package/read.html:135
 msgid "Parole chiave"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/catalog.py:100
-#: ckanext/opendata_firenze_theme/templates/package/read.html:128
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:81
+#: ckanext/opendata_firenze_theme/helpers/catalog.py:93
+#: ckanext/opendata_firenze_theme/templates/package/read.html:130
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:83
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/aside.html:29
 msgid "Licenza"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/catalog.py:101
+#: ckanext/opendata_firenze_theme/helpers/catalog.py:94
 msgid "Caratteristiche"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/helpers/dataset.py:97
-#: ckanext/opendata_firenze_theme/templates/package/read.html:136
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:27
+#: ckanext/opendata_firenze_theme/templates/package/read.html:138
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:29
 msgid "High Value Dataset"
 msgstr ""
 
@@ -72,7 +72,7 @@ msgid "Geodati · {shape}"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/helpers/dataset.py:101
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:64
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:66
 msgid "Geodati"
 msgstr ""
 
@@ -92,36 +92,36 @@ msgstr ""
 msgid "Bassa"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/home.py:59
+#: ckanext/opendata_firenze_theme/helpers/home.py:70
 msgid "dataset nel catalogo"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/home.py:60
+#: ckanext/opendata_firenze_theme/helpers/home.py:71
 msgid "tutti in licenza aperta CC BY 4.0"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/home.py:64
+#: ckanext/opendata_firenze_theme/helpers/home.py:75
 msgid "dati alfanumerici"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/home.py:65
+#: ckanext/opendata_firenze_theme/helpers/home.py:76
 #, python-brace-format
 msgid "organizzati in {num} serie"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/home.py:69
+#: ckanext/opendata_firenze_theme/helpers/home.py:80
 msgid "dati geografici"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/home.py:70
+#: ckanext/opendata_firenze_theme/helpers/home.py:81
 msgid "con anteprima su mappa"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/home.py:74
+#: ckanext/opendata_firenze_theme/helpers/home.py:85
 msgid "capitoli dell'Annuario Statistico"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/helpers/home.py:75
+#: ckanext/opendata_firenze_theme/helpers/home.py:86
 #, python-brace-format
 msgid "{num} tavola statistica"
 msgid_plural "{num} tavole statistiche"
@@ -333,7 +333,9 @@ msgid ""
 "fa; le pubblicazioni, interrotte per vent'anni, sono riprese circa dieci anni"
 " fa. Da allora l'Annuario non è più un volume a cadenza fissa ma un flusso "
 "continuo: le tavole vengono aggiornate mano a mano che i dati sono raccolti e"
-" validati. La cura editoriale resta all'ufficio comunale di statistica."
+" validati, invece di attendere che l'intera annualità sia disponibile. La "
+"cura editoriale resta all'ufficio comunale di statistica, che dal 2001 "
+"accompagna questo lavoro anche con il Bollettino mensile di statistica."
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/annuario/index.html:27
@@ -534,215 +536,215 @@ msgstr ""
 msgid "Ereditati dai processi ETL / MetaRepo"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:56
+#: ckanext/opendata_firenze_theme/templates/package/read.html:58
 msgid "Dataset:"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:63
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:38
+#: ckanext/opendata_firenze_theme/templates/package/read.html:65
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:40
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/resource_row.html:30
 msgid "Scarica"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:72
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:41
+#: ckanext/opendata_firenze_theme/templates/package/read.html:74
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:43
 msgid "Gestisci"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:86
+#: ckanext/opendata_firenze_theme/templates/package/read.html:88
 msgid "Viste del dataset"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:87
+#: ckanext/opendata_firenze_theme/templates/package/read.html:89
 msgid "Vista essenziale"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:88
+#: ckanext/opendata_firenze_theme/templates/package/read.html:90
 msgid "Metadati avanzati"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:92
-#: ckanext/opendata_firenze_theme/templates/package/read.html:124
+#: ckanext/opendata_firenze_theme/templates/package/read.html:94
+#: ckanext/opendata_firenze_theme/templates/package/read.html:126
 msgid "Descrizione"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:96
-#: ckanext/opendata_firenze_theme/templates/package/read.html:97
+#: ckanext/opendata_firenze_theme/templates/package/read.html:98
+#: ckanext/opendata_firenze_theme/templates/package/read.html:99
 msgid "Mostra tutto"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:96
+#: ckanext/opendata_firenze_theme/templates/package/read.html:98
 msgid "Mostra meno"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:101
+#: ckanext/opendata_firenze_theme/templates/package/read.html:103
 msgid "Nessuna descrizione disponibile."
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:105
+#: ckanext/opendata_firenze_theme/templates/package/read.html:107
 msgid "Risorse scaricabili"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:107
+#: ckanext/opendata_firenze_theme/templates/package/read.html:109
 msgid ""
 "Il dato si aggiorna in tempo reale; il file scaricato resta fermo al momento "
 "del download."
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:114
+#: ckanext/opendata_firenze_theme/templates/package/read.html:116
 msgid "Questo dataset non ha risorse."
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:120
+#: ckanext/opendata_firenze_theme/templates/package/read.html:122
 msgid "Metadati DCAT-AP_IT"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:122
+#: ckanext/opendata_firenze_theme/templates/package/read.html:124
 msgid "Identificatore"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:123
+#: ckanext/opendata_firenze_theme/templates/package/read.html:125
 msgid "Titolo"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:125
+#: ckanext/opendata_firenze_theme/templates/package/read.html:127
 msgid "Tema DCAT-AP_IT"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:126
+#: ckanext/opendata_firenze_theme/templates/package/read.html:128
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/aside.html:55
 msgid "Titolare del dato"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:127
+#: ckanext/opendata_firenze_theme/templates/package/read.html:129
 msgid "Punto di contatto"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:129
+#: ckanext/opendata_firenze_theme/templates/package/read.html:131
 msgid "Frequenza di aggiornamento"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:130
+#: ckanext/opendata_firenze_theme/templates/package/read.html:132
 msgid "Data di pubblicazione"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:131
+#: ckanext/opendata_firenze_theme/templates/package/read.html:133
 msgid "Data di ultima modifica"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:132
+#: ckanext/opendata_firenze_theme/templates/package/read.html:134
 msgid "Lingua"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:132
+#: ckanext/opendata_firenze_theme/templates/package/read.html:134
 msgid "Italiano (ITA)"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:134
+#: ckanext/opendata_firenze_theme/templates/package/read.html:136
 msgid "Tipo di geometria"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:134
+#: ckanext/opendata_firenze_theme/templates/package/read.html:136
 msgid "Non dichiarato"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:135
+#: ckanext/opendata_firenze_theme/templates/package/read.html:137
 msgid "Estensione spaziale"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:135
+#: ckanext/opendata_firenze_theme/templates/package/read.html:137
 msgid "Comune di Firenze · WGS84 / EPSG:4326"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:136
+#: ckanext/opendata_firenze_theme/templates/package/read.html:138
 msgid "Sì"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:136
+#: ckanext/opendata_firenze_theme/templates/package/read.html:138
 msgid "No"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:137
+#: ckanext/opendata_firenze_theme/templates/package/read.html:139
 msgid "Serie di appartenenza"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/read.html:141
+#: ckanext/opendata_firenze_theme/templates/package/read.html:143
 msgid "Extras e interoperabilità"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:30
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:32
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/resource_row.html:21
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/resource_row.html:24
 msgid "n.d."
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:32
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:34
 msgid "Risorsa del dataset"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:32
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:34
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/resource_row.html:37
 msgid "Download:"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:36
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:38
 msgid "Torna al dataset"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:42
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:44
 msgid "Viste"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:67
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:69
 msgid "Anteprima dei dati"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:68
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:70
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/preview_modal.html:22
 msgid "Nessuna anteprima disponibile per questa risorsa."
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:70
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:72
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/preview_modal.html:23
 msgid "Scarica la risorsa"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:75
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:77
 msgid "Dettagli della risorsa"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:77
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:79
 msgid "Formato"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:78
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:80
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/aside.html:34
 msgid "Dimensione"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:79
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:81
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/aside.html:32
 msgid "Ultima modifica"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:80
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:82
 msgid "Creato"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:82
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:84
 msgid "URL"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:86
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:88
 msgid "Le altre risorse di questo dataset restano nella"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:86
+#: ckanext/opendata_firenze_theme/templates/package/resource_read.html:88
 msgid "scheda del dataset"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/package/search.html:15
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/temi.html:12
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/temi.html:13
 #, python-brace-format
 msgid "{num} dataset"
 msgid_plural "{num} dataset"
@@ -791,7 +793,7 @@ msgstr ""
 msgid "Rimuovi"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/language_selector.html:9
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/language_selector.html:10
 msgid "Cambia lingua"
 msgstr ""
 
@@ -862,10 +864,12 @@ msgid "Azzera"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/facets.html:64
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:27
 msgid "Filtri attivi:"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/facets.html:68
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:29
 msgid "Rimuovi filtro"
 msgstr ""
 
@@ -877,39 +881,39 @@ msgstr ""
 msgid "Ordina per"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:15
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:19
 msgid "Nessun dataset per"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:16
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:20
 msgid ""
 "Prova con parole più generiche o un altro termine. Se cerchi un tema, "
 "sfoglialo dai filtri."
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:18
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:22
 msgid "Nessun dataset con questi filtri"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:19
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:23
 msgid ""
 "Nessun dataset ha tutte queste caratteristiche insieme. Togli un filtro per "
 "vedere più risultati."
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:23
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:35
 msgid "Azzera i filtri"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:26
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:38
 msgid "Svuota la ricerca"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:28
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:40
 msgid "Chiedi un dato mancante"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:34
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:46
 msgid "I dataset più richiesti"
 msgstr ""
 
@@ -1063,15 +1067,16 @@ msgstr ""
 msgid "Altri dataset · {num}"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:32
-msgid "Ultimo aggiornamento:"
-msgstr ""
-
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:56
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:24
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:58
 msgid "in tempo reale"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:63
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:34
+msgid "Ultimo aggiornamento:"
+msgstr ""
+
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/dataset-card.html:65
 msgid "visualizzazioni"
 msgstr ""
 

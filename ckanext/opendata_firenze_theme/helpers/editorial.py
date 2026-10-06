@@ -26,9 +26,14 @@ def odf_annuario_count(chapter):
     return _common._search(rows=0, fq=f'extras_capitolo:"{chapter}"')["count"]
 
 
-def odf_annuario_datasets(chapter, limit=12):
-    """Dataset del capitolo dell'Annuario (extra `capitolo`), per titolo."""
+def odf_annuario_datasets(chapter, limit=None):
+    """Dataset del capitolo dell'Annuario (extra `capitolo`), per titolo.
+
+    Con `limit=None` mostra tutti i dataset del capitolo (cap di sicurezza a 200),
+    così il numero di card coincide col conteggio mostrato.
+    """
     if not chapter:
         return []
-    data = _common._search(rows=limit, fq=f'extras_capitolo:"{chapter}"', sort="title_string asc")
+    rows = limit if limit is not None else 200
+    data = _common._search(rows=rows, fq=f'extras_capitolo:"{chapter}"', sort="title_string asc")
     return data["results"]

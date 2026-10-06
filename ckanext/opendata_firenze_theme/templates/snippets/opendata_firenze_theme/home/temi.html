@@ -1,10 +1,11 @@
 {#
-  Griglia dei 13 temi DCAT-AP_IT con conteggio. Dati da h.odf_themes().
+  Griglia dei temi DCAT-AP_IT con conteggio. Dati da h.odf_themes_visible()
+  (solo i temi con dataset; fallback a tutti e 13 senza conteggi).
   Nessun parametro.
 #}
 {% from 'snippets/opendata_firenze_theme/tema-overline.html' import tema_icon %}
 <div class="rtt-stagger rtt-temi">
-  {% for t in h.odf_themes() %}
+  {% for t in h.odf_themes_visible() %}
   <div class="rtt-tema-wrap">
     <a class="rtt-tema" href="{{ h.url_for('dataset.search', dcat_theme=t.code) }}">
       <span class="rtt-tema__body">
