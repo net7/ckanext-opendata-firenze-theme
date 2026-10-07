@@ -129,3 +129,30 @@ def test_home_helpers(with_plugins, with_request_context):
         "capitoli dell'Annuario Statistico",
     ]
     assert helpers.odf_dataset_count() >= 0
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_consultati_card_shows_views_from_tracking_summary(with_plugins, app):
+    """La card "I più consultati" prende le visualizzazioni da `tracking_summary`.
+
+    `views_total`/`views_recent` esistono solo su Solr e non sono *stored*:
+    `package_search` non li restituisce. Se la card li legge da li' (come faceva
+    prima) il contatore "N visualizzazioni" non compare mai.
+    """
+    from flask import render_template_string
+
+    src = (
+        "{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import consultati_card %}{{ consultati_card(pkg) }}"
+    )
+
+    def render(**extra):
+        pkg = {"name": "x", "title": "Dataset"}
+        pkg.update(extra)
+        with app.flask_app.test_request_context("/"):
+            return render_template_string(src, pkg=pkg)
+
+    assert "1.234 visualizzazioni" in render(tracking_summary={"total": 1234, "recent": 10})
+    # senza visualizzazioni la riga sparisce
+    assert "visualizzazioni" not in render(tracking_summary={"total": 0, "recent": 0})
+    # il campo Solr (indicizzato ma non stored) non basta piu'
+    assert "visualizzazioni" not in render(views_total=5)

@@ -45,7 +45,12 @@
 {%- set tema = h.odf_package_theme(pkg) -%}
 {%- set freq_code = h.odf_pkg_extra(pkg, 'frequency') or pkg.get('frequency') -%}
 {%- set freq = h.odf_frequency_label(freq_code) -%}
-{%- set views = h.odf_number(pkg.get('views_total') or pkg.get('views_recent')) -%}
+{#- I campi `views_total`/`views_recent` esistono solo su Solr e NON sono
+    stored: `package_search` non li restituisce (arrivano sempre `None`). Il
+    numero di visualizzazioni sta in `tracking_summary`, che il plugin
+    `tracking` aggiunge a ogni risultato di ricerca. #}
+{%- set ts = pkg.get('tracking_summary') or {} -%}
+{%- set views = ts.get('total') or ts.get('recent') -%}
 {%- set geo = h.odf_dataset_is_geo(pkg) -%}
 {%- set rt = h.odf_pkg_extra(pkg, 'realtime') -%}
 {%- set is_rt = rt and rt|string|lower in ['1', 'true', 'yes', 'si', 'sì', 'y'] -%}
@@ -62,7 +67,7 @@
     {% if freq or views or geo %}
     <div class="rtt-dcard__consultati-meta">
       {% if freq %}<span>{{ freq }}</span>{% endif %}
-      {% if views %}<span aria-hidden="true">·</span><span>{{ views }} {{ _('visualizzazioni') }}</span>{% endif %}
+      {% if views %}<span aria-hidden="true">·</span><span>{{ h.odf_number(views) }} {{ _('visualizzazioni') }}</span>{% endif %}
       {% if geo %}{{ format_chip(_('Geodati'), 'geo') }}{% endif %}
     </div>
     {% endif %}
