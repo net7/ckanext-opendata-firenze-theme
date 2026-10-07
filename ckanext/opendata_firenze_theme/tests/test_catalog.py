@@ -164,3 +164,70 @@ def test_catalog_no_add_button_anonymous(app):
     if isinstance(body, bytes):
         body = body.decode("utf-8")
     assert "rtt-catalog__add" not in body
+
+
+PAGER_SRC = "{% from 'snippets/opendata_firenze_theme/catalog/pager.html' import pager %}{{ pager(page) }}"
+
+
+def _render_pager(app, current, pages, url="/dataset?q=aria"):
+    import types
+
+    from flask import render_template_string
+
+    page = types.SimpleNamespace(page=current, page_count=pages)
+    with app.flask_app.test_request_context(url):
+        return render_template_string(PAGER_SRC, page=page)
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_catalog_pager_window_and_ellipsis(with_plugins, app):
+    """Pagina 5 di 10: finestra 3..7, ellissi su entrambi i lati (come il mockup)."""
+    html = _render_pager(app, 5, 10)
+    assert 'class="rtt-pager"' in html
+    assert 'aria-label="Paginazione"' in html
+    assert html.count("rtt-pager__ellipsis") == 2
+    for n in (3, 4, 6, 7):
+        assert 'href="/dataset/?q=aria&amp;page=%d"' % n in html
+    # la pagina corrente e' uno span, non un link
+    assert 'class="rtt-pager__cell is-active" aria-current="page">5<' in html
+    # prima/ultima e precedente/successiva presenti e attive
+    assert html.count("is-disabled") == 0
+    for label in ("Prima pagina", "Pagina precedente", "Pagina successiva", "Ultima pagina"):
+        assert label in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_catalog_pager_first_page_disables_prev(with_plugins, app):
+    """Pagina 1 di 10: niente ellissi iniziale, prima/precedente disattivate."""
+    html = _render_pager(app, 1, 10)
+    assert html.count("rtt-pager__ellipsis") == 1
+    assert html.count("is-disabled") == 2
+    assert 'href="/dataset/?q=aria&amp;page=5"' in html  # finestra 1..5
+    assert 'href="/dataset/?q=aria&amp;page=6"' not in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_catalog_pager_single_page_hidden(with_plugins, app):
+    """Con una sola pagina il paginatore non viene renderizzato."""
+    assert _render_pager(app, 1, 1).strip() == ""
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_catalog_pager_reads_real_ckan_page(with_plugins, app):
+    """La macro legge `page`/`page_count` dalla vera `Page` di CKAN.
+
+    Gli altri test usano un oggetto minimo: qui si usa la classe reale, così un
+    cambio di attributi in CKAN non passa inosservato (in produzione il pager
+    sparirebbe o andrebbe in errore).
+    """
+    from flask import render_template_string
+
+    from ckan.lib.pagination import Page
+
+    page = Page([], page=2, items_per_page=20, item_count=50)  # 3 pagine
+    with app.flask_app.test_request_context("/dataset?q=aria"):
+        html = render_template_string(PAGER_SRC, page=page)
+    assert 'class="rtt-pager"' in html
+    assert 'aria-current="page">2<' in html  # finestra 1..3, nessuna ellissi
+    assert html.count("rtt-pager__ellipsis") == 0
+    assert 'href="/dataset/?q=aria&amp;page=3"' in html

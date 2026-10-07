@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-opendata-firenze-theme 0.0.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 11:07+0200\n"
+"POT-Creation-Date: 2026-10-07 11:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -153,7 +153,7 @@ msgid ""
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/error_document_template.html:20
-#: ckanext/opendata_firenze_theme/templates/package/search.html:24
+#: ckanext/opendata_firenze_theme/templates/package/search.html:25
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/hero.html:13
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/hero.html:14
 msgid "Cerca nel catalogo"
@@ -167,9 +167,9 @@ msgstr ""
 #: ckanext/opendata_firenze_theme/templates/header.html:7
 #: ckanext/opendata_firenze_theme/templates/package/read.html:40
 #: ckanext/opendata_firenze_theme/templates/package/resource_read.html:24
-#: ckanext/opendata_firenze_theme/templates/package/search.html:6
-#: ckanext/opendata_firenze_theme/templates/package/search.html:11
-#: ckanext/opendata_firenze_theme/templates/package/search.html:14
+#: ckanext/opendata_firenze_theme/templates/package/search.html:7
+#: ckanext/opendata_firenze_theme/templates/package/search.html:12
+#: ckanext/opendata_firenze_theme/templates/package/search.html:15
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/tabbar.html:8
 msgid "Catalogo"
 msgstr ""
@@ -294,10 +294,12 @@ msgid "Skip to main content"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/page.html:12
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/pager.html:26
 msgid "Pagina precedente"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/page.html:12
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/pager.html:45
 msgid "Pagina successiva"
 msgstr ""
 
@@ -310,7 +312,7 @@ msgstr ""
 #: ckanext/opendata_firenze_theme/templates/home/index.html:6
 #: ckanext/opendata_firenze_theme/templates/package/read.html:39
 #: ckanext/opendata_firenze_theme/templates/package/resource_read.html:23
-#: ckanext/opendata_firenze_theme/templates/package/search.html:11
+#: ckanext/opendata_firenze_theme/templates/package/search.html:12
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/tabbar.html:7
 #: ckanext/opendata_firenze_theme/templates/sviluppatori/index.html:21
 msgid "Home"
@@ -743,7 +745,7 @@ msgstr ""
 msgid "scheda del dataset"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/search.html:15
+#: ckanext/opendata_firenze_theme/templates/package/search.html:16
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/temi.html:13
 #, python-brace-format
 msgid "{num} dataset"
@@ -751,19 +753,19 @@ msgid_plural "{num} dataset"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ckanext/opendata_firenze_theme/templates/package/search.html:15
+#: ckanext/opendata_firenze_theme/templates/package/search.html:16
 msgid "per"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/search.html:18
+#: ckanext/opendata_firenze_theme/templates/package/search.html:19
 msgid "Aggiungi dataset"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/search.html:24
+#: ckanext/opendata_firenze_theme/templates/package/search.html:25
 msgid "Cerca dataset, es. «qualità dell'aria»"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/package/search.html:30
+#: ckanext/opendata_firenze_theme/templates/package/search.html:31
 msgid "Risultati della ricerca"
 msgstr ""
 
@@ -915,6 +917,18 @@ msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/no-results.html:46
 msgid "I dataset più richiesti"
+msgstr ""
+
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/pager.html:23
+msgid "Paginazione"
+msgstr ""
+
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/pager.html:25
+msgid "Prima pagina"
+msgstr ""
+
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/catalog/pager.html:46
+msgid "Ultima pagina"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/api.html:9

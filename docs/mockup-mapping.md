@@ -86,7 +86,12 @@ e/o gli snippet `home/snippets/*`.
   `snippets/opendata_firenze_theme/home/dataset-card.html` (`dataset_card`);
   nel catalogo con `show_realtime=True` mostra il badge "in tempo reale"
   (variante `rtt-live--plain`, pallino + testo senza capsula come il mockup).
-- Paginazione → dentro `package/snippets/search_results.html`.
+- Paginazione → snippet custom
+  `snippets/opendata_firenze_theme/catalog/pager.html`: prima/precedente ·
+  numeri (max 5, con ellissi) · successiva/ultima, celle senza bordo e pagina
+  corrente rossa piena, come la `Pagination` del mockup. Sostituisce
+  `page.pager()` di CKAN (markup Bootstrap: bordi e bordo teal sull'attivo) e i
+  link preservano i parametri correnti della ricerca (`h.add_url_param`).
 - No results ("forse cercavi", filtri attivi, più richiesti) → stato vuoto di
   `search_results.html` + snippet custom. Implementato in
   `snippets/opendata_firenze_theme/catalog/no-results.html` (titolo per query o

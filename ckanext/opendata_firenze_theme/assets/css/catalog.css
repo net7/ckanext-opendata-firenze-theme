@@ -59,7 +59,7 @@
 .rtt-catalog__pager {
   display: flex;
   justify-content: center;
-  padding-top: 24px;
+  padding-top: 12px;
 }
 
 /* Faccette */
@@ -509,50 +509,62 @@
   margin-top: 6px;
 }
 
-/* Paginazione di CKAN */
-.rtt-catalog .pagination {
+/* Paginazione del catalogo (markup custom, allineato al mockup: celle senza
+   bordo, pagina corrente rossa piena, prima/ultima). Vedi catalog/pager.html. */
+.rtt-pager {
   display: flex;
-  gap: 6px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  /* Rete di sicurezza: con molte pagine (prima/precedente + 5 numeri +
+     successiva/ultima = 11 celle, ~480px) il pager non entrerebbe in un
+     telefono e uscirebbe dallo schermo; così va a capo. */
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 4px;
 }
 
-.rtt-catalog .pagination .page-item .page-link {
+.rtt-pager__cell {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 40px;
   height: 40px;
+  box-sizing: border-box;
   padding: 0 10px;
+  border: 0;
   border-radius: var(--rtt-radius-md);
-  background: var(--basics-white-100);
-  box-shadow: inset 0 0 0 1px var(--neutral-neutral-300);
-  color: var(--neutral-neutral-800);
+  background: transparent;
+  color: var(--neutral-neutral-900);
   text-decoration: none;
   font-family: var(--rtt-font-ui);
+  font-weight: 500;
   font-size: 14px;
+  line-height: 16px;
+  transition: background-color var(--rtt-duration) var(--rtt-ease);
 }
 
-.rtt-catalog .pagination .page-item.active .page-link {
+.rtt-pager__cell:not(.is-active):not(.is-disabled):hover {
+  background: var(--neutral-neutral-100);
+}
+
+.rtt-pager__cell.is-active {
   background: var(--primary-primary-500-base);
   color: var(--basics-white-100);
-  box-shadow: none;
 }
 
-/* CKAN rende la pagina corrente come <span class="page-item active"> (senza
-   .page-link): la si stila come le altre per non lasciarla "nuda". */
-.rtt-catalog .pagination .page-item.active {
+.rtt-pager__cell.is-disabled {
+  color: var(--neutral-neutral-600);
+  cursor: not-allowed;
+}
+
+.rtt-pager__ellipsis {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 40px;
   height: 40px;
-  padding: 0 10px;
-  border-radius: var(--rtt-radius-md);
-  background: var(--primary-primary-500-base);
-  color: var(--basics-white-100);
+  color: var(--neutral-neutral-600);
   font-family: var(--rtt-font-ui);
+  font-weight: 500;
   font-size: 14px;
 }
 

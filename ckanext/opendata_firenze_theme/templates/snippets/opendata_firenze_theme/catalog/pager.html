@@ -1,0 +1,53 @@
+{#
+  Paginatore del catalogo, allineato alla `Pagination` del mockup:
+  prima/precedente · numeri (max 5, con ellissi) · successiva/ultima.
+  Celle senza bordo, pagina corrente rossa piena. Sostituisce il pager di
+  CKAN (`page.pager()`), che rende markup Bootstrap (bordi e bordo teal
+  sull'attivo) e non ha prima/ultima.
+
+  I link preservano i parametri correnti della ricerca (`h.add_url_param`),
+  quindi filtri, ordinamento e query restano quando si cambia pagina.
+
+  Uso: {% from 'snippets/opendata_firenze_theme/catalog/pager.html' import pager %}
+       {{ pager(page) }}
+#}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{% macro pager(page) -%}
+{% set current = page.page %}
+{% set pages = page.page_count %}
+{% if pages > 1 %}
+{# Finestra di 5 numeri attorno alla pagina corrente (come il mockup). #}
+{% set from = [1, [current - 2, pages - 4]|min]|max %}
+{% set to = [pages, from + 4]|min %}
+<nav class="rtt-pager" aria-label="{{ _('Paginazione') }}">
+  {% if current > 1 %}
+  <a class="rtt-pager__cell" href="{{ h.add_url_param(new_params={'page': 1}) }}" aria-label="{{ _('Prima pagina') }}">{{ icon('pager-first', 20) }}</a>
+  <a class="rtt-pager__cell" href="{{ h.add_url_param(new_params={'page': current - 1}) }}" aria-label="{{ _('Pagina precedente') }}">{{ icon('pager-prev', 20) }}</a>
+  {% else %}
+  <span class="rtt-pager__cell is-disabled" aria-hidden="true">{{ icon('pager-first', 20) }}</span>
+  <span class="rtt-pager__cell is-disabled" aria-hidden="true">{{ icon('pager-prev', 20) }}</span>
+  {% endif %}
+
+  {% if from > 1 %}<span class="rtt-pager__ellipsis" aria-hidden="true">&hellip;</span>{% endif %}
+
+  {% for n in range(from, to + 1) %}
+  {% if n == current %}
+  <span class="rtt-pager__cell is-active" aria-current="page">{{ n }}</span>
+  {% else %}
+  <a class="rtt-pager__cell" href="{{ h.add_url_param(new_params={'page': n}) }}">{{ n }}</a>
+  {% endif %}
+  {% endfor %}
+
+  {% if to < pages %}<span class="rtt-pager__ellipsis" aria-hidden="true">&hellip;</span>{% endif %}
+
+  {% if current < pages %}
+  <a class="rtt-pager__cell" href="{{ h.add_url_param(new_params={'page': current + 1}) }}" aria-label="{{ _('Pagina successiva') }}">{{ icon('pager-next', 20) }}</a>
+  <a class="rtt-pager__cell" href="{{ h.add_url_param(new_params={'page': pages}) }}" aria-label="{{ _('Ultima pagina') }}">{{ icon('pager-last', 20) }}</a>
+  {% else %}
+  <span class="rtt-pager__cell is-disabled" aria-hidden="true">{{ icon('pager-next', 20) }}</span>
+  <span class="rtt-pager__cell is-disabled" aria-hidden="true">{{ icon('pager-last', 20) }}</span>
+  {% endif %}
+</nav>
+{% endif %}
+{%- endmacro %}

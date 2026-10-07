@@ -2,6 +2,7 @@
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% from 'snippets/opendata_firenze_theme/page-head.html' import breadcrumbs %}
 {% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
+{% from 'snippets/opendata_firenze_theme/catalog/pager.html' import pager %}
 
 {% block subtitle %}{{ _('Catalogo') }}{% endblock %}
 
@@ -31,7 +32,7 @@
     <div class="rtt-grid rtt-grid--2 rtt-catalog__results">
       {% for pkg in page.items %}{{ dataset_card(pkg, show_realtime=True) }}{% endfor %}
     </div>
-    <div class="rtt-catalog__pager">{{ page.pager(q=q) }}</div>
+    <div class="rtt-catalog__pager">{{ pager(page) }}</div>
     {% else %}
     {% set active_filters = h.odf_active_filters() %}
     {% snippet 'snippets/opendata_firenze_theme/catalog/no-results.html', q=q, filters=active_filters %}
