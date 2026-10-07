@@ -50,6 +50,59 @@ jobs:
     - name: Run tests
       run: pytest --ckan-ini=test.ini --cov=ckanext.opendata_firenze_theme --disable-warnings ckanext/opendata_firenze_theme
 
+  a11y:
+    # Audit di accessibilità (axe-core) sulle pagine chiave, con un CKAN in
+    # esecuzione. Separato dal job "test" perché richiede un browser headless.
+    runs-on: ubuntu-latest
+    container:
+      image: ckan/ckan-dev:2.12
+      options: --user root
+    services:
+      solr:
+        image: ckan/ckan-solr:2.12-solr9
+      postgres:
+        image: ckan/ckan-postgres-dev:2.12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+          image: redis:3
+
+    env:
+      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
+      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
+      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
+      CKAN_SOLR_URL: http://solr:8983/solr/ckan
+      CKAN_REDIS_URL: redis://redis:6379/1
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install requirements
+      run: |
+        pip install -r requirements.txt
+        pip install -r dev-requirements.txt
+        pip install -r a11y-requirements.txt
+        pip install -e .
+        playwright install --with-deps chromium
+    - name: Setup extension
+      run: |
+        # config CKAN core assoluta, come nel job "test"
+        sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' test.ini
+        # il server deve servire gli asset dallo stesso origin che apre Playwright
+        sed -i '/^\[app:main\]/a ckan.site_url = http://localhost:5000' test.ini
+        ckan -c test.ini db init
+    - name: Run axe (WCAG 2.0/2.1/2.2 A+AA)
+      run: |
+        ckan -c test.ini run --host 0.0.0.0 --port 5000 --disable-reloader --threaded &
+        for i in $(seq 1 60); do
+          curl -sf http://localhost:5000/ >/dev/null && break
+          sleep 2
+        done
+        curl -sf http://localhost:5000/ >/dev/null || { echo "CKAN non si è avviato entro il timeout"; exit 1; }
+        A11Y_BASE_URL=http://localhost:5000 pytest --ckan-ini=test.ini -q ckanext/opendata_firenze_theme/tests/test_a11y_axe.py
+
   lint:
     runs-on: ubuntu-latest
     steps:

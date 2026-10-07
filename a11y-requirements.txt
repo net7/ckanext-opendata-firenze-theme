@@ -1,0 +1,5 @@
+# Audit di accessibilità in CI (job "a11y" del workflow): Playwright guida un
+# browser headless e axe-core (bundled nel pacchetto Python) cerca le violazioni
+# WCAG. Installate solo in quel job, non nella suite unitaria.
+playwright==1.63.0
+axe-playwright-python==0.1.8
