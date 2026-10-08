@@ -11,18 +11,11 @@
 <aside class="rtt-dataset__aside">
   {% set license = pkg.license_title or (pkg.license_id|upper if pkg.license_id else '') %}
   {% set size = h.odf_dataset_size(pkg) %}
-  {# Viste/download: se il tracking non è attivo (nessun tracking_summary) le
-     righe non compaiono; quando c'è, 0 è un valore valido e viene mostrato
-     (il mockup mostra sempre entrambe le righe). #}
+  {# Viste: se il tracking non è attivo (nessun tracking_summary) la riga non
+     compare; quando c'è, 0 è un valore valido e viene mostrato.
+     Il contatore dei download è stato rimosso (vedi ADR 0015). #}
   {% set tracking = pkg.tracking_summary %}
   {% set views = tracking.get('total') if tracking else None %}
-  {% set downloads = namespace(total=0, tracked=false) %}
-  {% for res in pkg.resources or [] %}
-    {% if res.tracking_summary is not none %}
-      {% set downloads.tracked = true %}
-      {% set downloads.total = downloads.total + (res.tracking_summary.get('total') or 0) %}
-    {% endif %}
-  {% endfor %}
   {% set capitolo = h.odf_pkg_extra(pkg, 'capitolo') %}
   {% call panel(_('In sintesi')) %}
     {{ meta_table([
@@ -33,7 +26,6 @@
       (_('Capitolo Annuario'), {'label': capitolo, 'href': h.url_for('odf_pages.annuario')} if capitolo else None),
       (_('Dimensione'), size),
       (_('Visualizzazioni'), h.odf_number(views)),
-      (_('Download'), h.odf_number(downloads.total) if downloads.tracked else None),
     ]) }}
     {% if pkg.license_url %}
     <a class="rtt-link" href="{{ pkg.license_url }}" rel="license">{{ pkg.license_title or pkg.license_id }}</a>

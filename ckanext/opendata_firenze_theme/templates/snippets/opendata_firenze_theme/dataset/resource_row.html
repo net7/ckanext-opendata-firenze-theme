@@ -11,7 +11,6 @@
 {% set download = h.url_for('resource.download', id=pkg.name, resource_id=res.id) if res.url_type == 'upload' else (res.url if res.url and h.is_url(res.url) else '') %}
 {% set preview = h.odf_resource_preview_url(pkg, res) %}
 {% set size = h.odf_filesize(res.size) %}
-{% set views = (res.tracking_summary or {}).get('total') %}
 <li class="rtt-resrow">
   <div class="rtt-resrow__top">
     <div class="rtt-resrow__title">
@@ -31,10 +30,9 @@
       {% endif %}
     </div>
   </div>
-  {% if size or views is not none %}
+  {% if size %}
   <div class="rtt-resrow__meta">
-    {% if size %}<span>{{ size }}</span>{% endif %}
-    {% if views is not none %}{% if size %}<span aria-hidden="true">·</span>{% endif %}<span>{{ _('Download:') }} {{ h.odf_number(views) }}</span>{% endif %}
+    <span>{{ size }}</span>
   </div>
   {% endif %}
 </li>
