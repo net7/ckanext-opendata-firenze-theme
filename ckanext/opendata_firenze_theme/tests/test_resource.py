@@ -22,6 +22,12 @@ def test_resource_page_renders(app):
     assert "Torna al dataset" in body
     assert "Scarica" in body
     assert "Dettagli della risorsa" in body
+    # il contatore di download è stato rimosso (vedi adr/0007): il pulsante
+    # "Scarica" resta, la metrica "Download: N" no.
+    assert "Download:" not in body
+    # ...e il link non ha la classe che il JS di CKAN usa per tracciare i click
+    # sulle risorse: senza, nessun download viene registrato (adr/0007).
+    assert "resource-url-analytics" not in body
     # senza viste: messaggio + invito al download
     assert "Nessuna anteprima disponibile" in body
     # l'azione editor non compare per l'anonimo
@@ -45,6 +51,28 @@ def test_resource_page_with_view(app):
     assert "Nessuna anteprima disponibile" not in body
     assert "Anteprima" in body
     assert "http://example.com/a.png" in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} image_view")
+@pytest.mark.usefixtures("with_plugins")
+def test_resource_view_page_has_no_tracking_class(app):
+    """La pagina della vista (template del core) non porta la classe di tracking.
+
+    È la pagina che la modale "Vedi anteprima" della scheda dataset incorpora
+    nell'iframe: un download da lì non deve registrare eventi `resource`
+    (adr/0007). Il core la usa in `package/snippets/resource_view.html`.
+    """
+    pkg = factories.Dataset(title="Dataset di prova")
+    res = factories.Resource(
+        package_id=pkg["id"],
+        name="Risorsa di prova",
+        format="PNG",
+        url="http://example.com/a.png",
+    )
+    view = factories.ResourceView(resource_id=res["id"], title="Immagine", view_type="image_view")
+    body = _body(app.get(f"/dataset/{pkg['name']}/resource/{res['id']}/view/{view['id']}"))
+    assert "http://example.com/a.png" in body
+    assert "resource-url-analytics" not in body
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

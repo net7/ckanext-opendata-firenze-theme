@@ -32,6 +32,22 @@ def test_dataset_page_renders_essential(app):
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.usefixtures("with_plugins")
+def test_dataset_download_links_are_not_tracked(app):
+    """I link di download del tema non portano `resource-url-analytics`.
+
+    È la classe su cui il JS di CKAN aggancia il click per registrare un
+    download: senza, nessun evento `resource` viene inviato (adr/0007). Il test
+    serve a non reintrodurla per sbaglio.
+    """
+    pkg = factories.Dataset(title="Dataset di prova")
+    factories.Resource(package_id=pkg["id"], name="Risorsa di prova", format="CSV")
+    body = _body(app.get(f"/dataset/{pkg['name']}"))
+    assert "Risorsa di prova" in body
+    assert "resource-url-analytics" not in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
 def test_dataset_page_renders_advanced(app):
     pkg = factories.Dataset(title="Dataset di prova")
     body = _body(app.get(f"/dataset/{pkg['name']}?tab=avanzata"))

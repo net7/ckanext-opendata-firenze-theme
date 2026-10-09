@@ -286,6 +286,34 @@ def test_resource_row_preview_button(with_plugins, with_request_context):
     assert 'data-preview-full="/dataset/demo/resource/r1"' in html
     # senza JS resta un link valido alla scheda risorsa (progressive enhancement)
     assert '<a class="rtt-btn rtt-btn--text rtt-btn--sm" href="/dataset/demo/resource/r1" data-rtt-preview' in html
+    # il conteggio dei download per risorsa non compare più (vedi adr/0007):
+    # la fixture lo passa apposta, così il test fallirebbe se tornasse nel template.
+    assert "Download" not in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_aside_has_no_download_counter(with_plugins, with_request_context):
+    """Il riquadro "In sintesi" mostra le Visualizzazioni, non i download (adr/0007).
+
+    Il totale dei download era la somma dei `tracking_summary` delle risorse:
+    passiamo una risorsa con un conteggio non nullo proprio per verificare che
+    non ricompaia.
+    """
+    pkg = {
+        "metadata_created": "2026-09-01T10:00:00",
+        "metadata_modified": "2026-09-01T10:00:00",
+        "license_title": "CC-BY 4.0",
+        "tracking_summary": {"total": 5, "recent": 2},
+        "resources": [{"tracking_summary": {"total": 3}}],
+        "extras": [],
+    }
+    src = (
+        "{% from 'snippets/opendata_firenze_theme/dataset/aside.html' import dataset_aside %}"
+        "{{ dataset_aside(pkg, [], {}) }}"
+    )
+    html = _render(src, pkg=pkg)
+    assert "Visualizzazioni" in html
+    assert "Download" not in html
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

@@ -187,7 +187,8 @@ tutti i campi inviati tranne `subject` (vedi
 - `capitolo` (Annuario), `realtime`, `uso`, `serie` → **extras custom**
   (`ckanext-scheming` **non** installato).
 - `qualita` (openness) → **ckanext-qa**.
-- `download`/`viste` → tracking CKAN (da abilitare) o `ckanext-googleanalytics`.
+- `viste` → tracking CKAN (page view); `download` → **non tracciati** (vedi
+  `adr/0007`).
 - `news` → **ckanext-pages**.
 - Faccette "temi" (13) → vocabolario dcatapit + facet `theme`.
 
@@ -195,8 +196,9 @@ tutti i campi inviati tranne `subject` (vedi
 
 - Facet "Classificazione geografica" (ISO 19115): quale campo Solr esporre.
 - "Forse cercavi": Solr `spellcheck` vs Levenshtein lato client (mockup).
-- Download/viste: abilitare il tracking nativo o analytics (senza tracking i
-  contatori delle viste/download restano nascosti).
+- Viste: il tracking CKAN è attivo (i contatori arrivano da `tracking_summary`);
+  i **download** non sono tracciati (`adr/0007`) — se l'Ente li vorrà, la strada
+  è DP03 (statistiche custom).
 - Lingua: metadati multilingua bloccati (`ckanext-multilang`).
 - SPARQL endpoint / MCP server: richiedono backend; nel tema sono resi come nel
   mockup con link/endpoint segnaposto (`adr/0005`).
