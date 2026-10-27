@@ -23,10 +23,10 @@ Per usarlo in un altro ambiente: `pip install -e .` e aggiungere
 
 ```
 ckanext/opendata_firenze_theme/
-├── plugin.py                 IConfigurer + ITemplateHelpers + IBlueprint
-├── views.py                  rotte editoriali (/annuario-statistico, /sviluppatori-e-lod)
-├── helpers/                  helper dei template per area (_common, catalog, home, dataset, …)
-├── templates/                override (base/page/header/footer) + home/package/annuario/sviluppatori/contact
+├── plugin.py                 IConfigurer + IConfigDeclaration + ITemplateHelpers + IBlueprint
+├── views.py                  rotte editoriali (/annuario-statistico, /sviluppatori-e-lod) e admin (/ckan-admin/homepage)
+├── helpers/                  helper dei template per area (_common, catalog, home, home_blocks, dataset, …)
+├── templates/                override (base/page/header/footer) + home/package/annuario/sviluppatori/contact/admin
 │   └── snippets/opendata_firenze_theme/   snippet riusabili (section, page-head, chip, card, sviluppatori/tab-*)
 ├── assets/
 │   ├── webassets.yml         bundle CSS/JS
@@ -37,6 +37,33 @@ ckanext/opendata_firenze_theme/
 ├── tests/
 └── i18n/
 ```
+
+## Homepage a blocchi
+
+I blocchi della home (hero, KPI, in evidenza, temi, più consultati, news) sono
+elencati in `helpers/home_blocks.py`. Un utente **sysadmin** può attivarli,
+disattivarli, riordinarli e **personalizzarne i testi e i link** (titolo,
+sottotitolo, testo e URL del link) da **`/ckan-admin/homepage`** (voce
+"Homepage" nella navigazione di amministrazione), senza modificare template né
+riavviare.
+
+- Ordine, stato e testi sono salvati nell'opzione runtime
+  `ckanext.opendata_firenze_theme.homepage_blocks` (JSON) tramite l'azione
+  standard `config_option_update` → tabella `system_info`.
+- I testi predefiniti stanno nel registro (`helpers/home_blocks.py`) e il form
+  li precompila: si possono modificare o **svuotare**. Un campo vuoto non viene
+  mostrato (sottotitolo nascosto, link assente); il titolo vuoto nasconde
+  l'intestazione della sezione.
+- I campi hanno un tipo (`text` o `url`) dichiarato nel registro. Gli URL
+  accettano percorsi che iniziano con `/` o indirizzi `http(s)://`; un valore
+  non valido (es. `javascript:`) blocca il salvataggio con un errore sul campo.
+- Se l'opzione non è impostata valgono tutti i blocchi nell'ordine del registro;
+  un elenco vuoto significa "nessun blocco".
+- I blocchi senza contenuto (news senza post, in evidenza senza dataset, ecc.)
+  continuano a nascondersi da soli.
+- Per aggiungere un blocco: una voce in `BLOCKS` (campi testuali e relativi
+  default) + un template in `templates/home/blocks/`. Dettagli e alternative in
+  [`docs/adr/0008-homepage-blocchi-configurabili.md`](docs/adr/0008-homepage-blocchi-configurabili.md).
 
 ## Test
 
