@@ -1,0 +1,39 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/section.html' import section %}
+{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
+{% set featured = h.odf_featured_datasets(7) %}
+{% if featured %}
+{% set cta = None %}
+{% if block.cta_label and block.cta_url %}{% set cta %}<a class="rtt-actionlink" href="{{ block.cta_url }}">{{ block.cta_label }}{{ icon('arrow-right', 18) }}</a>{% endset %}{% endif %}
+{% call section(title=block.title, action=cta) %}
+  {% if block.subtitle %}<p class="rtt-body rtt-section__intro">{{ block.subtitle }}</p>{% endif %}
+  {% set hero_ds = featured[0] %}
+  <div class="rtt-evidenza">
+    <div class="rtt-evidenza__feature rtt-reveal">
+      <img class="rtt-evidenza__img" src="{{ h.url_for_static('/evidenza-illustrazione.jpg') }}" alt="" aria-hidden="true">
+      <div class="rtt-evidenza__card">
+        <span class="rtt-evidenza__overline">{{ _('In evidenza') }}</span>
+        <h3 class="rtt-evidenza__title">{{ hero_ds.title or hero_ds.name }}</h3>
+        {% if hero_ds.notes %}<p class="rtt-evidenza__text">{{ hero_ds.notes|striptags|truncate(180) }}</p>{% endif %}
+        <a class="rtt-btn rtt-btn--primary" href="{{ h.url_for('dataset.read', id=hero_ds.name) }}">{{ _('Apri il dataset') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+      </div>
+    </div>
+    {% if featured|length > 1 %}
+    {# Carosello delle card piccole: il track scorre, JS aggiunge indicatori
+       e frecce (nascoste senza JS). #}
+    <div class="rtt-carousel rtt-stagger rtt-evidenza__others" data-rtt-carousel data-dot-label="{{ _('Vai a') }}">
+      <div class="rtt-carousel__track" role="group" tabindex="0" aria-label="{{ _('Dataset in evidenza') }}">
+        {% for pkg in featured[1:] %}<div class="rtt-carousel__item">{{ dataset_card(pkg, show_hvd=True) }}</div>{% endfor %}
+      </div>
+      <div class="rtt-carousel__footer">
+        <div class="rtt-carousel__dots" data-rtt-carousel-dots></div>
+        <div class="rtt-carousel__controls">
+          <button type="button" class="rtt-icon-btn" data-rtt-carousel-prev aria-label="{{ _('Precedente') }}">{{ icon('arrow-small-left', 20) }}</button>
+          <button type="button" class="rtt-icon-btn" data-rtt-carousel-next aria-label="{{ _('Successivo') }}">{{ icon('arrow-right', 20) }}</button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+{% endcall %}
+{% endif %}

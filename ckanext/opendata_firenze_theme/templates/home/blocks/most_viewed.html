@@ -1,0 +1,14 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/section.html' import section %}
+{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import consultati_card %}
+{% set viewed = h.odf_most_viewed(4) %}
+{% if viewed %}
+{% set cta = None %}
+{% if block.cta_label and block.cta_url %}{% set cta %}<a class="rtt-actionlink" href="{{ block.cta_url }}">{{ block.cta_label }}{{ icon('arrow-right', 18) }}</a>{% endset %}{% endif %}
+{% call section(title=block.title, tone='consultati', action=cta) %}
+  {% if block.subtitle %}<p class="rtt-body rtt-section__intro">{{ block.subtitle }}</p>{% endif %}
+  <div class="rtt-grid rtt-grid--2 rtt-stagger">
+    {% for pkg in viewed %}{{ consultati_card(pkg) }}{% endfor %}
+  </div>
+{% endcall %}
+{% endif %}

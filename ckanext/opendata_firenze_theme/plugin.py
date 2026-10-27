@@ -2,12 +2,14 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 from ckanext.opendata_firenze_theme import helpers, views
+from ckanext.opendata_firenze_theme.helpers import home_blocks
 
 
 class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
     """Tema CKAN del portale Open Data del Comune di Firenze."""
 
     plugins.implements(plugins.IConfigurer)
+    plugins.implements(plugins.IConfigDeclaration)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IBlueprint)
     plugins.implements(plugins.IPackageController, inherit=True)
@@ -19,6 +21,20 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "opendata_firenze_theme")
 
+    def update_config_schema(self, schema):
+        """Rende aggiornabile da /ckan-admin/homepage l'ordine dei blocchi."""
+        schema[home_blocks.OPTION] = [
+            toolkit.get_validator("ignore_missing"),
+            toolkit.get_validator("unicode_safe"),
+        ]
+        return schema
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration, key):
+        """Dichiara l'opzione cosi' CKAN non la segnala come sconosciuta."""
+        declaration.declare(key.ckanext.opendata_firenze_theme.homepage_blocks, "")
+
     # ITemplateHelpers
 
     def get_helpers(self):
@@ -27,7 +43,7 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
     # IBlueprint
 
     def get_blueprint(self):
-        return views.pages
+        return [views.pages, views.admin]
 
     # IPackageController
 

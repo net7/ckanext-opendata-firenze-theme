@@ -161,6 +161,7 @@ def test_template_helpers_registered():
         "odf_geo_datasets",
         "odf_geo_search_query",
         "odf_news",
+        "odf_home_blocks",
         "odf_annuario_chapters",
         "odf_annuario_count",
         "odf_annuario_datasets",

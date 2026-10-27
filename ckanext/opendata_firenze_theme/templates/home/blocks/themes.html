@@ -1,0 +1,5 @@
+{% from 'snippets/opendata_firenze_theme/section.html' import section %}
+{% call section(title=block.title, band=True) %}
+  {% if block.subtitle %}<p class="rtt-body rtt-section__intro">{{ block.subtitle }}</p>{% endif %}
+  {% snippet 'snippets/opendata_firenze_theme/home/temi.html' %}
+{% endcall %}

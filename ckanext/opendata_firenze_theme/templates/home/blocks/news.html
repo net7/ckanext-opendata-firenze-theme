@@ -1,0 +1,11 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/section.html' import section %}
+{% set news = h.odf_news(3) %}
+{% if news %}
+{% set cta = None %}
+{% if block.cta_label and block.cta_url %}{% set cta %}<a class="rtt-actionlink" href="{{ block.cta_url }}">{{ block.cta_label }}{{ icon('arrow-right', 18) }}</a>{% endset %}{% endif %}
+{% call section(title=block.title, muted=True, action=cta) %}
+  {% if block.subtitle %}<p class="rtt-body rtt-section__intro">{{ block.subtitle }}</p>{% endif %}
+  {% snippet 'snippets/opendata_firenze_theme/home/news.html', news=news %}
+{% endcall %}
+{% endif %}

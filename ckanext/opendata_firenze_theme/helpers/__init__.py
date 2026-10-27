@@ -49,6 +49,7 @@ from .home import (
     odf_themes,
     odf_themes_visible,
 )
+from .home_blocks import odf_home_blocks, odf_home_blocks_admin, entries_from_form
 from .resource import odf_resource_download_url, odf_resource_preview_url, odf_resource_view_title
 
 __all__ = [
@@ -99,6 +100,9 @@ __all__ = [
     "odf_theme_counts",
     "odf_themes",
     "odf_themes_visible",
+    "odf_home_blocks",
+    "odf_home_blocks_admin",
+    "entries_from_form",
     "odf_resource_download_url",
     "odf_resource_preview_url",
     "odf_resource_view_title",
@@ -120,6 +124,7 @@ def get_helpers():
         "odf_geo_datasets": odf_geo_datasets,
         "odf_geo_search_query": odf_geo_search_query,
         "odf_news": odf_news,
+        "odf_home_blocks": odf_home_blocks,
         "odf_annuario_chapters": odf_annuario_chapters,
         "odf_annuario_count": odf_annuario_count,
         "odf_annuario_datasets": odf_annuario_datasets,
