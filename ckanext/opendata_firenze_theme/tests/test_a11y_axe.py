@@ -63,4 +63,6 @@ def test_axe_no_wcag_violations(path):
         }
         for v in violations
     ]
-    assert not violations, f"Violazioni axe su {path}:\n" + json.dumps(report, ensure_ascii=False, indent=2)
+    assert not violations, f"Violazioni axe su {path}:\n" + json.dumps(
+        report, ensure_ascii=False, indent=2
+    )

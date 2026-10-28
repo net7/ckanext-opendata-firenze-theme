@@ -44,12 +44,16 @@ def homepage_blocks():
     if request.method == "POST":
         blocks = home_blocks.odf_home_blocks_admin()
         current = [block["id"] for block in blocks]
-        orders = {block["id"]: request.form.get("order_%s" % block["id"]) for block in blocks}
+        orders = {block["id"]: request.form.get(f"order_{block['id']}") for block in blocks}
         texts = {
-            block["id"]: {field: request.form.get("%s_%s" % (field, block["id"])) for field in block["fields"]}
+            block["id"]: {
+                field: request.form.get(f"{field}_{block['id']}") for field in block["fields"]
+            }
             for block in blocks
         }
-        entries = home_blocks.entries_from_form(request.form.getlist("enabled"), orders, texts, current)
+        entries = home_blocks.entries_from_form(
+            request.form.getlist("enabled"), orders, texts, current
+        )
         errors = home_blocks.validate_entries(entries)
         if errors:
             return toolkit.render(
@@ -60,7 +64,9 @@ def homepage_blocks():
                     "error_summary": toolkit._("Controlla i campi evidenziati."),
                 },
             )
-        toolkit.get_action("config_option_update")(context, {home_blocks.OPTION: json.dumps(entries)})
+        toolkit.get_action("config_option_update")(
+            context, {home_blocks.OPTION: json.dumps(entries)}
+        )
         toolkit.h.flash_success(toolkit._("Blocchi della homepage aggiornati."))
         return toolkit.redirect_to("odf_admin.homepage_blocks")
 

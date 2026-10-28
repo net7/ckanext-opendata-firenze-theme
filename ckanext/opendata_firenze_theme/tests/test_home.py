@@ -65,7 +65,9 @@ def test_home_theme_link_uses_dcat_theme(with_plugins, with_request_context):
 
     fake = {"search_facets": {"dcat_theme": {"items": [{"name": "TRAN", "count": 2}]}}}
     with mock.patch.object(helpers._common, "_search", return_value=fake):
-        html = render_template_string("{% include 'snippets/opendata_firenze_theme/home/temi.html' %}")
+        html = render_template_string(
+            "{% include 'snippets/opendata_firenze_theme/home/temi.html' %}"
+        )
     assert "dcat_theme=TRAN" in html
     # il vecchio parametro errato non deve comparire
     assert "?theme=TRAN" not in html
@@ -141,9 +143,7 @@ def test_consultati_card_shows_views_from_tracking_summary(with_plugins, app):
     """
     from flask import render_template_string
 
-    src = (
-        "{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import consultati_card %}{{ consultati_card(pkg) }}"
-    )
+    src = "{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import consultati_card %}{{ consultati_card(pkg) }}"
 
     def render(**extra):
         pkg = {"name": "x", "title": "Dataset"}

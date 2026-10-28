@@ -214,7 +214,9 @@ def test_revisions_panel_renders(with_plugins, with_request_context):
                 "id": "a",
                 "name": "pop-2024",
                 "title": "Popolazione residente 2024",
-                "resources": [{"url": "https://x.test/pop-2024.csv", "format": "CSV", "size": 1536}],
+                "resources": [
+                    {"url": "https://x.test/pop-2024.csv", "format": "CSV", "size": 1536}
+                ],
             },
         ]
     }
@@ -285,7 +287,10 @@ def test_resource_row_preview_button(with_plugins, with_request_context):
     assert 'data-preview-format="CSV"' in html
     assert 'data-preview-full="/dataset/demo/resource/r1"' in html
     # senza JS resta un link valido alla scheda risorsa (progressive enhancement)
-    assert '<a class="rtt-btn rtt-btn--text rtt-btn--sm" href="/dataset/demo/resource/r1" data-rtt-preview' in html
+    assert (
+        '<a class="rtt-btn rtt-btn--text rtt-btn--sm" href="/dataset/demo/resource/r1" data-rtt-preview'
+        in html
+    )
     # il conteggio dei download per risorsa non compare più (vedi adr/0007):
     # la fixture lo passa apposta, così il test fallirebbe se tornasse nel template.
     assert "Download" not in html
@@ -364,7 +369,9 @@ def test_resource_preview_url_without_views(with_plugins, with_request_context):
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_chip(with_plugins, with_request_context):
-    html = _render("{% from 'snippets/opendata_firenze_theme/chip.html' import chip %}{{ chip('CSV', size='sm') }}")
+    html = _render(
+        "{% from 'snippets/opendata_firenze_theme/chip.html' import chip %}{{ chip('CSV', size='sm') }}"
+    )
     assert 'class="rtt-chip rtt-chip--sm"' in html
     assert 'class="rtt-chip__label"' in html
     assert "CSV" in html

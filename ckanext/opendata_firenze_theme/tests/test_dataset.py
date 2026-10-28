@@ -92,13 +92,18 @@ def test_dataset_helpers(with_plugins, with_request_context):
     assert helpers.odf_filesize(1536) == "1,5 KB"
     assert helpers.odf_frequency_label("IRREG") == "irregolare"
     assert helpers.odf_frequency_label("XYZ") == "XYZ"
-    assert helpers.odf_dataset_formats({"resources": [{"format": "csv"}, {"format": "CSV"}, {"format": "GeoJSON"}]}) == [
+    assert helpers.odf_dataset_formats(
+        {"resources": [{"format": "csv"}, {"format": "CSV"}, {"format": "GeoJSON"}]}
+    ) == [
         "CSV",
         "GEOJSON",
     ]
 
     # geometria normalizzata, qualunque sia il maiuscolo dell'extra
-    assert helpers.odf_dataset_geometry({"extras": [{"key": "geometria", "value": "Punto"}]}) == "punto"
+    assert (
+        helpers.odf_dataset_geometry({"extras": [{"key": "geometria", "value": "Punto"}]})
+        == "punto"
+    )
     assert helpers.odf_dataset_geometry({"extras": [{"key": "geometria", "value": "x"}]}) is None
 
     pkg = {
@@ -118,7 +123,10 @@ def test_dataset_helpers(with_plugins, with_request_context):
     assert helpers.odf_pkg_extra({"is_version_of": "u"}, "is_version_of") == "u"
     assert helpers.odf_pkg_extra({"is_version_of": "u", "extras": []}, "is_version_of") == "u"
     # l'extra esatto ha la precedenza sul top-level
-    assert helpers.odf_pkg_extra({"serie": "TOP", "extras": [{"key": "serie", "value": "S"}]}, "serie") == "S"
+    assert (
+        helpers.odf_pkg_extra({"serie": "TOP", "extras": [{"key": "serie", "value": "S"}]}, "serie")
+        == "S"
+    )
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
@@ -177,7 +185,9 @@ def test_dataset_revisions_helper(with_plugins, with_request_context):
                 "id": "a",
                 "name": "pop-2024",
                 "title": "Popolazione residente 2024",
-                "resources": [{"url": "https://x.test/pop-2024.csv", "format": "CSV", "size": 1536}],
+                "resources": [
+                    {"url": "https://x.test/pop-2024.csv", "format": "CSV", "size": 1536}
+                ],
             },
             {
                 "id": "b",
@@ -211,9 +221,12 @@ def test_dataset_revisions_helper(with_plugins, with_request_context):
             {"id": "b", "name": "pop-2023", "title": "Popolazione residente 2023"},
         ]
     }
-    with mock.patch.object(helpers._common, "_search", return_value=siblings) as search, mock.patch(
-        "ckanext.opendata_firenze_theme.helpers.dataset._dataset_by_uri_root",
-        return_value={"id": "self", "name": "popolazione", "title": "Popolazione residente"},
+    with (
+        mock.patch.object(helpers._common, "_search", return_value=siblings) as search,
+        mock.patch(
+            "ckanext.opendata_firenze_theme.helpers.dataset._dataset_by_uri_root",
+            return_value={"id": "self", "name": "popolazione", "title": "Popolazione residente"},
+        ),
     ):
         revisions = helpers.odf_dataset_revisions(revision)
     assert [r["name"] for r in revisions] == ["popolazione", "pop-2023"]
@@ -222,8 +235,11 @@ def test_dataset_revisions_helper(with_plugins, with_request_context):
 
     # più valori (dcatapit li serializza separati da virgola): tutti nella query
     multi = {"id": "a", "name": "pop-2024", "is_version_of": f"{root},https://example.test/x"}
-    with mock.patch.object(helpers._common, "_search", return_value={"results": []}) as search, mock.patch(
-        "ckanext.opendata_firenze_theme.helpers.dataset._dataset_by_uri_root", return_value=None
+    with (
+        mock.patch.object(helpers._common, "_search", return_value={"results": []}) as search,
+        mock.patch(
+            "ckanext.opendata_firenze_theme.helpers.dataset._dataset_by_uri_root", return_value=None
+        ),
     ):
         helpers.odf_dataset_revisions(multi)
     fqs = [call.kwargs["fq"] for call in search.call_args_list]
@@ -237,13 +253,23 @@ def test_revision_year_fallback(with_plugins, with_request_context):
     from ckanext.opendata_firenze_theme.helpers.dataset import _revision_year_from
 
     # 1. periodo di riferimento (vince su tutto)
-    assert _revision_year_from(
-        {"title": "Dati 1999", "version": "2001", "extras": [{"key": "temporal_start", "value": "01-01-2024"}]}
-    ) == "2024"
+    assert (
+        _revision_year_from(
+            {
+                "title": "Dati 1999",
+                "version": "2001",
+                "extras": [{"key": "temporal_start", "value": "01-01-2024"}],
+            }
+        )
+        == "2024"
+    )
     # 1b. temporal_end, se manca temporal_start
-    assert _revision_year_from(
-        {"title": "Dati", "extras": [{"key": "temporal_end", "value": "31-12-2022"}]}
-    ) == "2022"
+    assert (
+        _revision_year_from(
+            {"title": "Dati", "extras": [{"key": "temporal_end", "value": "31-12-2022"}]}
+        )
+        == "2022"
+    )
     # 2. versione
     assert _revision_year_from({"title": "Dati 1999", "version": "2001"}) == "2001"
     # 3. titolo (ultima spiaggia)
@@ -283,7 +309,9 @@ def test_revisions_end_to_end(with_request_context):
     assert revisions[0]["year"] == "2024"
 
     def count(fq):
-        return toolkit.get_action("package_search")({"ignore_auth": True}, {"fq": fq, "rows": 1})["count"]
+        return toolkit.get_action("package_search")({"ignore_auth": True}, {"fq": fq, "rows": 1})[
+            "count"
+        ]
 
     # il catalogo mostra il corrente e nasconde la revisione
     assert count(f'name:"{canonical_name}"') == 1

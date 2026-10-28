@@ -98,7 +98,9 @@ def odf_dataset_badges(pkg):
     geometria = odf_dataset_geometry(pkg)
     if odf_dataset_is_geo(pkg):
         shape = {"punto": "puntuale", "area": "areale", "linea": "lineare"}.get(geometria)
-        label = toolkit._("Geodati · {shape}").format(shape=shape) if shape else toolkit._("Geodati")
+        label = (
+            toolkit._("Geodati · {shape}").format(shape=shape) if shape else toolkit._("Geodati")
+        )
         badges.append({"kind": "geo", "label": label})
     if _common._truthy(extras.get("realtime")):
         badges.append({"kind": "realtime", "label": toolkit._("In aggiornamento continuo")})
@@ -234,7 +236,7 @@ def _dataset_name_from_uri(uri):
 
 def _dataset_by_uri_root(root):
     """Risolve il dataset "corrente" dall'`is_version_of` di una revisione."""
-    for value in (root if isinstance(root, (list, tuple)) else [root]):
+    for value in root if isinstance(root, (list, tuple)) else [root]:
         name = _dataset_name_from_uri(str(value))
         if not name:
             continue
@@ -333,7 +335,10 @@ def odf_dataset_contact(pkg):
     return {
         "holder": pkg.get("holder_name") or extras.get("rights_holder") or pkg.get("author") or "",
         "structure": organization.get("title") or pkg.get("holder_identifier") or "",
-        "email": pkg.get("author_email") or pkg.get("maintainer_email") or extras.get("email") or "",
+        "email": pkg.get("author_email")
+        or pkg.get("maintainer_email")
+        or extras.get("email")
+        or "",
     }
 
 

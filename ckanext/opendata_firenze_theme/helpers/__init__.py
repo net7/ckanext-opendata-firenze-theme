@@ -49,7 +49,7 @@ from .home import (
     odf_themes,
     odf_themes_visible,
 )
-from .home_blocks import odf_home_blocks, odf_home_blocks_admin, entries_from_form
+from .home_blocks import entries_from_form, odf_home_blocks, odf_home_blocks_admin
 from .resource import odf_resource_download_url, odf_resource_preview_url, odf_resource_view_title
 
 __all__ = [

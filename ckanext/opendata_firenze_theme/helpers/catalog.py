@@ -72,7 +72,9 @@ def odf_facet_all_url(facet, values):
     """
     from flask import request
 
-    args = [(key, value) for key, value in request.args.items(multi=True) if key not in (facet, "page")]
+    args = [
+        (key, value) for key, value in request.args.items(multi=True) if key not in (facet, "page")
+    ]
     args.extend((facet, value) for value in values)
     query = urlencode(args)
     url = toolkit.url_for("dataset.search")

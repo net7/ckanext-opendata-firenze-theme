@@ -56,16 +56,27 @@ def test_package_theme_helper():
     base = "http://publications.europa.eu/resource/authority/data-theme/"
     assert helpers.odf_package_theme({}) is None
     assert helpers.odf_package_theme({"theme": base + "ENVI"}) == "ENVI"
-    assert helpers.odf_package_theme({"extras": [{"key": "theme", "value": '["%sTRAN"]' % base}]}) == "TRAN"
+    assert (
+        helpers.odf_package_theme({"extras": [{"key": "theme", "value": f'["{base}TRAN"]'}]})
+        == "TRAN"
+    )
     # OP_DATPRO (default dcatapit = "Other") non e' uno dei 13 temi
-    assert helpers.odf_package_theme({"extras": [{"key": "theme", "value": '["%sOP_DATPRO"]' % base}]}) is None
+    assert (
+        helpers.odf_package_theme({"extras": [{"key": "theme", "value": f'["{base}OP_DATPRO"]'}]})
+        is None
+    )
     # dcatapit espone il campo con la MAIUSCOLA nelle pagine for_view (`Theme`)
-    assert helpers.odf_package_theme({"extras": [{"key": "Theme", "value": '["%sENVI"]' % base}]}) == "ENVI"
+    assert (
+        helpers.odf_package_theme({"extras": [{"key": "Theme", "value": f'["{base}ENVI"]'}]})
+        == "ENVI"
+    )
     # fallback sulla forma grezza `themes_aggregate`
-    aggr = {"extras": [{"key": "themes_aggregate", "value": '[{"theme": "SOCI", "subthemes": []}]'}]}
+    aggr = {
+        "extras": [{"key": "themes_aggregate", "value": '[{"theme": "SOCI", "subthemes": []}]'}]
+    }
     assert helpers.odf_package_theme(aggr) == "SOCI"
     # extras come dict
-    assert helpers.odf_package_theme({"extras": {"Theme": '["%sTRAN"]' % base}}) == "TRAN"
+    assert helpers.odf_package_theme({"extras": {"Theme": f'["{base}TRAN"]'}}) == "TRAN"
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
@@ -166,7 +177,9 @@ def test_catalog_no_add_button_anonymous(app):
     assert "rtt-catalog__add" not in body
 
 
-PAGER_SRC = "{% from 'snippets/opendata_firenze_theme/catalog/pager.html' import pager %}{{ pager(page) }}"
+PAGER_SRC = (
+    "{% from 'snippets/opendata_firenze_theme/catalog/pager.html' import pager %}{{ pager(page) }}"
+)
 
 
 def _render_pager(app, current, pages, url="/dataset?q=aria"):
@@ -187,7 +200,7 @@ def test_catalog_pager_window_and_ellipsis(with_plugins, app):
     assert 'aria-label="Paginazione"' in html
     assert html.count("rtt-pager__ellipsis") == 2
     for n in (3, 4, 6, 7):
-        assert 'href="/dataset/?q=aria&amp;page=%d"' % n in html
+        assert f'href="/dataset/?q=aria&amp;page={n}"' in html
     # la pagina corrente e' uno span, non un link
     assert 'class="rtt-pager__cell is-active" aria-current="page">5<' in html
     # prima/ultima e precedente/successiva presenti e attive
@@ -220,9 +233,8 @@ def test_catalog_pager_reads_real_ckan_page(with_plugins, app):
     cambio di attributi in CKAN non passa inosservato (in produzione il pager
     sparirebbe o andrebbe in errore).
     """
-    from flask import render_template_string
-
     from ckan.lib.pagination import Page
+    from flask import render_template_string
 
     page = Page([], page=2, items_per_page=20, item_count=50)  # 3 pagine
     with app.flask_app.test_request_context("/dataset?q=aria"):

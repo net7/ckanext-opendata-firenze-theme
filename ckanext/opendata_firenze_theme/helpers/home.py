@@ -28,7 +28,9 @@ def odf_theme_counts():
 def odf_themes():
     """I 13 temi DCAT-AP_IT con il conteggio dataset, ordinati per numero."""
     counts = odf_theme_counts()
-    themes = [{"code": code, "label": label, "count": counts.get(code, 0)} for code, label in THEMES]
+    themes = [
+        {"code": code, "label": label, "count": counts.get(code, 0)} for code, label in THEMES
+    ]
     themes.sort(key=lambda t: (-t["count"], t["label"]))
     return themes
 
@@ -83,9 +85,9 @@ def odf_home_kpis():
         {
             "value": _common._it(len(ANNUARIO_CHAPTERS)),
             "label": toolkit._("capitoli dell'Annuario Statistico"),
-            "delta": toolkit.ungettext("{num} tavola statistica", "{num} tavole statistiche", tavole).format(
-                num=_common._it(tavole)
-            ),
+            "delta": toolkit.ungettext(
+                "{num} tavola statistica", "{num} tavole statistiche", tavole
+            ).format(num=_common._it(tavole)),
         },
     ]
 
@@ -96,7 +98,9 @@ def odf_featured_datasets(limit=3):
     Gli HVD hanno la precedenza; se sono meno di `limit` si completa con i
     dataset aggiornati di recente, così il carosello ha sempre abbastanza voci.
     """
-    featured = _common._search(rows=limit, fq="extras_hvd:true", sort="metadata_modified desc")["results"]
+    featured = _common._search(rows=limit, fq="extras_hvd:true", sort="metadata_modified desc")[
+        "results"
+    ]
     if len(featured) >= limit:
         return featured
     recent = _common._search(rows=limit + len(featured), sort="metadata_modified desc")["results"]
@@ -125,7 +129,9 @@ def odf_geo_datasets(limit=12):
     in `GEO_FORMATS`), così conteggi e liste restano coerenti.
     """
     geo_formats = " OR ".join(sorted(GEO_FORMATS))
-    return _common._search(rows=limit, fq=f"res_format:({geo_formats})", sort="metadata_modified desc")["results"]
+    return _common._search(
+        rows=limit, fq=f"res_format:({geo_formats})", sort="metadata_modified desc"
+    )["results"]
 
 
 def odf_geo_search_query():

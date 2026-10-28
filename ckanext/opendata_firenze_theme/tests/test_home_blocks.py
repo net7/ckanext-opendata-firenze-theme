@@ -350,7 +350,9 @@ def test_home_escapes_custom_cta(app):
     factories.Dataset(title="Dataset di prova")
     hb = _hb()
     payload = "<script>alert(1)</script>"
-    raw = json.dumps([{"id": "featured", "enabled": True, "cta_label": payload, "cta_url": "/dataset"}])
+    raw = json.dumps(
+        [{"id": "featured", "enabled": True, "cta_label": payload, "cta_url": "/dataset"}]
+    )
     with mock.patch.object(hb, "_raw_value", return_value=raw):
         body = _body(app)
     assert payload not in body

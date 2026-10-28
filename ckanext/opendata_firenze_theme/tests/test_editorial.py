@@ -91,6 +91,9 @@ def test_editorial_wrapper_does_not_use_ds_type_class(app):
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.usefixtures("with_plugins")
 def test_sviluppatori_geo_panel_lists_geo_datasets(app):
-    factories.Dataset(title="Geodati di prova", resources=[{"format": "GeoJSON", "url": "http://example.com/a.geojson"}])
+    factories.Dataset(
+        title="Geodati di prova",
+        resources=[{"format": "GeoJSON", "url": "http://example.com/a.geojson"}],
+    )
     body = _body(app.get("/sviluppatori-e-lod?tab=geo"))
     assert "Geodati di prova" in body

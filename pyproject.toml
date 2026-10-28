@@ -39,8 +39,13 @@ filterwarnings = [
 addopts = "--ckan-ini test.ini"
 
 [tool.ruff]
-line-length = 127
+# Stesse regole del repo di configurazione (opendata-firenze-config), così il
+# codice del tema non segue due standard diversi. Il wrapping delle righe lo
+# decide `ruff format`: E501 è duplicato e disattivato.
+line-length = 100
+target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "F", "W"]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
 
