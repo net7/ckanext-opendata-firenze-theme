@@ -65,6 +65,20 @@ riavviare.
   default) + un template in `templates/home/blocks/`. Dettagli e alternative in
   [`docs/adr/0008-homepage-blocchi-configurabili.md`](docs/adr/0008-homepage-blocchi-configurabili.md).
 
+## Sviluppo
+
+```bash
+make install   # crea .venv/ con i tool di sviluppo e attiva .githooks/pre-commit
+make lint      # ruff: lint + controllo formattazione
+make lint-fix  # ruff: applica fix e formattazione
+```
+
+Le regole di lint sono le stesse del repo di configurazione
+(`opendata-firenze-config`): import ordinati, `pyupgrade`, bugbear, con la
+lunghezza riga demandata a `ruff format` (E501 disattivato). La formattazione è
+verificata in CI. Il hook locale esegue solo il lint sui file Python staged; i
+test richiedono il container CKAN (sotto).
+
 ## Test
 
 La CI (GitHub Actions) usa servizi Postgres/Solr dedicati. In locale **non**
@@ -74,14 +88,28 @@ resterebbero indicizzati nel catalogo dev. Servono un DB e un core Solr di test
 omonimo in Solr), poi:
 
 ```bash
-CKAN_SQLALCHEMY_URL=postgresql://ckandbuser:ckandbpassword@db/ckan_test \
-CKAN_SOLR_URL=http://solr:8983/solr/ckan_test \
-python -m pytest --ckan-ini=/srv/app/src/ckan/test-core.ini \
-  ckanext/opendata_firenze_theme
+make test
+```
+
+Il target esegue pytest nel container `ckan-firenze-dev` con
+`CKAN_SQLALCHEMY_URL=.../ckan_test` e `CKAN_SOLR_URL=.../ckan_test`. Per un
+container o un DB diverso:
+
+```bash
+make test CKAN_CONTAINER=altro-container \
+  TEST_DB=postgresql://user:pass@db/ckan_test \
+  TEST_SOLR=http://solr:8983/solr/ckan_test
 ```
 
 I test che richiedono estensioni di deployment non installate (es.
 `ckanext-contact`) vengono saltati.
+
+## Rilascio
+
+La produzione usa un **tag** del tema, non un branch: una modifica arriva in
+produzione solo dopo un rilascio taggato e l'aggiornamento del pin in
+`ckan/Dockerfile` del repo di configurazione. Procedura completa, verifica
+della versione in immagine e rollback in [`docs/release.md`](docs/release.md).
 
 ## Traduzioni (i18n)
 
