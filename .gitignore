@@ -6,6 +6,11 @@ bower_components
 __pycache__/
 *.py[cod]
 
+# Tool locali
+.venv/
+.pytest_cache/
+.ruff_cache/
+
 # C extensions
 *.so
 

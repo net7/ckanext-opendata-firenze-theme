@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# Hook locale del tema: ruff sui file Python staged.
+#
+# I test NON girano qui: richiedono il container CKAN con un DB e un core Solr
+# di test (vedi README > Test, `make test`). Il lint invece è veloce e deve
+# passare prima del commit, come nel repo di configurazione.
+#
+# Attivazione: `make install` (imposta core.hooksPath a .githooks).
+
+set -euo pipefail
+
+RUFF="${RUFF:-}"
+if [ -z "$RUFF" ]; then
+  if [ -x ".venv/bin/ruff" ]; then
+    RUFF=".venv/bin/ruff"
+  elif command -v ruff >/dev/null 2>&1; then
+    RUFF="ruff"
+  else
+    echo "→ ruff non trovato: salto il lint (esegui 'make install')." >&2
+    exit 0
+  fi
+fi
+
+files=()
+while IFS= read -r file; do
+  [ -n "$file" ] && files+=("$file")
+done < <(git diff --cached --name-only --diff-filter=ACMR -- '*.py')
+
+if [ "${#files[@]}" -eq 0 ]; then
+  exit 0
+fi
+
+echo "→ ruff: lint dei file Python staged..."
+if ! "$RUFF" check "${files[@]}"; then
+  exit 1
+fi
+
+if ! "$RUFF" format --check "${files[@]}"; then
+  echo "  (esegui 'make lint-fix' e riprova)" >&2
+  exit 1
+fi
