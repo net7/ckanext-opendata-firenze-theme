@@ -6,6 +6,8 @@ tema usati dalle pagine), così eventuali errori di sintassi o parametri rotti
 emergono subito.
 """
 
+from unittest import mock
+
 import pytest
 
 PLUGIN = "opendata_firenze_theme"
@@ -401,3 +403,50 @@ def test_format_and_status_chip(with_plugins, with_request_context):
     assert "GeoJSON" in html
     assert 'class="rtt-status-chip"' in html
     assert 'data-tone="aperto"' in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_news_card_single_link(with_plugins, with_request_context):
+    """La card news è un solo link (come il Card del mockup), senza <article>
+    e senza link annidato: la superficie intera apre la news."""
+    news = [
+        {
+            "name": "nuovo-dataset",
+            "title": "Nuovi dataset dell'Annuario",
+            "publish_date": "2026-10-27",
+            "content": "Testo della news",
+        }
+    ]
+    from flask import current_app
+
+    # `h` nei template è un HelperAttributeDict: patchare il modulo
+    # ckan.lib.helpers non basta, va sostituita la voce usata da Jinja.
+    fake_h = {"url_for": lambda *args, **kwargs: "/blog/nuovo-dataset"}
+    with mock.patch.dict(current_app.jinja_env.globals["h"], fake_h):
+        html = _render(
+            "{% snippet 'snippets/opendata_firenze_theme/home/news.html', news=news %}",
+            news=news,
+        )
+    assert 'class="rtt-dcard rtt-ncard"' in html
+    assert 'aria-labelledby="news-title-nuovo-dataset"' in html
+    assert 'id="news-title-nuovo-dataset"' in html
+    assert 'class="rtt-ncard__date"' in html
+    assert 'class="rtt-dcard__title"' in html
+    assert 'class="rtt-ncard__desc"' in html
+    assert html.count("<a ") == 1
+    assert "<article" not in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_card_accessibility_name(with_plugins, with_request_context):
+    """La card dataset è un unico link, ma il suo nome accessibile è il titolo
+    (aria-labelledby), non data/descrizione/formati."""
+    pkg = {"name": "x", "title": "Dataset di prova"}
+    html = _render(
+        "{% from 'snippets/opendata_firenze_theme/home/dataset-card.html'"
+        " import dataset_card %}{{ dataset_card(pkg) }}",
+        pkg=pkg,
+    )
+    assert 'aria-labelledby="dcard-title-x"' in html
+    assert 'id="dcard-title-x"' in html
+    assert "<h3" in html

@@ -152,6 +152,10 @@ def test_consultati_card_shows_views_from_tracking_summary(with_plugins, app):
             return render_template_string(src, pkg=pkg)
 
     assert "1.234 visualizzazioni" in render(tracking_summary={"total": 1234, "recent": 10})
+    # il link-card ha come nome accessibile il titolo, non tutta la card
+    html = render(tracking_summary={"total": 1234, "recent": 10})
+    assert 'aria-labelledby="consultati-title-x"' in html
+    assert 'id="consultati-title-x"' in html
     # senza visualizzazioni la riga sparisce
     assert "visualizzazioni" not in render(tracking_summary={"total": 0, "recent": 0})
     # il campo Solr (indicizzato ma non stored) non basta piu'

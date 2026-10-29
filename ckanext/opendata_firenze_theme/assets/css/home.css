@@ -322,6 +322,13 @@
     background-color var(--rtt-duration) var(--rtt-ease);
 }
 
+/* Nel mockup la freccia delle card della home è a 12px; nel catalogo/annuario
+   resta a 14px (stessa shell `.rtt-dcard`, pagine diverse). */
+.rtt-home .rtt-dcard__arrow {
+  top: 12px;
+  right: 12px;
+}
+
 /* hover del box: come `.rtt-icon-btn` del DS (sfondo lilac chiaro) */
 .rtt-dcard__arrow:hover {
   background: var(--neutral-neutral-50);
@@ -391,16 +398,11 @@
   flex-wrap: wrap;
 }
 
-/* Card "I più consultati": riga di meta con frequenza · visualizzazioni e chip
-   "Geodati". Testo più piccolo e non in capsule come il resto della card. */
+/* Card "I più consultati": stessa shell del Card del mockup, con la riga di
+   meta (frequenza · visualizzazioni) e il chip "Geodati". */
 .rtt-dcard--consultati {
-  gap: 10px;
-  padding: 20px 24px;
-}
-
-.rtt-dcard--consultati .rtt-dcard__title {
-  font-size: 18px;
-  line-height: 26px;
+  gap: 12px;
+  padding: 24px;
 }
 
 .rtt-dcard__consultati-meta {
@@ -414,16 +416,6 @@
   font-size: 14px;
   line-height: 22px;
   color: var(--neutral-neutral-800);
-}
-
-.rtt-dcard__consultati-meta .rtt-format-chip {
-  font-size: 11.5px;
-}
-
-@media (max-width: 1024px) {
-  .rtt-dcard--consultati {
-    padding: 16px 18px;
-  }
 }
 
 /* "In evidenza": card con illustrazione + riquadro di vetro */
@@ -510,51 +502,39 @@
   color: var(--neutral-neutral-800);
 }
 
-/* Card news */
-.rtt-ncard {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: var(--basics-white-100);
-  border: 1px solid var(--neutral-neutral-200);
-  border-radius: var(--rtt-radius-lg);
-  padding: 20px;
-}
-
+/* Card news: stessa shell delle card dataset (`.rtt-dcard`, come il Card del
+   mockup). Qui restano solo la data come overline e la descrizione, che nel
+   mockup non è clampata. */
 .rtt-ncard__date {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
   font-family: var(--rtt-font-ui);
-  font-weight: 600;
-  font-size: 12.5px;
+  font-weight: 400;
+  font-size: 12px;
   line-height: 16px;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: var(--neutral-neutral-600);
+  white-space: nowrap;
+  color: var(--lilac-700);
 }
 
-.rtt-ncard__title {
-  margin: 0;
-  font-family: var(--rtt-font-ui);
-  font-weight: 700;
-  font-size: 17px;
-  line-height: 24px;
-}
-
-.rtt-ncard__title a {
-  color: var(--neutral-neutral-900);
-  text-decoration: none;
-}
-
-.rtt-ncard__title a:hover {
-  text-decoration: underline;
+.rtt-ncard__date::before {
+  content: "";
+  width: 15px;
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--lilac-500);
 }
 
 .rtt-ncard__desc {
   margin: 0;
   font-family: var(--rtt-font-text);
-  font-size: 14px;
-  line-height: 21px;
-  color: var(--neutral-neutral-700);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--neutral-neutral-800);
+  text-wrap: pretty;
 }
 
 /* Action link del design system ("Vedi tutti", "Tutto il catalogo", "Filtra il
