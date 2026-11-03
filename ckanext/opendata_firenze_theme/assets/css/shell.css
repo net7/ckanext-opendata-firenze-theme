@@ -532,7 +532,8 @@
   width: 100%;
   background: var(--primary-primary-700);
   color: var(--basics-white-100);
-  /* sticky footer (vedi body in base.css): prende lo spazio libero sopra di se' */
+  /* sticky footer (vedi body in base.css). Lo spazio libero lo prende il contenuto;
+     margin-top: auto resta per le pagine senza main o div.main come figlio del body */
   margin-top: auto;
   flex-shrink: 0;
 }
