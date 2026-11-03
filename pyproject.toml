@@ -1,6 +1,6 @@
 [project]
 name = "ckanext-opendata-firenze-theme"
-version = "0.2.1"
+version = "0.2.2"
 description = "Tema Open Data del Comune di Firenze"
 readme = "README.md"
 authors = [
