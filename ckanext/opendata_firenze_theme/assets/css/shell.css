@@ -532,6 +532,9 @@
   width: 100%;
   background: var(--primary-primary-700);
   color: var(--basics-white-100);
+  /* sticky footer (vedi body in base.css): prende lo spazio libero sopra di se' */
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .rtt-footer__main {
