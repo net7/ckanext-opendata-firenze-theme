@@ -2,6 +2,16 @@
 
 {# Asset del tema, registrati in assets/webassets.yml (bundle "opendata_firenze_theme/<key>"). #}
 
+{# Favicon: super() e' il link a ckan.favicon (il giglio, impostato dal plugin); qui le varianti PNG.
+   Se ckan.favicon punta a un'altra icona, le varianti del giglio non si aggiungono. #}
+{% block links -%}
+  {{ super() }}
+  {%- if g.favicon == '/brand/favicon.ico' %}
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ h.url_for_static('/brand/favicon-32.png') }}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ h.url_for_static('/brand/apple-touch-icon.png') }}" />
+  {%- endif %}
+{% endblock -%}
+
 {% block styles %}
   {{ super() }}
   {% asset 'opendata_firenze_theme/opendata_firenze_theme-css' %}

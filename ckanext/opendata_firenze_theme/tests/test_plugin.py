@@ -214,3 +214,30 @@ def test_search_hides_revisions():
     # un testo generico che contiene solo la parola "is_version_of" non bypassa
     params = plugin.before_dataset_search({"q": "is_version_of senza il campo"})
     assert "-extras_is_version_of:[* TO *]" in params["fq"]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_favicon_is_the_theme_giglio(app):
+    """Senza ckan.favicon esplicita la pagina usa il giglio del tema, con le varianti PNG."""
+    body = app.get("/about").body
+    if isinstance(body, bytes):
+        body = body.decode("utf-8")
+    assert '<link rel="shortcut icon" href="/brand/favicon.ico" />' in body
+    assert "/base/images/ckan.ico" not in body
+    assert "/brand/favicon-32.png" in body
+    assert "/brand/apple-touch-icon.png" in body
+    for path in ("/brand/favicon.ico", "/brand/favicon-32.png", "/brand/apple-touch-icon.png"):
+        assert app.get(path).status_code == 200, path
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.ckan_config("ckan.favicon", "/altra.ico")
+@pytest.mark.usefixtures("with_plugins")
+def test_favicon_respects_explicit_config(app):
+    """Una ckan.favicon impostata nella configurazione vince sul giglio del tema."""
+    body = app.get("/about").body
+    if isinstance(body, bytes):
+        body = body.decode("utf-8")
+    assert '<link rel="shortcut icon" href="/altra.ico" />' in body
+    assert "/brand/favicon-32.png" not in body
