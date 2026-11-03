@@ -14,6 +14,14 @@
 body {
   font-family: var(--rtt-font-ui);
   color: var(--neutral-neutral-900);
+  /* Sticky footer: la pagina e' alta almeno quanto la finestra e il footer va in
+     fondo anche con poco contenuto (margin-top: auto in .rtt-footer, shell.css).
+     dvh dopo vh: sui browser mobile esclude le barre del browser, chi non lo
+     conosce usa vh. La tab bar mobile e' position: fixed, fuori dal flusso. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .rtt-visually-hidden {
