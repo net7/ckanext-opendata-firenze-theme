@@ -11,6 +11,9 @@
     {% if current_user.is_authenticated %}
     <li><a class="rtt-account__item" href="{{ h.url_for('dashboard.datasets') }}">{{ _('Dashboard') }}</a></li>
     <li><a class="rtt-account__item" href="{{ h.url_for('user.read', id=current_user.name) }}">{{ _('Profilo') }}</a></li>
+    {% if current_user.sysadmin %}
+    <li><a class="rtt-account__item" href="{{ h.url_for('admin.index') }}">{{ _('Amministrazione') }}</a></li>
+    {% endif %}
     <li>
       <form action="{{ h.url_for('user.logout') }}" method="post">
         {{ h.csrf_input() }}

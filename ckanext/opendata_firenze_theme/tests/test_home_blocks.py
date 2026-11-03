@@ -1,6 +1,7 @@
 """Blocchi configurabili della homepage (config, ordine, testi, URL, admin)."""
 
 import json
+import re
 from unittest import mock
 
 import pytest
@@ -357,3 +358,22 @@ def test_home_escapes_custom_cta(app):
         body = _body(app)
     assert payload not in body
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+def test_account_menu_admin_link_only_for_sysadmin(app):
+    """La voce "Amministrazione" compare nel menu account solo per i sysadmin."""
+    admin_link = re.compile(
+        r'class="rtt-account__item" href="(?:/[a-z]{2})?/ckan-admin/?">Amministrazione</a>'
+    )
+
+    admin = factories.Sysadmin()
+    app.set_session_user(admin["name"])
+    body = _response_body(app.get("/", base_url=_TEST_BASE_URL))
+    assert admin_link.search(body)
+
+    user = factories.User()
+    app.set_session_user(user["name"])
+    body = _response_body(app.get("/", base_url=_TEST_BASE_URL))
+    assert not admin_link.search(body)
