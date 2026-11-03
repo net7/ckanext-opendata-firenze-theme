@@ -4,6 +4,11 @@ import ckan.plugins.toolkit as toolkit
 from ckanext.opendata_firenze_theme import helpers, views
 from ckanext.opendata_firenze_theme.helpers import home_blocks
 
+# Favicon di CKAN (default di ckan.favicon): il tema la sostituisce con il giglio del Comune,
+# ma solo se la configurazione non ne indica gia' un'altra.
+CKAN_DEFAULT_FAVICON = "/base/images/ckan.ico"
+THEME_FAVICON = "/brand/favicon.ico"
+
 
 class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
     """Tema CKAN del portale Open Data del Comune di Firenze."""
@@ -20,6 +25,8 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
         toolkit.add_template_directory(config_, "templates")
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "opendata_firenze_theme")
+        if config_.get("ckan.favicon", CKAN_DEFAULT_FAVICON) == CKAN_DEFAULT_FAVICON:
+            config_["ckan.favicon"] = THEME_FAVICON
 
     def update_config_schema(self, schema):
         """Rende aggiornabile da /ckan-admin/homepage l'ordine dei blocchi."""
