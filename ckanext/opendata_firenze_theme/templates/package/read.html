@@ -18,6 +18,11 @@
 {% set is_realtime = badges|selectattr('kind', 'equalto', 'realtime')|list %}
 {% set downloads = h.odf_dataset_downloads(pkg) %}
 {% set quality = h.odf_dataset_openness(pkg) %}
+{% set map_res = h.odf_dataset_map_resource(pkg) %}
+{% set serie_info = h.odf_series_info(pkg) %}
+{% set serie = serie_info.serie %}
+{% set serie_count = serie_info.count %}
+{% set serie_members = serie_info.members %}
 {% set contact = h.odf_dataset_contact(pkg) %}
 {% set related = h.odf_dataset_related(pkg) %}
 {% set notes = h.get_translated(pkg, 'notes') %}
@@ -54,6 +59,7 @@
               {{ status_chip(b.label, b.kind) }}
               {% endif %}
             {% endfor %}
+            {% if serie_count > 1 %}{{ status_chip(_('Serie') ~ ' · ' ~ serie_count ~ ' dataset', 'serie') }}{% endif %}
           </div>
           <h1 class="rtt-h1 rtt-dataset__title">{{ _('Dataset:') }} {{ h.dataset_display_name(pkg) }}</h1>
           {% if uso %}<p class="rtt-body-lg rtt-dataset__uso">{{ uso }}</p>{% endif %}
@@ -69,6 +75,9 @@
               {% endfor %}
             </div>
           </details>
+          {% endif %}
+          {% if map_res %}
+          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('resource.read', id=pkg.name, resource_id=map_res.id) }}">{{ icon('map', 20, 'rtt-btn__icon') }}{{ _('Vedi su mappa') }}</a>
           {% endif %}
           {% if h.check_access('package_update', {'id': pkg.id}) %}
           <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.edit', id=pkg.name) }}">{{ icon('settings', 20, 'rtt-btn__icon') }}{{ _('Gestisci') }}</a>
@@ -117,7 +126,7 @@
         {% endif %}
       {% endcall %}
 
-      {{ series_panel(pkg) }}
+      {{ series_panel(pkg, serie_members, serie_count) }}
       {% else %}
       {% call panel(_('Metadati DCAT-AP_IT'), action=meta_action) %}
         {{ meta_table([
@@ -136,7 +145,7 @@
           (_('Tipo di geometria'), geo_shapes.get(geometria, _('Non dichiarato')) if is_geo else ''),
           (_('Estensione spaziale'), _('Comune di Firenze · WGS84 / EPSG:4326') if is_geo else ''),
           (_('High Value Dataset'), _('Sì') if badges|selectattr('kind', 'equalto', 'hvd')|list else _('No')),
-          (_('Serie di appartenenza'), h.odf_pkg_extra(pkg, 'serie')),
+          (_('Serie di appartenenza'), {'label': serie, 'href': h.url_for('dataset.search', odf_series=serie)} if serie else None),
         ]) }}
       {% endcall %}
 

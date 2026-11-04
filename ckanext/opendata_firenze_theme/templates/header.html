@@ -10,10 +10,13 @@
   {'label': _('Collaborazione'), 'href': h.url_for('/contact'), 'match': '/contact'}
 ] %}
 {% set social_links = [
-  {'label': 'Facebook', 'icon': 'social-facebook'},
-  {'label': 'Telegram', 'icon': 'social-telegram'},
-  {'label': 'LinkedIn', 'icon': 'social-linkedin'},
-  {'label': 'Instagram', 'icon': 'social-instagram'}
+  {'label': 'Facebook', 'icon': 'social-facebook', 'href': 'https://www.facebook.com/cittadifirenzeufficiale/'},
+  {'label': 'Instagram', 'icon': 'social-instagram', 'href': 'https://www.instagram.com/cittadifirenzeufficiale/'},
+  {'label': 'YouTube', 'icon': 'social-youtube', 'href': 'https://www.youtube.com/user/comunefirenze/'},
+  {'label': 'Telegram', 'icon': 'social-telegram', 'href': 'https://t.me/cittadifirenzeufficiale'},
+  {'label': 'WhatsApp', 'icon': 'social-whatsapp', 'href': 'https://www.whatsapp.com/channel/0029VaA2qAMAzNbpRQP92u3P'},
+  {'label': 'X (Twitter)', 'icon': 'social-x', 'href': 'https://twitter.com/comunefi'},
+  {'label': 'LinkedIn', 'icon': 'social-linkedin', 'href': 'https://www.linkedin.com/company/comunefirenze'}
 ] %}
 <header class="rtt-header" id="rtt-header" data-rtt-header>
   <div class="rtt-header__top">
@@ -25,7 +28,7 @@
         <ul class="rtt-social" aria-label="{{ _('Canali social') }}">
           {% for social in social_links %}
           <li>
-            <a class="rtt-iconlink" href="#" aria-label="{{ social.label }}">{{ icon(social.icon, 16) }}</a>
+            <a class="rtt-iconlink" href="{{ social.href }}" aria-label="{{ social.label }}" target="_blank" rel="noopener">{{ icon(social.icon, 16) }}</a>
           </li>
           {% endfor %}
         </ul>

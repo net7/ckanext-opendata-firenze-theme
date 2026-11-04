@@ -475,6 +475,14 @@
   font-size: 14px;
   line-height: 22px;
   color: var(--neutral-neutral-900);
+  flex-wrap: wrap;
+}
+
+/* Nome file (quando la risorsa ne ha uno reale) e separatore CSV. */
+.rtt-resrow__meta code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  color: var(--neutral-neutral-800);
 }
 
 /* Varianti bottone usate nella scheda (dal design system) */

@@ -35,7 +35,16 @@ def test_default_order_and_texts():
     hb = _hb()
     with mock.patch.object(hb, "_raw_value", return_value=""):
         blocks = {block["id"]: block for block in hb.odf_home_blocks()}
-    assert list(blocks) == ["hero", "kpi", "featured", "themes", "most_viewed", "news"]
+    assert list(blocks) == [
+        "hero",
+        "kpi",
+        "featured",
+        "latest",
+        "themes",
+        "lod",
+        "most_viewed",
+        "news",
+    ]
     assert blocks["featured"]["title"] == "In evidenza"
     assert blocks["featured"]["cta_label"] == "Vedi tutti"
     assert blocks["featured"]["cta_url"] == "/dataset"
@@ -149,6 +158,8 @@ def test_entries_from_form():
         "themes",
         "most_viewed",
         "news",
+        "latest",
+        "lod",
     ]
     assert by_id["featured"] == {
         "id": "featured",

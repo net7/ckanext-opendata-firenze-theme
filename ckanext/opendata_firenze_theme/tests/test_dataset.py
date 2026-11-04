@@ -113,6 +113,19 @@ def test_dataset_helpers(with_plugins, with_request_context):
     kinds = {b["kind"] for b in helpers.odf_dataset_badges(pkg)}
     assert kinds == {"hvd", "geo"}
 
+    # un dataset con una risorsa RDF è "Linked Open Data" (badge della testata
+    # e filtro "Caratteristiche" del catalogo)
+    lod = {"resources": [{"format": "csv"}, {"format": "rdf"}]}
+    assert helpers.odf_dataset_is_lod(lod) is True
+    assert "lod" in {b["kind"] for b in helpers.odf_dataset_badges(lod)}
+    assert helpers.odf_dataset_is_lod({"resources": [{"format": "CSV"}]}) is False
+
+    # campo Solr `odf_features` (faccetta "Caratteristiche"): funziona sia sul
+    # package_show sia sul dict appiattito di before_dataset_index
+    assert helpers.odf_index_features(lod) == ["alfanumerico", "lod"]
+    index_dict = {"res_format": ["GeoJSON"], "extras_hvd": "true"}
+    assert helpers.odf_index_features(index_dict) == ["geo", "hvd"]
+
     # ckanext-dcat rinomina le chiavi con l'etichetta nelle viste: `theme` -> `Theme`
     assert helpers.odf_pkg_extra({"extras": [{"key": "Theme", "value": "x"}]}, "theme") == "x"
     assert helpers.odf_pkg_extra({"extras": {"Theme": "y"}}, "theme") == "y"
@@ -353,3 +366,92 @@ def test_dataset_related_helper(with_plugins, with_request_context):
     with mock.patch.object(helpers._common, "_search", return_value=found):
         related = helpers.odf_dataset_related(pkg, limit=2)
     assert [r["id"] for r in related] == ["a", "b"]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_filename_and_separator(with_plugins, with_request_context):
+    """Nome file (solo se l'URL ne ha uno vero) e separatore CSV dichiarato."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    assert (
+        helpers.odf_resource_filename(
+            {"url": "https://example.test/archivio/Biblioteche%20SDIAF.csv?v=1"}
+        )
+        == "Biblioteche SDIAF.csv"
+    )
+    # link senza nome di file: niente da mostrare (non si inventa)
+    assert helpers.odf_resource_filename({"url": "https://example.test/wms"}) == ""
+    assert helpers.odf_resource_filename({"url": "https://example.test/dataset"}) == ""
+    # gli script lato server non sono nomi di file
+    assert helpers.odf_resource_filename({"url": "https://example.test/download.php?id=42"}) == ""
+
+    # il separatore arriva solo dall'extra `separatore` e solo sulle risorse CSV
+    pkg = {"extras": [{"key": "separatore", "value": ";"}]}
+    assert "punto e virgola" in helpers.odf_resource_separator(pkg, {"format": "CSV"})
+    assert helpers.odf_resource_separator(pkg, {"format": "SHP"}) == ""
+    assert helpers.odf_resource_separator({}, {"format": "CSV"}) == ""
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_map_resource_and_views_order(with_plugins, with_request_context):
+    """ "Vedi su mappa": prima risorsa geografica e mappa prima delle altre viste."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    pkg = {"resources": [{"id": "csv", "format": "CSV"}, {"id": "geo", "format": "GeoJSON"}]}
+    assert helpers.odf_dataset_map_resource(pkg)["id"] == "geo"
+    assert helpers.odf_dataset_map_resource({"resources": [{"format": "CSV"}]}) is None
+
+    views = [{"view_type": "datatables_view"}, {"view_type": "geojson_view"}]
+    assert [view["view_type"] for view in helpers.odf_views_map_first(views)] == [
+        "geojson_view",
+        "datatables_view",
+    ]
+    assert helpers.odf_views_map_first([]) == []
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_series_helpers(with_plugins, with_request_context):
+    """Serie: badge (extra `serie`) e campo Solr `odf_series` per il filtro."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    pkg = {"extras": [{"key": "serie", "value": "Open SDIAF"}]}
+    assert helpers.odf_dataset_is_series(pkg) is True
+    assert helpers.odf_dataset_is_series({"extras": []}) is False
+    assert helpers.odf_index_series(pkg) == ["Open SDIAF"]
+    assert helpers.odf_index_series({"extras": []}) == []
+    # dict di package_search: extra appiattito
+    assert helpers.odf_pkg_extra({"extras_serie": "Open SDIAF"}, "serie") == "Open SDIAF"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_dataset_page_shows_map_button(app):
+    """Un dataset con risorsa geografica espone il pulsante "Vedi su mappa"."""
+    pkg = factories.Dataset(title="Dataset geografico")
+    factories.Resource(
+        package_id=pkg["id"], name="Geo", format="GeoJSON", url="https://example.test/a.geojson"
+    )
+    body = _body(app.get(f"/dataset/{pkg['name']}"))
+    assert "Vedi su mappa" in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_series_info_single_search(with_plugins, with_request_context):
+    """Conteggio e membri della serie con una sola ricerca (scheda dataset)."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    pkg = {"id": "self", "extras": [{"key": "serie", "value": "Open SDIAF"}]}
+    found = {
+        "count": 3,
+        "results": [
+            {"id": "self", "name": "self", "title": "Self"},
+            {"id": "a", "name": "a", "title": "Altra banca dati", "resources": []},
+        ],
+    }
+    with mock.patch.object(helpers._common, "_search", return_value=found) as search:
+        info = helpers.odf_series_info(pkg)
+    assert search.call_count == 1
+    assert info["serie"] == "Open SDIAF"
+    assert info["count"] == 3
+    assert [member["name"] for member in info["members"]] == ["a"]
+    assert helpers.odf_series_info({"extras": []}) == {"serie": "", "count": 0, "members": []}

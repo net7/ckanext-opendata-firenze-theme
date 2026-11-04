@@ -243,3 +243,26 @@ def test_catalog_pager_reads_real_ckan_page(with_plugins, app):
     assert 'aria-current="page">2<' in html  # finestra 1..3, nessuna ellissi
     assert html.count("rtt-pager__ellipsis") == 0
     assert 'href="/dataset/?q=aria&amp;page=3"' in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_catalog_feature_facet_labels(with_plugins, with_request_context):
+    """La faccetta `odf_features` si mostra come "Caratteristiche", con etichette italiane."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    facets = {
+        "odf_features": {
+            "title": "odf_features",
+            "items": [
+                {"name": "geo", "display_name": "geo", "count": 5},
+                {"name": "lod", "display_name": "lod", "count": 2},
+            ],
+        }
+    }
+    groups = helpers.odf_facet_groups(facets)["groups"]
+    group = [g for g in groups if g["name"] == "odf_features"][0]
+    assert group["label"] == "Caratteristiche"
+    assert sorted(entry["display_name"] for entry in group["entries"]) == [
+        "Geodati",
+        "Linked Open Data",
+    ]

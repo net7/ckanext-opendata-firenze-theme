@@ -1,13 +1,14 @@
 """Helper della scheda dataset: badge, formati, metadati, QA, risorse."""
 
 import re
+from urllib.parse import unquote, urlsplit
 
 import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
 from . import _common
 from .catalog import odf_package_theme
-from .constants import GEO_FORMATS_UPPER, GEOMETRY_SHAPES
+from .constants import GEO_FORMATS_UPPER, GEOMETRY_SHAPES, LOD_FORMATS_UPPER
 from .format import odf_filesize
 
 
@@ -32,6 +33,10 @@ def odf_pkg_extra(pkg, key, default=None):
     for name, extra_value in extras.items():
         if str(name).lower() == target:
             return extra_value
+    # dict di `package_search`: gli extra sono appiattiti in `extras_<chiave>`
+    flat = pkg.get(f"extras_{key}")
+    if flat is not None and flat != "":
+        return flat
     return default
 
 
@@ -58,6 +63,72 @@ def odf_dataset_formats(pkg):
 def odf_format_is_geo(fmt):
     """True se il formato ha un'anteprima su mappa (chip "geo")."""
     return (fmt or "").strip().upper() in GEO_FORMATS_UPPER
+
+
+def odf_dataset_is_lod(pkg):
+    """True se il dataset pubblica almeno una risorsa RDF.
+
+    Come nel mockup (e come il filtro "Caratteristiche" del catalogo), LOD =
+    presenza di una serializzazione RDF fra i formati delle risorse.
+    """
+    return any(fmt in LOD_FORMATS_UPPER for fmt in odf_dataset_formats(pkg))
+
+
+def odf_dataset_is_series(pkg):
+    """True se il dataset dichiara l'extra `serie` (badge e filtro "Serie")."""
+    return bool(odf_pkg_extra(pkg, "serie"))
+
+
+def odf_dataset_map_resource(pkg):
+    """Prima risorsa con anteprima su mappa, o None (pulsante "Vedi su mappa")."""
+    for res in pkg.get("resources") or []:
+        if odf_format_is_geo(res.get("format")):
+            return res
+    return None
+
+
+def odf_views_map_first(views):
+    """Viste della risorsa con la mappa per prima (poi l'ordine originale)."""
+    if not views:
+        return []
+    map_types = {"geoview", "geo_view", "geojson_view", "wmts_view", "shp_view", "recline_map_view"}
+
+    def _is_map(view):
+        return (view.get("view_type") or "").lower() in map_types
+
+    return sorted(views, key=lambda view: 0 if _is_map(view) else 1)
+
+
+def odf_index_features(pkg):
+    """Valori del campo Solr `odf_features` (faccetta "Caratteristiche").
+
+    La funzione lavora anche sul dict che CKAN passa a `before_dataset_index`,
+    dove gli extra sono appiattiti (`extras_hvd`, `extras_spatial`, …) e non
+    c'è la lista `extras`: per questo legge entrambe le forme.
+    """
+    extras = _common._pkg_extras(pkg)
+
+    def extra(key):
+        return extras.get(key) if extras else pkg.get(f"extras_{key}")
+
+    formats = odf_dataset_formats(pkg)
+    geo = (
+        _common._truthy(extra("geometria"))
+        or _common._truthy(extra("spatial"))
+        or any(fmt in GEO_FORMATS_UPPER for fmt in formats)
+    )
+    features = ["geo"] if geo else ["alfanumerico"]
+    if any(fmt in LOD_FORMATS_UPPER for fmt in formats):
+        features.append("lod")
+    if _common._truthy(extra("hvd")) or _common._truthy(pkg.get("hvd")):
+        features.append("hvd")
+    return features
+
+
+def odf_index_series(pkg):
+    """Valore del campo Solr `odf_series` (faccetta "Serie"), [] se assente."""
+    serie = odf_pkg_extra(pkg, "serie")
+    return [serie] if serie else []
 
 
 def odf_dataset_geometry(pkg):
@@ -95,6 +166,8 @@ def odf_dataset_badges(pkg):
     badges = []
     if _common._truthy(extras.get("hvd")) or _common._truthy(pkg.get("hvd")):
         badges.append({"kind": "hvd", "label": toolkit._("High Value Dataset")})
+    if odf_dataset_is_lod(pkg):
+        badges.append({"kind": "lod", "label": toolkit._("Linked Open Data")})
     geometria = odf_dataset_geometry(pkg)
     if odf_dataset_is_geo(pkg):
         shape = {"punto": "puntuale", "area": "areale", "linea": "lineare"}.get(geometria)
@@ -178,6 +251,27 @@ def _series_siblings(pkg, fq, limit):
         if len(items) >= limit:
             break
     return items
+
+
+def odf_series_info(pkg, limit=20):
+    """Serie del dataset in una sola ricerca: nome, totale e membri.
+
+    `count` è il totale della serie (incluso il dataset corrente), `members`
+    sono al massimo `limit` voci pronte per il pannello (escluso sé stesso).
+    Usato dalla scheda dataset per non fare due ricerche (conteggio + lista).
+    """
+    serie = odf_pkg_extra(pkg, "serie")
+    if not serie:
+        return {"serie": "", "count": 0, "members": []}
+    data = _common._search(rows=limit + 1, fq=f'extras_serie:"{serie}"', sort=_SERIES_SORT)
+    members = []
+    for result in data.get("results") or []:
+        if result.get("id") == pkg.get("id"):
+            continue
+        members.append(_series_item(result))
+        if len(members) >= limit:
+            break
+    return {"serie": serie, "count": data.get("count", 0), "members": members}
 
 
 def odf_dataset_series(pkg, limit=20):
@@ -370,6 +464,51 @@ def odf_dataset_size(pkg):
         except (TypeError, ValueError):
             continue
     return odf_filesize(total)
+
+
+# Estensioni di script lato server: un URL che termina cosi' non e' un nome di
+# file da mostrare (es. `download.php?id=…` del vecchio portale).
+_NON_FILE_EXTENSIONS = frozenset(("php", "asp", "aspx", "jsp", "cgi", "pl", "do"))
+
+
+def odf_resource_filename(res):
+    """Nome file della risorsa (basename dell'URL) se ne ha uno, altrimenti ''.
+
+    Si mostra solo quando l'URL termina con un nome di file vero (estensione,
+    esclusi gli script lato server): per i link generici (WMS, pagine web,
+    `download.php`) il nome non esiste e non va inventato.
+    """
+    path = urlsplit((res or {}).get("url") or "").path
+    name = unquote(path.rsplit("/", 1)[-1]) if path else ""
+    if "." not in name:
+        return ""
+    return "" if name.rsplit(".", 1)[-1].lower() in _NON_FILE_EXTENSIONS else name
+
+
+# Etichette italiane dei separatori CSV riconosciuti.
+_SEPARATOR_LABELS = {
+    ";": "punto e virgola",
+    ",": "virgola",
+    "\t": "tabulazione",
+    "|": "barra verticale",
+}
+
+
+def odf_resource_separator(pkg, res):
+    """Separatore di campo di una risorsa CSV, dall'extra `separatore` del dataset.
+
+    Non si deduce dal contenuto: se il dataset non dichiara l'extra (o la
+    risorsa non è CSV) non si mostra nulla, per non inventare un dato.
+    """
+    if ((res or {}).get("format") or "").strip().upper() != "CSV":
+        return ""
+    sep = (odf_pkg_extra(pkg, "separatore") or "").strip()
+    if not sep:
+        return ""
+    label = _SEPARATOR_LABELS.get(sep, sep)
+    return toolkit._("Separatore di campo: «{sep}» ({label})").format(
+        sep="TAB" if sep == "\t" else sep, label=label
+    )
 
 
 def odf_sql_console_enabled():

@@ -11,6 +11,8 @@
 {% set download = h.url_for('resource.download', id=pkg.name, resource_id=res.id) if res.url_type == 'upload' else (res.url if res.url and h.is_url(res.url) else '') %}
 {% set preview = h.odf_resource_preview_url(pkg, res) %}
 {% set size = h.odf_filesize(res.size) %}
+{% set filename = h.odf_resource_filename(res) %}
+{% set separator = h.odf_resource_separator(pkg, res) %}
 <li class="rtt-resrow">
   <div class="rtt-resrow__top">
     <div class="rtt-resrow__title">
@@ -30,9 +32,11 @@
       {% endif %}
     </div>
   </div>
-  {% if size %}
+  {% if size or filename or separator %}
   <div class="rtt-resrow__meta">
-    <span>{{ size }}</span>
+    {% if size %}<span>{{ size }}</span>{% endif %}
+    {% if filename %}<code>{{ filename }}</code>{% endif %}
+    {% if separator %}<span>{{ separator }}</span>{% endif %}
   </div>
   {% endif %}
 </li>

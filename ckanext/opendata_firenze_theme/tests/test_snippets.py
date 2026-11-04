@@ -184,14 +184,14 @@ def test_series_panel_renders(with_plugins, with_request_context):
             "{{ series_panel(pkg) }}",
             pkg=pkg,
         )
-    assert "Altri dataset della serie" in html
+    assert "Serie «Open SDIAF»" in html
     assert "rtt-accordion" in html
     assert "Altra banca dati" in html
     assert "/dataset/a" in html
     # download del file del dataset della serie + bottone (mockup) del pannello
     assert "https://x.test/a.csv" in html
     assert "Scarica tutta la serie" in html
-    assert "Vedi la serie" not in html
+    assert "Vedi tutta la serie nel catalogo" in html
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

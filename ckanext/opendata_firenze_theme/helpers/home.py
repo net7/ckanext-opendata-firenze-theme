@@ -54,8 +54,8 @@ def odf_dataset_count():
 def odf_home_kpis():
     """Le 4 card KPI della home (set del mockup).
 
-    1) dataset nel catalogo, 2) dati alfanumerici (non geografici),
-    3) dati geografici, 4) capitoli dell'Annuario Statistico + tavole collegate.
+    1) dataset nel catalogo, 2) dataset alfanumerici (non geografici),
+    3) dataset geografici, 4) capitoli dell'Annuario Statistico + tavole collegate.
     """
     base = _common._search(rows=0, **{"facet.field": ["organization"], "facet.limit": 100})
     total = base["count"]
@@ -70,16 +70,16 @@ def odf_home_kpis():
         {
             "value": _common._it(total),
             "label": toolkit._("dataset nel catalogo"),
-            "delta": toolkit._("tutti in licenza aperta CC BY 4.0"),
+            "delta": toolkit._("pubblicati dal Comune di Firenze"),
         },
         {
             "value": _common._it(max(total - geo, 0)),
-            "label": toolkit._("dati alfanumerici"),
+            "label": toolkit._("dataset alfanumerici"),
             "delta": toolkit._("organizzati in {num} serie").format(num=_common._it(serie)),
         },
         {
             "value": _common._it(geo),
-            "label": toolkit._("dati geografici"),
+            "label": toolkit._("dataset geografici"),
             "delta": toolkit._("con anteprima su mappa"),
         },
         {
@@ -120,6 +120,18 @@ def odf_most_viewed(limit=4):
     if tracked["count"]:
         return tracked["results"]
     return _common._search(rows=limit, sort="metadata_modified desc")["results"]
+
+
+def odf_latest_datasets(limit=6):
+    """Dataset pubblicati più di recente (blocco "Ultimi pubblicati" della home)."""
+    return _common._search(rows=limit, sort="metadata_created desc")["results"]
+
+
+def odf_lod_datasets(limit=6):
+    """Dataset Linked Open Data (campo Solr `odf_features`, blocco della home)."""
+    return _common._search(rows=limit, fq="odf_features:lod", sort="metadata_modified desc")[
+        "results"
+    ]
 
 
 def odf_geo_datasets(limit=12):

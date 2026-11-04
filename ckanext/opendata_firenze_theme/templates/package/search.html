@@ -29,8 +29,14 @@
 
     {% if page.items %}
     <h2 class="rtt-visually-hidden">{{ _('Risultati della ricerca') }}</h2>
+    {#- Conteggio per serie dal facet `odf_series`: senza filtri attivi è il
+        totale della serie, come nel mockup ("Serie · N dataset"). #}
+    {% set series_counts = {} %}
+    {% for item in (search_facets or {}).get('odf_series', {}).get('items', []) %}
+      {% set _ = series_counts.update({item.name: item.count}) %}
+    {% endfor %}
     <div class="rtt-grid rtt-grid--2 rtt-catalog__results">
-      {% for pkg in page.items %}{{ dataset_card(pkg, show_realtime=True) }}{% endfor %}
+      {% for pkg in page.items %}{{ dataset_card(pkg, show_realtime=True, show_serie=True, series_counts=series_counts) }}{% endfor %}
     </div>
     <div class="rtt-catalog__pager">{{ pager(page) }}</div>
     {% else %}

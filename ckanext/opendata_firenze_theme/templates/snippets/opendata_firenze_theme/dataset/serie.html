@@ -46,7 +46,7 @@
 <button type="button" class="rtt-btn rtt-btn--outline rtt-btn--sm">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica tutta la serie') }}</button>
 {%- endmacro %}
 
-{% macro series_panel(pkg) -%}
+{% macro series_panel(pkg, members=None, count=None) -%}
 {% set revisions = h.odf_dataset_revisions(pkg) %}
 {% if revisions %}
 {% call panel(_('Revisioni temporali'), action=_download_all_button()) %}
@@ -55,11 +55,13 @@
 {% endcall %}
 {% else %}
 {% set serie = h.odf_pkg_extra(pkg, 'serie') %}
-{% set siblings = h.odf_dataset_series(pkg) %}
+{% set siblings = members if members is not none else h.odf_dataset_series(pkg) %}
 {% if serie and siblings %}
-{% call panel(_('Altri dataset della serie'), action=_download_all_button()) %}
-  <p class="rtt-body-sm rtt-panel__note">{{ _('Fa parte della serie «{serie}», insieme ad altri {num} dataset.').format(serie=serie, num=siblings|length) }}</p>
-  {{ _series_accordion(_('Altri dataset · {num}').format(num=siblings|length), siblings, False) }}
+{% set total = count if count is not none else siblings|length + 1 %}
+{% call panel(_('Serie «{serie}»').format(serie=serie), action=_download_all_button()) %}
+  <p class="rtt-body-sm rtt-panel__note">{{ _('Questo dataset fa parte di una serie di {num} dataset collegati. Aprine uno per vederne la scheda.').format(num=total) }}</p>
+  {{ _series_accordion(_('I dataset della serie · {num}').format(num=siblings|length), siblings, False) }}
+  <a class="rtt-actionlink" href="{{ h.url_for('dataset.search', odf_series=serie) }}">{{ _('Vedi tutta la serie nel catalogo') }}{{ icon('arrow-right', 20, 'rtt-actionlink__icon') }}</a>
 {% endcall %}
 {% endif %}
 {% endif %}

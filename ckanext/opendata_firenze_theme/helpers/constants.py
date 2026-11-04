@@ -21,9 +21,13 @@ THEMES = (
 
 # Formati con anteprima su mappa (per il chip "geo").
 GEO_FORMATS = frozenset(("GeoJSON", "SHP", "KML", "WMS", "WFS"))
+# Serializzazioni RDF: un dataset con almeno una risorsa di questo tipo è
+# "Linked Open Data" (badge e filtro "Caratteristiche", come nel mockup).
+LOD_FORMATS = frozenset(("RDF", "RDF/XML", "TTL", "N3"))
 
 
 GEO_FORMATS_UPPER = frozenset(fmt.upper() for fmt in GEO_FORMATS)
+LOD_FORMATS_UPPER = frozenset(fmt.upper() for fmt in LOD_FORMATS)
 
 
 THEME_CODES = frozenset(code for code, _ in THEMES)
@@ -43,7 +47,8 @@ FACET_ORDER = (
     "res_format",
     "frequency",
     "organization",
-    "hvd",
+    "odf_features",
+    "odf_series",
     "spatial",
     "groups",
     "tags",

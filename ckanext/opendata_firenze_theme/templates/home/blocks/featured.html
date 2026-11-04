@@ -23,7 +23,7 @@
        e frecce (nascoste senza JS). #}
     <div class="rtt-carousel rtt-stagger rtt-evidenza__others" data-rtt-carousel data-dot-label="{{ _('Vai a') }}">
       <div class="rtt-carousel__track" role="group" tabindex="0" aria-label="{{ _('Dataset in evidenza') }}">
-        {% for pkg in featured[1:] %}<div class="rtt-carousel__item">{{ dataset_card(pkg, show_hvd=True) }}</div>{% endfor %}
+        {% for pkg in featured[1:] %}<div class="rtt-carousel__item">{{ dataset_card(pkg, show_hvd=True, date_prefix=_('Ultima modifica')) }}</div>{% endfor %}
       </div>
       <div class="rtt-carousel__footer">
         <div class="rtt-carousel__dots" data-rtt-carousel-dots></div>

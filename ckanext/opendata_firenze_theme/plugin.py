@@ -18,6 +18,7 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IBlueprint)
     plugins.implements(plugins.IPackageController, inherit=True)
+    plugins.implements(plugins.IFacets, inherit=True)
 
     # IConfigurer
 
@@ -51,6 +52,39 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
 
     def get_blueprint(self):
         return [views.pages, views.admin]
+
+    # IFacets
+
+    def dataset_facets(self, facets_dict, package_type):
+        """Aggiunge la faccetta "Caratteristiche" (campo Solr `odf_features`).
+
+        I valori (geo/alfanumerico/hvd/lod) sono calcolati in
+        `before_dataset_index`; qui si aggiunge solo il gruppo al catalogo,
+        subito dopo "Chi pubblica" come nel mockup.
+        """
+        facets = type(facets_dict)()
+        for key, value in facets_dict.items():
+            facets[key] = value
+            if key == "organization":
+                facets["odf_features"] = toolkit._("Caratteristiche")
+                facets["odf_series"] = toolkit._("Serie")
+        facets.setdefault("odf_features", toolkit._("Caratteristiche"))
+        facets.setdefault("odf_series", toolkit._("Serie"))
+        return facets
+
+    def group_facets(self, facets_dict, group_type, package_type):
+        return facets_dict
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        return facets_dict
+
+    # IPackageController
+
+    def before_dataset_index(self, pkg_dict):
+        """Indicizza le "Caratteristiche" e la "Serie" del dataset."""
+        pkg_dict["odf_features"] = helpers.odf_index_features(pkg_dict)
+        pkg_dict["odf_series"] = helpers.odf_index_series(pkg_dict)
+        return pkg_dict
 
     # IPackageController
 

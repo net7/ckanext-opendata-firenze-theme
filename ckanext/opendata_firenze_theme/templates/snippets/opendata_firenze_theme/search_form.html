@@ -1,22 +1,28 @@
 {#
   Form di ricerca (GET verso il catalogo), autonomo (funziona senza JS).
 
-  id          - id del campo di input (default 'rtt-search')
-  size        - 'sm' (default), 'md' o 'lg'
-  placeholder - testo del placeholder (default "Cerca nel sito…")
-  aria_label  - nome accessibile del landmark di ricerca (default "Cerca nel sito")
+  id                - id del campo di input (default 'rtt-search')
+  size              - 'sm' (default), 'md' o 'lg'
+  placeholder       - testo del placeholder (default "Cerca nel sito…")
+  aria_label        - nome accessibile del landmark di ricerca (default "Cerca nel sito")
+  label             - etichetta del campo, solo per screen reader (default "Cerca nel sito")
+  submit_text       - testo del pulsante di invio (default: icona lente)
+  submit_text_short - variante breve del testo per schermi stretti (opzionale)
 #}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% set field_id = id|default('rtt-search') %}
 {% set size = size|default('sm') %}
 {% set icon_size = 24 if size == 'lg' else 20 %}
 {% set aria_label = aria_label|default(_('Cerca nel sito')) %}
+{% set label = label|default(_('Cerca nel sito')) %}
 {% set placeholder_text = placeholder|default(_('Cerca nel sito…')) %}
-<form class="rtt-search{% if size == 'sm' %} rtt-search--sm{% elif size == 'lg' %} rtt-search--lg{% endif %} rtt-search--pill" role="search" aria-label="{{ aria_label }}" action="{{ h.url_for('dataset.search') }}" method="get">
-  <label class="rtt-visually-hidden" for="{{ field_id }}">{{ _('Cerca nel sito') }}</label>
+{% set submit_text = submit_text|default('') %}
+{% set submit_text_short = submit_text_short|default('') %}
+<form class="rtt-search{% if size == 'sm' %} rtt-search--sm{% elif size == 'lg' %} rtt-search--lg{% endif %}" role="search" aria-label="{{ aria_label }}" action="{{ h.url_for('dataset.search') }}" method="get">
+  <label class="rtt-visually-hidden" for="{{ field_id }}">{{ label }}</label>
   <div class="rtt-search__field">
     <span class="rtt-search__icon" aria-hidden="true">{{ icon('search', icon_size) }}</span>
     <input id="{{ field_id }}" type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ placeholder_text }}" autocomplete="off" enterkeyhint="search">
-    <button class="rtt-search__submit" type="submit" aria-label="{{ _('Avvia la ricerca') }}">{{ icon('search', icon_size) }}</button>
+    <button class="rtt-search__submit{% if submit_text %} rtt-search__submit--text{% endif %}{% if submit_text_short %} rtt-search__submit--has-short{% endif %}" type="submit"{% if not submit_text %} aria-label="{{ _('Avvia la ricerca') }}"{% endif %}>{% if submit_text %}<span class="rtt-search__submit-label rtt-search__submit-label--long">{{ submit_text }}</span>{% if submit_text_short %}<span class="rtt-search__submit-label rtt-search__submit-label--short">{{ submit_text_short }}</span>{% endif %}{% else %}{{ icon('search', icon_size) }}{% endif %}</button>
   </div>
 </form>

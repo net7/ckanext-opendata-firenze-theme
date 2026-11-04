@@ -93,7 +93,18 @@ def _facet_labels():
         "groups": toolkit._("Gruppi"),
         "tags": toolkit._("Parole chiave"),
         "license_id": toolkit._("Licenza"),
-        "hvd": toolkit._("Caratteristiche"),
+        "odf_features": toolkit._("Caratteristiche"),
+        "odf_series": toolkit._("Serie"),
+    }
+
+
+def _feature_labels():
+    """Etichette delle voci della faccetta `odf_features` ("Caratteristiche")."""
+    return {
+        "geo": toolkit._("Geodati"),
+        "alfanumerico": toolkit._("Alfanumerici"),
+        "hvd": toolkit._("High Value Dataset"),
+        "lod": toolkit._("Linked Open Data"),
     }
 
 
@@ -108,12 +119,16 @@ def odf_active_filters():
 
     labels = _facet_labels()
     themes = dict(THEMES)
+    feature_labels = _feature_labels()
     skip = {"q", "sort", "page"}
     chips = []
     for name, value in request.args.items(multi=True):
         if name in skip:
             continue
-        display = themes.get(value, value) if name in ("theme", "dcat_theme") else value
+        if name == "odf_features":
+            display = feature_labels.get(value, value)
+        else:
+            display = themes.get(value, value) if name in ("theme", "dcat_theme") else value
         chips.append(
             {"name": name, "label": labels.get(name, name), "value": value, "display": display}
         )
@@ -145,6 +160,10 @@ def odf_facet_groups(facets):
         items = ckan_h.get_facet_items_dict(name, facets)
         if not items:
             continue
+        if name == "odf_features":
+            feature_labels = _feature_labels()
+            for item in items:
+                item["display_name"] = feature_labels.get(item["name"], item["display_name"])
         selected = len([item for item in items if item.get("active")])
         active = active or bool(selected)
         groups.append(

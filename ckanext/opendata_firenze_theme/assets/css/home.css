@@ -107,6 +107,16 @@
   width: 44px;
 }
 
+/* Nel caso testuale il pulsante cresce col testo anche a taglia lg: la regola
+   qui sopra è più specifica di .rtt-search__submit--text e va annullata. */
+.rtt-search--lg .rtt-search__submit--text {
+  width: auto;
+  min-width: 0;
+  height: auto;
+  min-height: 44px;
+  padding: 10px 20px;
+}
+
 .rtt-search--lg .rtt-search__field input {
   font-size: 16px;
   line-height: 24px;
@@ -312,7 +322,7 @@
   width: 40px;
   height: 40px;
   box-sizing: border-box;
-  border-radius: var(--rtt-radius-md);
+  border-radius: var(--rtt-radius-full);
   background: var(--basics-white-100);
   box-shadow: inset 0 0 0 1px var(--neutral-neutral-400);
   color: var(--neutral-neutral-900);
@@ -322,11 +332,14 @@
     background-color var(--rtt-duration) var(--rtt-ease);
 }
 
-/* Nel mockup la freccia delle card della home è a 12px; nel catalogo/annuario
-   resta a 14px (stessa shell `.rtt-dcard`, pagine diverse). */
+/* Nel mockup la freccia delle card della home è sempre visibile (12px); nel
+   catalogo/annuario resta a 14px e compare al hover/focus (stessa shell
+   `.rtt-dcard`, pagine diverse). */
 .rtt-home .rtt-dcard__arrow {
   top: 12px;
   right: 12px;
+  opacity: 1;
+  transform: none;
 }
 
 /* hover del box: come `.rtt-icon-btn` del DS (sfondo lilac chiaro) */

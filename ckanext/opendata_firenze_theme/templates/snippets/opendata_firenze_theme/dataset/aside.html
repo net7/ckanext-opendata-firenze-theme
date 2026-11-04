@@ -1,6 +1,7 @@
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
 {% from 'snippets/opendata_firenze_theme/dataset/meta_table.html' import meta_table %}
+{% from 'snippets/opendata_firenze_theme/tema-overline.html' import tema_label %}
 
 {# Colonna laterale della scheda dataset: "In sintesi", "Dataset correlati",
    "Titolare del dato". `related` = lista di package, `contact` = dict
@@ -10,7 +11,7 @@
 {% macro dataset_aside(pkg, related, contact, is_realtime=false) -%}
 <aside class="rtt-dataset__aside">
   {% set license = pkg.license_title or (pkg.license_id|upper if pkg.license_id else '') %}
-  {% set size = h.odf_dataset_size(pkg) %}
+  {% set tema = h.odf_package_theme(pkg) %}
   {# Viste: se il tracking non è attivo (nessun tracking_summary) la riga non
      compare; quando c'è, 0 è un valore valido e viene mostrato.
      Il contatore dei download è stato rimosso (vedi ADR 0015). #}
@@ -23,8 +24,8 @@
       (_('Frequenza'), h.odf_frequency_label(pkg.frequency)),
       (_('Pubblicato il'), h.odf_date(pkg.metadata_created)),
       (_('Aggiornato'), h.odf_time_ago(pkg.metadata_modified)) if is_realtime else (_('Ultima modifica'), h.odf_date(pkg.metadata_modified)),
-      (_('Capitolo Annuario'), {'label': capitolo, 'href': h.url_for('odf_pages.annuario')} if capitolo else None),
-      (_('Dimensione'), size),
+      (_('Tema DCAT-AP_IT'), {'label': tema_label(tema), 'href': h.url_for('dataset.search', dcat_theme=tema)} if tema else None),
+      (_('Annuario Statistico'), {'label': capitolo, 'href': h.url_for('odf_pages.annuario', capitolo=capitolo)} if capitolo else None),
       (_('Visualizzazioni'), h.odf_number(views)),
     ]) }}
     {% if pkg.license_url %}
@@ -33,13 +34,13 @@
   {% endcall %}
 
   {% if related %}
-  {% set related_action %}<span class="rtt-body-sm">{{ _('stesso tema') }}</span>{% endset %}
-  {% call panel(_('Dataset correlati'), action=related_action) %}
+  {% call panel(_('Dataset correlati')) %}
     <ul class="rtt-related">
       {% for r in related %}
       <li><a href="{{ h.url_for('dataset.read', id=r.name) }}">{{ r.title or r.name }}</a></li>
       {% endfor %}
     </ul>
+    {% if tema %}<a class="rtt-actionlink" href="{{ h.url_for('dataset.search', dcat_theme=tema) }}">{{ _('Tutti i dataset di questo tema') }}{{ icon('arrow-right', 20, 'rtt-actionlink__icon') }}</a>{% endif %}
   {% endcall %}
   {% endif %}
 

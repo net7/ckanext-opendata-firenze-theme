@@ -177,12 +177,21 @@ def test_template_helpers_registered():
         "odf_dataset_related",
         "odf_dataset_revisions",
         "odf_dataset_series",
+        "odf_series_info",
         "odf_dataset_contact",
         "odf_dataset_downloads",
         "odf_resource_download_url",
         "odf_resource_preview_url",
         "odf_resource_view_title",
         "odf_dataset_size",
+        "odf_latest_datasets",
+        "odf_lod_datasets",
+        "odf_resource_filename",
+        "odf_resource_separator",
+        "odf_dataset_is_lod",
+        "odf_dataset_is_series",
+        "odf_dataset_map_resource",
+        "odf_views_map_first",
         "odf_sql_console_enabled",
         "odf_datastore_resource_id",
         "odf_date",
@@ -241,3 +250,15 @@ def test_favicon_respects_explicit_config(app):
         body = body.decode("utf-8")
     assert '<link rel="shortcut icon" href="/altra.ico" />' in body
     assert "/brand/favicon-32.png" not in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_facets_adds_theme_groups(with_plugins):
+    """ "Caratteristiche" e "Serie" sono faccette del tema, dopo "Chi pubblica"."""
+    from ckanext.opendata_firenze_theme.plugin import OpendataFirenzeThemePlugin
+
+    facets = {"organization": "Organizzazioni", "tags": "Tag"}
+    got = OpendataFirenzeThemePlugin().dataset_facets(facets, "dataset")
+    assert list(got) == ["organization", "odf_features", "odf_series", "tags"]
+    assert got["odf_features"] == "Caratteristiche"
+    assert got["odf_series"] == "Serie"

@@ -50,7 +50,7 @@
   <div class="rtt-container rtt-resource__body">
     {% if resource_views %}
     {% set used_titles = namespace(titles=[]) %}
-    {% for view in resource_views %}
+    {% for view in h.odf_views_map_first(resource_views) %}
     {% set label = h.odf_resource_view_title(view) %}
     {% if label in used_titles.titles and view.title %}{% set label = label ~ ' · ' ~ view.title %}{% endif %}
     {% set used_titles.titles = used_titles.titles + [label] %}
@@ -76,6 +76,8 @@
     {% call panel(_('Dettagli della risorsa')) %}
       {{ meta_table([
         (_('Formato'), fmt or res.mimetype or res.mimetype_inner),
+        (_('Nome file'), h.odf_resource_filename(res)),
+        (_('Separatore di campo'), h.odf_resource_separator(pkg, res)),
         (_('Dimensione'), size),
         (_('Ultima modifica'), h.odf_date(res.last_modified or res.created)),
         (_('Creato'), h.odf_date(res.created)),

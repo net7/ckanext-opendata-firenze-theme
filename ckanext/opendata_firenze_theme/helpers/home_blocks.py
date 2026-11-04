@@ -68,6 +68,20 @@ BLOCKS = (
         },
     },
     {
+        "id": "latest",
+        "label": "Ultimi pubblicati",
+        "template": "home/blocks/latest.html",
+        "fields": {
+            "title": {"type": "text", "default": "Ultimi pubblicati"},
+            "subtitle": {
+                "type": "text",
+                "default": "I dataset aggiunti più di recente al catalogo.",
+            },
+            "cta_label": {"type": "text", "default": "Tutto il catalogo"},
+            "cta_url": {"type": "url", "default": "/dataset"},
+        },
+    },
+    {
         "id": "themes",
         "label": "Esplora per tema",
         "template": "home/blocks/themes.html",
@@ -81,6 +95,23 @@ BLOCKS = (
                     "fine, nel catalogo trovi anche i filtri INSPIRE e ISO 19115."
                 ),
             },
+        },
+    },
+    {
+        "id": "lod",
+        "label": "Linked Open Data",
+        "template": "home/blocks/lod.html",
+        "fields": {
+            "title": {"type": "text", "default": "Linked Open Data"},
+            "subtitle": {
+                "type": "text",
+                "default": (
+                    "Dataset con una risorsa RDF, pensati per essere collegati ad "
+                    "altri dati sul web."
+                ),
+            },
+            "cta_label": {"type": "text", "default": "Vedi tutti i Linked Open Data"},
+            "cta_url": {"type": "url", "default": "/dataset?odf_features=lod"},
         },
     },
     {
@@ -146,7 +177,12 @@ def _normalize_entry(item):
 
 
 def _complete(entries):
-    """Dedup per id, preserva l'ordine, aggiunge i blocchi mancanti (disattivi)."""
+    """Dedup per id, preserva l'ordine, aggiunge i blocchi mancanti (disattivi).
+
+    Nota: un blocco introdotto in una versione successiva del tema compare
+    spento nelle config gia' salvate; va attivato da /ckan-admin/homepage.
+    Cosi' non ricompare nulla che l'admin avesse escluso.
+    """
     by_id = {}
     ordered = []
     for entry in entries:
