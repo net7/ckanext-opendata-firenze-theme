@@ -323,12 +323,13 @@
   padding: 4px 12px;
   border-radius: var(--rtt-radius-full);
   background: transparent;
-  box-shadow: inset 0 0 0 1px var(--neutral-neutral-500);
+  /* Bordo e testo come il mockup. */
+  box-shadow: inset 0 0 0 1px var(--rtt-chip-border);
   font-family: var(--rtt-font-ui);
   font-weight: 600;
   font-size: 12px;
   line-height: 16px;
-  color: var(--neutral-neutral-800);
+  color: var(--rtt-ink-strong);
   white-space: nowrap;
 }
 

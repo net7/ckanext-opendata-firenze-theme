@@ -10,6 +10,14 @@
  * assets/css/fonts.css; vedi docs/adr/0001).
  */
 
+/* Valori del mockup che non hanno un token nel design system. */
+:root {
+  --rtt-control-border: #a2a2ac; /* freccia delle card e frecce del carosello */
+  --rtt-chip-border: #83838d; /* contorno dei chip di stato */
+  --rtt-ink-strong: #333338; /* bordo del campo di ricerca, testo dei chip */
+  --rtt-card-surface-home: #f2edf4; /* card dei caroselli della home */
+}
+
 /* Base: font e colore di testo dal design system. */
 body {
   font-family: var(--rtt-font-ui);

@@ -322,9 +322,10 @@
   width: 40px;
   height: 40px;
   box-sizing: border-box;
-  border-radius: var(--rtt-radius-full);
+  /* Mockup: quadrato smussato con bordo dei controlli. */
+  border-radius: var(--rtt-radius-md);
   background: var(--basics-white-100);
-  box-shadow: inset 0 0 0 1px var(--neutral-neutral-400);
+  box-shadow: inset 0 0 0 1px var(--rtt-control-border);
   color: var(--neutral-neutral-900);
   opacity: 0;
   transform: translateX(-4px);
@@ -439,8 +440,11 @@
   gap: 34px;
 }
 
-.rtt-evidenza__others {
-  --rtt-card-surface: #f2edf4;
+/* Nel mockup le card dei caroselli della home (In evidenza, Ultimi pubblicati,
+   Linked Open Data) hanno la superficie lilla; "I più consultati" usa la griglia
+   e resta bianca. */
+.rtt-home .rtt-carousel {
+  --rtt-card-surface: var(--rtt-card-surface-home);
 }
 
 .rtt-evidenza__feature {
