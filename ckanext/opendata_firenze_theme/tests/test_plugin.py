@@ -48,73 +48,6 @@ def test_shell_header_and_footer(app):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
-@pytest.mark.ckan_config("ckan.locales_offered", "en fr")
-@pytest.mark.usefixtures("with_plugins")
-def test_language_selector_offers_only_configured_locales(app, monkeypatch):
-    """Il selettore lista solo le lingue in ckan.locales_offered.
-
-    ``ckan.lib.i18n`` tiene le lingue in cache in variabili di modulo, senza un
-    reset pubblico: le azzero con ``monkeypatch`` (ripristinate a fine test)
-    per rendere il test indipendente dall'ordine di esecuzione.
-    """
-    import ckan.lib.i18n as i18n
-
-    for name in ("locales", "available_locales", "locales_dict", "_non_translated_locals"):
-        monkeypatch.setattr(i18n, name, None)
-
-    response = app.get("/about")
-    assert response.status_code == 200
-    body = response.body
-    if isinstance(body, bytes):
-        body = body.decode("utf-8")
-    assert 'href="/fr/about"' in body
-    assert 'href="/de/about"' not in body
-
-
-@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
-@pytest.mark.ckan_config("ckan.locales_offered", "it en")
-@pytest.mark.ckan_config("ckan.locale_default", "it")
-@pytest.mark.usefixtures("with_plugins")
-def test_language_selector_default_locale_has_no_prefix(app, monkeypatch):
-    """La lingua di default non porta il prefisso in URL; le altre sì."""
-    import ckan.lib.i18n as i18n
-
-    for name in ("locales", "available_locales", "locales_dict", "_non_translated_locals"):
-        monkeypatch.setattr(i18n, name, None)
-
-    response = app.get("/about")
-    body = response.body
-    if isinstance(body, bytes):
-        body = body.decode("utf-8")
-    assert 'href="/en/about"' in body
-    assert 'href="/it/about"' not in body
-
-
-@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
-@pytest.mark.ckan_config("ckan.locales_offered", "it en")
-@pytest.mark.ckan_config("ckan.locale_default", "it")
-@pytest.mark.usefixtures("with_plugins")
-def test_language_selector_switch_back_from_en_has_no_prefix(app, monkeypatch):
-    """Dalla pagina in inglese il link italiano torna a `/…` (niente `/it/…`)."""
-    import re
-
-    import ckan.lib.i18n as i18n
-
-    for name in ("locales", "available_locales", "locales_dict", "_non_translated_locals"):
-        monkeypatch.setattr(i18n, name, None)
-
-    response = app.get("/en/about")
-    body = response.body
-    if isinstance(body, bytes):
-        body = body.decode("utf-8")
-    # solo i link del selettore lingua (evita falsi positivi da altri link /about)
-    lang_links = re.findall(r'class="rtt-lang__item[^"]*" href="([^"]*)"', body)
-    assert "/about" in lang_links
-    assert "/en/about" in lang_links
-    assert "/it/about" not in lang_links
-
-
-@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.usefixtures("with_plugins")
 def test_no_duplicate_ids(app):
     """Nessun id duplicato nel DOM e wordmark reso 2x (header + footer).
@@ -172,7 +105,6 @@ def test_template_helpers_registered():
         "odf_dataset_geometry",
         "odf_dataset_is_geo",
         "odf_number",
-        "odf_default_locale",
         "odf_dataset_openness",
         "odf_dataset_related",
         "odf_dataset_revisions",

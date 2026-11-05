@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-opendata-firenze-theme 0.2.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-04 19:27+0100\n"
+"POT-Creation-Date: 2026-11-05 14:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -275,7 +275,7 @@ msgstr ""
 #: ckanext/opendata_firenze_theme/templates/footer.html:35
 #: ckanext/opendata_firenze_theme/templates/header.html:24
 #: ckanext/opendata_firenze_theme/templates/header.html:25
-#: ckanext/opendata_firenze_theme/templates/header.html:45
+#: ckanext/opendata_firenze_theme/templates/header.html:44
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/home/hero.html:10
 msgid "Comune di Firenze"
 msgstr ""
@@ -307,25 +307,25 @@ msgstr ""
 msgid "Canali social"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/header.html:50
+#: ckanext/opendata_firenze_theme/templates/header.html:49
 msgid "Navigazione principale"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/contact/form.html:17
-#: ckanext/opendata_firenze_theme/templates/header.html:56
-#: ckanext/opendata_firenze_theme/templates/header.html:73
+#: ckanext/opendata_firenze_theme/templates/header.html:55
+#: ckanext/opendata_firenze_theme/templates/header.html:72
 msgid "Segnala un dataset"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/header.html:57
+#: ckanext/opendata_firenze_theme/templates/header.html:56
 msgid "Apri menu"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/header.html:57
+#: ckanext/opendata_firenze_theme/templates/header.html:56
 msgid "Chiudi menu"
 msgstr ""
 
-#: ckanext/opendata_firenze_theme/templates/header.html:66
+#: ckanext/opendata_firenze_theme/templates/header.html:65
 msgid "Menu"
 msgstr ""
 
@@ -868,10 +868,6 @@ msgstr ""
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/chip.html:14
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/chip.html:16
 msgid "Rimuovi"
-msgstr ""
-
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/language_selector.html:10
-msgid "Cambia lingua"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/page-head.html:9

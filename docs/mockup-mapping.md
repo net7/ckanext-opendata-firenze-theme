@@ -41,13 +41,13 @@ da toccare, i dati da collegare e le decisioni ancora aperte.
 ### Shell — `screens/shell.jsx`
 
 - Header (logo Comune + logo OpenData, nav `Catalogo`/`Annuario Statistico`/
-  `Sviluppatori & LOD`/`Collaborazione`, ricerca, selettore lingua, CTA "Segnala
-  un dataset", variante mobile) → override **`header.html`**.
+  `Sviluppatori & LOD`/`Collaborazione`, ricerca, CTA "Segnala un dataset",
+  variante mobile) → override **`header.html`**.
   - Nav verso pagine non-core → menu di `ckanext-pages` o snippet nav custom.
   - Ricerca → `snippets/search_form.html` (o `snippets/simple_search.html`).
-  - Lingua → `snippets/language_selector.html` del tema: la lingua di default
-    (`ckan.locale_default`, es. `it`) resta senza prefisso in URL (`/…`, non
-    `/it/…`), le altre con il prefisso (`/en/…`).
+  - Lingua: il prototipo ha **rimosso il selettore** (23/09/2026,
+    `showLanguage={false}`) perché il portale ha un'unica lingua. Anche il tema
+    non ha più `language_selector.html` e il config offre solo `it`.
   - CTA "Segnala" → `/contact`.
 - Footer (contatti Comune, colonne link, legal) → **`footer.html`**.
 - TabBar mobile → snippet custom (solo <1024px).

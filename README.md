@@ -113,19 +113,24 @@ della versione in immagine e rollback in [`docs/release.md`](docs/release.md).
 
 ## Traduzioni (i18n)
 
-Le stringhe utente passano da `_()` / `ungettext()` (helper: `toolkit._`). Il
-template delle traduzioni è `i18n/ckanext-opendata_firenze_theme.pot`,
-rigenerabile con `python setup.py extract_messages`.
+Il portale è **solo in italiano** (`CKAN__LOCALES_OFFERED="it"`): il mockup
+aggiornato (23/09/2026) ha rimosso il selettore lingua e non esiste un catalogo
+inglese; anche i contenuti editoriali (news, pagine, descrizioni) sono
+mono-lingua.
 
-Il portale offre italiano e inglese (`CKAN__LOCALES_OFFERED="it en"`): la lingua
-sorgente delle stringhe del tema è l'italiano, quindi il **catalogo inglese non è
-ancora tradotto** (in EN le stringhe del tema restano in italiano). Per aggiungerlo:
+Le stringhe utente passano comunque da `_()` / `ungettext()` e il template
+`i18n/ckanext-opendata_firenze_theme.pot` va tenuto aggiornato
+(`python setup.py extract_messages`), così un'eventuale traduzione futura
+partirebbe da un catalogo completo:
 
 ```bash
-python setup.py init_catalog -l en   # crea i18n/en/LC_MESSAGES/*.po
+python setup.py init_catalog -l <lingua>
 # ...tradurre il .po, poi:
 python setup.py compile_catalog      # genera il .mo
 ```
+
+Aggiungere una lingua richiede anche `CKAN__LOCALES_OFFERED` lato config e la
+gestione dei contenuti editoriali: decisione da prendere con l'Ente.
 
 ## Riferimenti
 
