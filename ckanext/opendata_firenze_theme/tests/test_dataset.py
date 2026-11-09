@@ -605,3 +605,23 @@ def test_dataset_page_context_reuses_series_info(with_plugins, with_request_cont
     assert page["series"] is context
     assert page["tab"] == "essenziale"
     assert page["advanced"] is False
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_page_advanced_skips_series_context(with_plugins, with_request_context):
+    """Sulla tab avanzata il pannello non esiste: niente ricerche revisioni."""
+    from ckanext.opendata_firenze_theme.helpers import dataset_page
+
+    info = {"serie": "S", "count": 2, "members": []}
+    pkg = {"id": "x", "name": "x"}
+    with (
+        mock.patch.object(dataset_page.series, "odf_series_info", return_value=info),
+        mock.patch.object(dataset_page.series, "odf_series_context") as series_context,
+    ):
+        page = dataset_page.odf_dataset_page(pkg, "avanzata")
+
+    series_context.assert_not_called()
+    assert page["series"] is None
+    assert page["serie"] == "S"
+    assert page["serie_total"] == 2
+    assert page["advanced"] is True

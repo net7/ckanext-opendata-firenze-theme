@@ -12,6 +12,9 @@ def odf_dataset_page(pkg, tab="essenziale"):
     """Dati della scheda dataset per la vista `tab` ("essenziale"/"avanzata")."""
     badges = dataset.odf_dataset_badges(pkg)
     info = series.odf_series_info(pkg)
+    # Il pannello serie/revisioni esiste solo nella vista essenziale: sulla
+    # tab avanzata non si pagano le ricerche delle revisioni.
+    context = series.odf_series_context(pkg, info=info) if tab != "avanzata" else None
     return {
         "theme": catalog.odf_package_theme(pkg),
         "badges": badges,
@@ -20,7 +23,9 @@ def odf_dataset_page(pkg, tab="essenziale"):
         "downloads": dataset.odf_dataset_downloads(pkg),
         "quality": dataset.odf_dataset_openness(pkg),
         "map_resource": dataset.odf_dataset_map_resource(pkg),
-        "series": series.odf_series_context(pkg, info=info),
+        "series": context,
+        "serie": info["serie"],
+        "serie_total": info["count"],
         "contact": dataset.odf_dataset_contact(pkg),
         "related": dataset.odf_dataset_related(pkg),
         "geometry": dataset.odf_dataset_geometry(pkg),

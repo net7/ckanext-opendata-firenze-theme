@@ -20,8 +20,8 @@
 {% set downloads = dataset_page.downloads %}
 {% set quality = dataset_page.quality %}
 {% set map_res = dataset_page.map_resource %}
-{% set serie_ctx = dataset_page.series %}
-{% set serie = serie_ctx.serie %}
+{% set serie = dataset_page.serie %}
+{% set serie_total = dataset_page.serie_total %}
 {% set contact = dataset_page.contact %}
 {% set related = dataset_page.related %}
 {% set notes = h.get_translated(pkg, 'notes') %}
@@ -53,7 +53,7 @@
               {{ status_chip(b.label, b.kind) }}
               {% endif %}
             {% endfor %}
-            {% if serie_ctx.serie_total > 1 %}{{ status_chip(_('Serie') ~ ' · ' ~ serie_ctx.serie_total ~ ' dataset', 'serie') }}{% endif %}
+            {% if serie_total > 1 %}{{ status_chip(_('Serie') ~ ' · ' ~ serie_total ~ ' dataset', 'serie') }}{% endif %}
           </div>
           <h1 class="rtt-h1 rtt-dataset__title">{{ _('Dataset:') }} {{ h.dataset_display_name(pkg) }}</h1>
           {% if uso %}<p class="rtt-body-lg rtt-dataset__uso">{{ uso }}</p>{% endif %}
@@ -122,7 +122,7 @@
 
       {#- Il contesto riusa la serie già letta per il badge: niente seconda
           ricerca della serie, e le revisioni si cercano solo in questa vista. #}
-      {{ series_panel(serie_ctx) }}
+      {{ series_panel(dataset_page.series) }}
       {% else %}
       {% call panel(_('Metadati DCAT-AP_IT'), action=meta_action) %}
         {{ meta_table([

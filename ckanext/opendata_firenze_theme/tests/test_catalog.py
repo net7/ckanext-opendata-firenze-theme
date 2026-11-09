@@ -308,3 +308,14 @@ def test_breadcrumbs_helper(with_plugins, with_request_context):
     contact = helpers.odf_breadcrumbs("Richiesta inviata", section="contact")
     assert [crumb["label"] for crumb in contact] == ["Home", "Collaborazione", "Richiesta inviata"]
     assert contact[1]["href"] == "/contact"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_catalog_breadcrumb_is_not_duplicated(app):
+    response = app.get("/dataset")
+    body = response.body.decode("utf-8") if isinstance(response.body, bytes) else response.body
+    start = body.index('class="rtt-breadcrumbs"')
+    nav = body[start : body.index("</nav>", start)]
+    assert nav.count("Catalogo") == 1
+    assert "rtt-breadcrumbs__current" in nav
