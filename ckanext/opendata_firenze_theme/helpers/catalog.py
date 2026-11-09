@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
-from . import _common
+from . import _common, query
 from .constants import FACET_ORDER, THEME_CODES, THEMES
 
 
@@ -81,19 +81,7 @@ def odf_facet_all_url(facet, values):
 
 def _facet_labels():
     """Etichette dei gruppi faccetta (nome parametro -> etichetta italiana)."""
-    return {
-        "theme": toolkit._("Temi"),
-        "dcat_theme": toolkit._("Temi"),
-        "res_format": toolkit._("Formato dei file"),
-        "frequency": toolkit._("Aggiornamento"),
-        "organization": toolkit._("Chi pubblica"),
-        "spatial": toolkit._("Classificazione geografica"),
-        "groups": toolkit._("Gruppi"),
-        "tags": toolkit._("Parole chiave"),
-        "license_id": toolkit._("Licenza"),
-        "odf_features": toolkit._("Caratteristiche"),
-        "odf_series": toolkit._("Serie"),
-    }
+    return query.facet_labels()
 
 
 def _feature_labels():

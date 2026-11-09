@@ -19,10 +19,8 @@
 {% set downloads = h.odf_dataset_downloads(pkg) %}
 {% set quality = h.odf_dataset_openness(pkg) %}
 {% set map_res = h.odf_dataset_map_resource(pkg) %}
-{% set serie_info = h.odf_series_info(pkg) %}
-{% set serie = serie_info.serie %}
-{% set serie_count = serie_info.count %}
-{% set serie_members = serie_info.members %}
+{% set serie_ctx = h.odf_series_context(pkg) %}
+{% set serie = serie_ctx.serie %}
 {% set contact = h.odf_dataset_contact(pkg) %}
 {% set related = h.odf_dataset_related(pkg) %}
 {% set notes = h.get_translated(pkg, 'notes') %}
@@ -59,7 +57,7 @@
               {{ status_chip(b.label, b.kind) }}
               {% endif %}
             {% endfor %}
-            {% if serie_count > 1 %}{{ status_chip(_('Serie') ~ ' · ' ~ serie_count ~ ' dataset', 'serie') }}{% endif %}
+            {% if serie_ctx.serie_total > 1 %}{{ status_chip(_('Serie') ~ ' · ' ~ serie_ctx.serie_total ~ ' dataset', 'serie') }}{% endif %}
           </div>
           <h1 class="rtt-h1 rtt-dataset__title">{{ _('Dataset:') }} {{ h.dataset_display_name(pkg) }}</h1>
           {% if uso %}<p class="rtt-body-lg rtt-dataset__uso">{{ uso }}</p>{% endif %}
@@ -126,7 +124,7 @@
         {% endif %}
       {% endcall %}
 
-      {{ series_panel(pkg, serie_members, serie_count) }}
+      {{ series_panel(serie_ctx) }}
       {% else %}
       {% call panel(_('Metadati DCAT-AP_IT'), action=meta_action) %}
         {{ meta_table([

@@ -110,6 +110,7 @@ def test_template_helpers_registered():
         "odf_dataset_revisions",
         "odf_dataset_series",
         "odf_series_info",
+        "odf_series_context",
         "odf_dataset_contact",
         "odf_dataset_downloads",
         "odf_resource_download_url",

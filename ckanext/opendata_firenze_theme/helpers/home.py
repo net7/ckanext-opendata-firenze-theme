@@ -4,7 +4,7 @@ import logging
 
 import ckan.plugins.toolkit as toolkit
 
-from . import _common
+from . import _common, query
 from .constants import ANNUARIO_CHAPTERS, THEMES
 
 log = logging.getLogger(__name__)
@@ -17,8 +17,10 @@ def odf_theme_counts():
     il nome usato in alcune configurazioni. Si prende il primo facet popolato,
     per non contare due volte lo stesso dataset.
     """
-    data = _common._search(rows=0, **{"facet.field": ["dcat_theme", "theme"], "facet.limit": 100})
-    for field in ("dcat_theme", "theme"):
+    data = _common._search(
+        rows=0, **{"facet.field": [query.THEME, query.THEME_ALT], "facet.limit": 100}
+    )
+    for field in (query.THEME, query.THEME_ALT):
         items = _common._facet_items(data, field)
         if items:
             return {item["name"]: item["count"] for item in items}
@@ -63,9 +65,9 @@ def odf_home_kpis():
     # scritto da `before_dataset_index` con la stessa regola del badge
     # "Geodati": formati geo oppure extras spatial/geometria. Così conteggio,
     # badge, faccetta e lista usano un'unica definizione.
-    geo = _common._search(rows=0, fq="odf_features:geo")["count"]
-    tavole = _common._search(rows=0, fq="extras_capitolo:[* TO *]")["count"]
-    serie = _common._search(rows=0, fq="extras_serie:[* TO *]")["count"]
+    geo = _common._search(rows=0, fq=query.features(query.GEO))["count"]
+    tavole = _common._search(rows=0, fq=query.chapter_any())["count"]
+    serie = _common._search(rows=0, fq=query.series_any())["count"]
     return [
         {
             "value": _common._it(total),
@@ -129,7 +131,7 @@ def odf_latest_datasets(limit=6):
 
 def odf_lod_datasets(limit=6):
     """Dataset Linked Open Data (campo Solr `odf_features`, blocco della home)."""
-    return _common._search(rows=limit, fq="odf_features:lod", sort="metadata_modified desc")[
+    return _common._search(rows=limit, fq=query.features(query.LOD), sort="metadata_modified desc")[
         "results"
     ]
 
@@ -141,7 +143,7 @@ def odf_geo_datasets(limit=12):
     faccetta "Caratteristiche" e del badge "Geodati": così conteggi e liste
     restano coerenti.
     """
-    return _common._search(rows=limit, fq="odf_features:geo", sort="metadata_modified desc")[
+    return _common._search(rows=limit, fq=query.features(query.GEO), sort="metadata_modified desc")[
         "results"
     ]
 
@@ -154,7 +156,7 @@ def odf_geo_search_query():
     `fq`), quindi si passa la query al campo `q` della ricerca. Il campo
     `odf_features` è già il risultato della regola unica di geodato.
     """
-    return "odf_features:geo"
+    return query.features(query.GEO)
 
 
 def odf_news(limit=3):
