@@ -15,6 +15,40 @@ def test_every_block_has_a_builder():
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_sections_payload_for_every_block(with_plugins):
+    """Chiavi e limiti di ogni blocco: un payload sbagliato svuota la sezione."""
+    from ckanext.opendata_firenze_theme.helpers import home, home_blocks, home_sections
+
+    with (
+        mock.patch.object(home, "odf_dataset_count", return_value=7),
+        mock.patch.object(home, "odf_home_kpis", return_value=["kpi"]) as kpi,
+        mock.patch.object(home, "odf_featured_datasets", return_value=["f"]) as featured,
+        mock.patch.object(home, "odf_latest_datasets", return_value=["l"]) as latest,
+        mock.patch.object(home, "odf_themes_visible", return_value=["t"]) as themes,
+        mock.patch.object(home, "odf_lod_datasets", return_value=["o"]) as lod,
+        mock.patch.object(home, "odf_most_viewed", return_value=["v"]) as viewed,
+        mock.patch.object(home, "odf_news", return_value=["n"]) as news,
+    ):
+        got = home_sections.odf_home_sections([{"id": b["id"]} for b in home_blocks.BLOCKS])
+
+    assert got["hero"] == {"count": 7}
+    assert got["kpi"] == {"kpis": ["kpi"]}
+    assert got["featured"] == {"datasets": ["f"]}
+    assert got["latest"] == {"datasets": ["l"]}
+    assert got["themes"] == {"themes": ["t"]}
+    assert got["lod"] == {"datasets": ["o"]}
+    assert got["most_viewed"] == {"datasets": ["v"]}
+    assert got["news"] == {"news": ["n"]}
+    kpi.assert_called_once_with(total=7)
+    featured.assert_called_once_with(7)
+    latest.assert_called_once_with(6)
+    lod.assert_called_once_with(6)
+    viewed.assert_called_once_with(4)
+    news.assert_called_once_with(3)
+    themes.assert_called_once_with()
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_sections_cover_active_blocks_in_order(with_plugins):
     from ckanext.opendata_firenze_theme.helpers import home, home_sections
 
