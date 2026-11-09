@@ -1,9 +1,12 @@
 """Dati dei blocchi della home, raccolti una volta sola per render.
 
-I template dei blocchi non chiamano più gli helper: ricevono `section` con i
+I template dei blocchi non chiamano più gli helper: ricevono `block_data` con i
 dati già pronti. Il collettore è l'unico punto che sa **quali** dati serve ogni
 blocco e con quali limiti; i blocchi restano renderer puri e l'ordine/lo stato
 dei blocchi resta quello configurato dagli operatori (ADR 0008).
+
+Il nome `block_data` (non `section`) evita la collisione con il macro
+`section` importato dai blocchi.
 
 Il conteggio dei dataset è condiviso fra hero e KPI: senza il collettore erano
 due `package_search` identici.

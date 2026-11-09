@@ -230,8 +230,12 @@ def test_home_search_button_is_textual_and_accessible(with_plugins, with_request
     """Il pulsante della home ha testo visibile e nessun aria-label che lo contraddica."""
     from flask import render_template_string
 
-    body = render_template_string("{% include 'snippets/opendata_firenze_theme/home/hero.html' %}")
+    body = render_template_string(
+        "{% include 'snippets/opendata_firenze_theme/home/hero.html' %}", count=42
+    )
     assert "Cerca un dataset" in body
+    # il conteggio arriva dal blocco, non da una query dello snippet
+    assert "Esplora 42 dataset" in body
     # niente aria-label sul pulsante testuale: il nome accessibile è il testo
     assert "rtt-search__submit rtt-search__submit--text" in body
     assert 'rtt-search__submit--text" type="submit" aria-label' not in body
