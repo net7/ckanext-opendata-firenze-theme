@@ -441,39 +441,41 @@ def odf_dataset_revisions(pkg, limit=20):
     return _revision_items(pkg, limit)
 
 
-def odf_series_context(pkg, limit=20):
+def odf_series_context(pkg, info=None, limit=20):
     """Contesto del pannello serie/revisioni della scheda, in una sola risoluzione.
 
-    Ritorna `{kind, label, total, items, serie, serie_total}`:
+    Ritorna `{kind, label, total, entries, serie, serie_total}`:
     - `kind`: "revisions" (il ramo temporale ha la precedenza, come il mockup),
       "series" oppure None;
     - `label`: nome della serie mostrata dal pannello (`kind="series"`);
     - `total`: totale dei dataset del ramo attivo, incluso quello corrente;
-    - `items`: voci pronte per il pannello, escluso il dataset corrente;
+    - `entries`: voci pronte per il pannello, escluso il dataset corrente;
     - `serie`/`serie_total`: la serie dichiarata dall'extra e il suo totale,
       indipendenti dal ramo, per il badge e la tabella metadati della testata.
 
-    La scheda chiama questo una volta sola: prima `read.html` chiedeva i membri
-    della serie e poi il pannello rifaceva la ricerca delle revisioni.
+    `info` permette di riusare un `odf_series_info` già calcolato dalla scheda
+    per il badge: così la serie non viene cercata due volte. La chiave si chiama
+    `entries` e non `items` perché in Jinja `context.items` sarebbe il metodo
+    dei dict, non la chiave.
     """
-    info = odf_series_info(pkg, limit)
+    info = info if info is not None else odf_series_info(pkg, limit)
     revisions = _revision_items(pkg, limit)
     context = {
         "serie": info["serie"],
         "serie_total": info["count"],
         "label": "",
         "total": 0,
-        "items": [],
+        "entries": [],
         "kind": None,
     }
     if revisions:
-        context.update(kind="revisions", total=len(revisions) + 1, items=revisions)
+        context.update(kind="revisions", total=len(revisions) + 1, entries=revisions)
     elif info["members"]:
         context.update(
             kind="series",
             label=info["serie"],
             total=info["count"],
-            items=info["members"],
+            entries=info["members"],
         )
     return context
 

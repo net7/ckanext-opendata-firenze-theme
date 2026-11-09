@@ -100,9 +100,7 @@ def odf_featured_datasets(limit=3):
     Gli HVD hanno la precedenza; se sono meno di `limit` si completa con i
     dataset aggiornati di recente, così il carosello ha sempre abbastanza voci.
     """
-    featured = _common._search(rows=limit, fq="extras_hvd:true", sort="metadata_modified desc")[
-        "results"
-    ]
+    featured = _common._search(rows=limit, fq=query.hvd(), sort="metadata_modified desc")["results"]
     if len(featured) >= limit:
         return featured
     recent = _common._search(rows=limit + len(featured), sort="metadata_modified desc")["results"]

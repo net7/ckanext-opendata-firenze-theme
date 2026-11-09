@@ -87,10 +87,10 @@ def _facet_labels():
 def _feature_labels():
     """Etichette delle voci della faccetta `odf_features` ("Caratteristiche")."""
     return {
-        "geo": toolkit._("Geodati"),
-        "alfanumerico": toolkit._("Alfanumerici"),
-        "hvd": toolkit._("High Value Dataset"),
-        "lod": toolkit._("Linked Open Data"),
+        query.GEO: toolkit._("Geodati"),
+        query.ALPHANUMERIC: toolkit._("Alfanumerici"),
+        query.HVD: toolkit._("High Value Dataset"),
+        query.LOD: toolkit._("Linked Open Data"),
     }
 
 

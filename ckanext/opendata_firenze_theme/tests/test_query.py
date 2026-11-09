@@ -59,6 +59,7 @@ def test_query_strings(with_plugins):
 
     assert query.features(query.GEO) == "odf_features:geo"
     assert query.features(query.LOD) == "odf_features:lod"
+    assert query.hvd() == "extras_hvd:true"
     assert query.series_member("Open Firenze") == 'extras_serie:"Open Firenze"'
     assert query.series_any() == "extras_serie:[* TO *]"
     assert query.revision("https://x/dataset/a") == 'extras_is_version_of:"https://x/dataset/a"'
