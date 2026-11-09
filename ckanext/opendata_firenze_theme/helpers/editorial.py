@@ -39,10 +39,31 @@ def odf_annuario_datasets(chapter, limit=None):
     return data["results"]
 
 
+def odf_annuario_page(chapter=None):
+    """Dati della pagina Annuario per il capitolo richiesto (o il primo).
+
+    Selezione, validazione, conteggio e righe in un solo punto: il template
+    rende soltanto.
+    """
+    chapters = odf_annuario_chapters()
+    names = [item["name"] for item in chapters]
+    selected = chapter if chapter in names else (names[0] if names else "")
+    current = next((item for item in chapters if item["name"] == selected), None)
+    count = odf_annuario_count(selected)
+    return {
+        "chapters": chapters,
+        "selected": selected,
+        "current": current,
+        "count": count,
+        "datasets": odf_annuario_datasets(selected, limit=count),
+    }
+
+
 # Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
 # derivato da questi mapping.
 HELPERS = {
     "odf_annuario_chapters": odf_annuario_chapters,
     "odf_annuario_count": odf_annuario_count,
     "odf_annuario_datasets": odf_annuario_datasets,
+    "odf_annuario_page": odf_annuario_page,
 }

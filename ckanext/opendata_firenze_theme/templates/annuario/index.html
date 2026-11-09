@@ -5,13 +5,12 @@
 {% block subtitle %}{{ _('Annuario Statistico') }}{% endblock %}
 
 {% block content %}
-{% set chapters = h.odf_annuario_chapters() %}
-{% set names = chapters|map(attribute='name')|list %}
-{% set selected = request.args.get('capitolo') %}
-{% if selected not in names %}{% set selected = names[0] if names else '' %}{% endif %}
-{% set current = chapters|selectattr('name', 'equalto', selected)|list|first %}
-{% set chapter_count = h.odf_annuario_count(selected) %}
-{% set datasets = h.odf_annuario_datasets(selected, limit=chapter_count) %}
+{% set annuario = h.odf_annuario_page(request.args.get('capitolo')) %}
+{% set chapters = annuario.chapters %}
+{% set selected = annuario.selected %}
+{% set current = annuario.current %}
+{% set chapter_count = annuario.count %}
+{% set datasets = annuario.datasets %}
 <main class="rtt-editorial-page" id="content" tabindex="-1">
   {% call page_head(
       _('Annuario Statistico del Comune di Firenze'),

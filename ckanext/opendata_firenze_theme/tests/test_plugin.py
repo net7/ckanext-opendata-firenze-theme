@@ -100,6 +100,7 @@ def test_template_helpers_registered():
         "odf_annuario_chapters",
         "odf_annuario_count",
         "odf_annuario_datasets",
+        "odf_annuario_page",
         "odf_pkg_extra",
         "odf_dataset_formats",
         "odf_format_is_geo",
