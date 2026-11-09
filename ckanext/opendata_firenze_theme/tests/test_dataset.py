@@ -357,7 +357,7 @@ def test_dataset_revisions_helper(with_plugins, with_request_context):
     with (
         mock.patch.object(helpers._common, "_search", return_value=siblings) as search,
         mock.patch(
-            "ckanext.opendata_firenze_theme.helpers.dataset._dataset_by_uri_root",
+            "ckanext.opendata_firenze_theme.helpers.series._dataset_by_uri_root",
             return_value={"id": "self", "name": "popolazione", "title": "Popolazione residente"},
         ),
     ):
@@ -371,7 +371,7 @@ def test_dataset_revisions_helper(with_plugins, with_request_context):
     with (
         mock.patch.object(helpers._common, "_search", return_value={"results": []}) as search,
         mock.patch(
-            "ckanext.opendata_firenze_theme.helpers.dataset._dataset_by_uri_root", return_value=None
+            "ckanext.opendata_firenze_theme.helpers.series._dataset_by_uri_root", return_value=None
         ),
     ):
         helpers.odf_dataset_revisions(multi)
@@ -383,7 +383,7 @@ def test_dataset_revisions_helper(with_plugins, with_request_context):
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_revision_year_fallback(with_plugins, with_request_context):
     """L'anno della revisione viene da temporal_start, poi version, poi il titolo."""
-    from ckanext.opendata_firenze_theme.helpers.dataset import _revision_year_from
+    from ckanext.opendata_firenze_theme.helpers.series import _revision_year_from
 
     # 1. periodo di riferimento (vince su tutto)
     assert (
