@@ -59,9 +59,25 @@ def test_query_strings(with_plugins):
 
     assert query.features(query.GEO) == "odf_features:geo"
     assert query.features(query.LOD) == "odf_features:lod"
-    assert query.hvd() == "extras_hvd:true"
+    assert query.features(query.HVD) == "odf_features:hvd"
     assert query.series_member("Open Firenze") == 'extras_serie:"Open Firenze"'
     assert query.series_any() == "extras_serie:[* TO *]"
     assert query.revision("https://x/dataset/a") == 'extras_is_version_of:"https://x/dataset/a"'
     assert query.chapter("Popolazione") == 'extras_capitolo:"Popolazione"'
     assert query.chapter_any() == "extras_capitolo:[* TO *]"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_facet_table_is_the_single_source(with_plugins):
+    """Ordine, etichette e valori derivano dalla stessa tabella."""
+    from ckanext.opendata_firenze_theme.helpers import query
+
+    assert set(query.FACET_ORDER) == {facet["name"] for facet in query.FACET_TABLE}
+    assert len(query.FACET_ORDER) == len(query.FACET_TABLE)
+    assert set(query.feature_labels()) == {
+        query.GEO,
+        query.ALPHANUMERIC,
+        query.HVD,
+        query.LOD,
+    }
+    assert query.FACET_ORDER.index(query.FEATURES) < query.FACET_ORDER.index(query.SERIES)

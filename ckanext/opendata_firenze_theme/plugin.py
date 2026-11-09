@@ -69,8 +69,8 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
 
     def before_dataset_index(self, pkg_dict):
         """Indicizza le "Caratteristiche" e la "Serie" del dataset."""
-        pkg_dict["odf_features"] = helpers.odf_index_features(pkg_dict)
-        pkg_dict["odf_series"] = helpers.odf_index_series(pkg_dict)
+        pkg_dict[query.FEATURES] = helpers.odf_index_features(pkg_dict)
+        pkg_dict[query.SERIES] = helpers.odf_index_series(pkg_dict)
         return pkg_dict
 
     # IPackageController

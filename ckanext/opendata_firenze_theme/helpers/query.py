@@ -15,7 +15,6 @@ SERIES = "odf_series"
 REVISION = "extras_is_version_of"
 SERIES_EXTRA = "extras_serie"
 CHAPTER = "extras_capitolo"
-HVD_EXTRA = "extras_hvd"
 THEME = "dcat_theme"
 THEME_ALT = "theme"
 RES_FORMAT = "res_format"
@@ -26,24 +25,39 @@ ALPHANUMERIC = "alfanumerico"
 LOD = "lod"
 HVD = "hvd"
 
-# Faccette aggiunte dal tema e faccetta dopo cui inserirle (mockup).
-EXTRA_FACETS = ((FEATURES, "Caratteristiche"), (SERIES, "Serie"))
+# Faccetta dopo cui il tema inserisce i propri gruppi (mockup).
 FACET_ANCHOR = "organization"
 
-# Etichette dei gruppi faccetta (nome parametro -> etichetta italiana).
-FACET_LABELS = {
-    THEME: "Temi",
-    THEME_ALT: "Temi",
-    RES_FORMAT: "Formato dei file",
-    "frequency": "Aggiornamento",
-    FACET_ANCHOR: "Chi pubblica",
-    "spatial": "Classificazione geografica",
-    "groups": "Gruppi",
-    "tags": "Parole chiave",
-    "license_id": "Licenza",
-    FEATURES: "Caratteristiche",
-    SERIES: "Serie",
-}
+# Una sola tabella del vocabolario: campo, etichetta, ordine e (solo per le
+# faccette aggiunte dal tema) la faccetta dopo cui inserirla. Le mappe derivate
+# (`FACET_ORDER`, `FACET_LABELS`, `EXTRA_FACETS`) non vanno più mantenute a mano.
+FACET_TABLE = (
+    {"name": THEME, "label": "Temi", "order": 0},
+    {"name": THEME_ALT, "label": "Temi", "order": 1},
+    {"name": RES_FORMAT, "label": "Formato dei file", "order": 2},
+    {"name": "frequency", "label": "Aggiornamento", "order": 3},
+    {"name": FACET_ANCHOR, "label": "Chi pubblica", "order": 4},
+    {"name": FEATURES, "label": "Caratteristiche", "order": 5, "insert_after": FACET_ANCHOR},
+    {"name": SERIES, "label": "Serie", "order": 6, "insert_after": FACET_ANCHOR},
+    {"name": "spatial", "label": "Classificazione geografica", "order": 7},
+    {"name": "groups", "label": "Gruppi", "order": 8},
+    {"name": "tags", "label": "Parole chiave", "order": 9},
+    {"name": "license_id", "label": "Licenza", "order": 10},
+)
+
+# Valori della faccetta "Caratteristiche" e loro etichetta.
+FEATURE_VALUES = (
+    (GEO, "Geodati"),
+    (ALPHANUMERIC, "Alfanumerici"),
+    (HVD, "High Value Dataset"),
+    (LOD, "Linked Open Data"),
+)
+
+FACET_ORDER = tuple(facet["name"] for facet in sorted(FACET_TABLE, key=lambda item: item["order"]))
+FACET_LABELS = {facet["name"]: facet["label"] for facet in FACET_TABLE}
+EXTRA_FACETS = tuple(
+    (facet["name"], facet["label"]) for facet in FACET_TABLE if "insert_after" in facet
+)
 
 
 def features(value):
@@ -51,9 +65,9 @@ def features(value):
     return f"{FEATURES}:{value}"
 
 
-def hvd():
-    """Dataset High Value (`extras_hvd`)."""
-    return f"{HVD_EXTRA}:true"
+def theme(value):
+    """Query sul tema DCAT-AP_IT (`dcat_theme`)."""
+    return f"{THEME}:{value}"
 
 
 def series_member(serie):
@@ -102,6 +116,11 @@ def hide_revisions(search_params):
 def facet_labels():
     """Etichette dei gruppi faccetta già tradotte."""
     return {name: toolkit._(label) for name, label in FACET_LABELS.items()}
+
+
+def feature_labels():
+    """Etichette dei valori di `odf_features` ("Caratteristiche")."""
+    return {value: toolkit._(label) for value, label in FEATURE_VALUES}
 
 
 def dataset_facets(facets_dict):

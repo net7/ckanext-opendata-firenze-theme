@@ -7,7 +7,8 @@ import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
 from . import _common, query
-from .constants import FACET_ORDER, THEME_CODES, THEME_REGISTRY, THEMES
+from .constants import THEME_CODES, THEME_REGISTRY, THEMES
+from .query import FACET_ORDER
 
 
 def odf_package_theme(pkg):
@@ -97,21 +98,6 @@ def odf_facet_all_url(facet, values):
     return f"{url}?{query}" if query else url
 
 
-def _facet_labels():
-    """Etichette dei gruppi faccetta (nome parametro -> etichetta italiana)."""
-    return query.facet_labels()
-
-
-def _feature_labels():
-    """Etichette delle voci della faccetta `odf_features` ("Caratteristiche")."""
-    return {
-        query.GEO: toolkit._("Geodati"),
-        query.ALPHANUMERIC: toolkit._("Alfanumerici"),
-        query.HVD: toolkit._("High Value Dataset"),
-        query.LOD: toolkit._("Linked Open Data"),
-    }
-
-
 def odf_active_filters():
     """Filtri attivi letti dai parametri in URL (chip del "nessun risultato").
 
@@ -121,18 +107,18 @@ def odf_active_filters():
     """
     from flask import request
 
-    labels = _facet_labels()
+    labels = query.facet_labels()
     themes = dict(THEMES)
-    feature_labels = _feature_labels()
+    feature_labels = query.feature_labels()
     skip = {"q", "sort", "page"}
     chips = []
     for name, value in request.args.items(multi=True):
         if name in skip:
             continue
-        if name == "odf_features":
+        if name == query.FEATURES:
             display = feature_labels.get(value, value)
         else:
-            display = themes.get(value, value) if name in ("theme", "dcat_theme") else value
+            display = themes.get(value, value) if name in (query.THEME_ALT, query.THEME) else value
         chips.append(
             {"name": name, "label": labels.get(name, name), "value": value, "display": display}
         )
@@ -148,7 +134,7 @@ def odf_facet_groups(facets):
     """
     if not facets:
         return {"groups": [], "active": False}
-    labels = _facet_labels()
+    labels = query.facet_labels()
     seen = set()
     names = []
     for name in facets:
@@ -164,8 +150,8 @@ def odf_facet_groups(facets):
         items = ckan_h.get_facet_items_dict(name, facets)
         if not items:
             continue
-        if name == "odf_features":
-            feature_labels = _feature_labels()
+        if name == query.FEATURES:
+            feature_labels = query.feature_labels()
             for item in items:
                 item["display_name"] = feature_labels.get(item["name"], item["display_name"])
         selected = len([item for item in items if item.get("active")])

@@ -1,7 +1,5 @@
 """Costanti del tema: temi DCAT-AP_IT, formati geo, capitoli Annuario, viste."""
 
-from . import query
-
 # 13 temi DCAT-AP_IT: (codice EU, label italiana, chiave icona). Fonte unica:
 # `THEMES` (codice + label) e `THEME_CODES` sono derivate.
 THEME_REGISTRY = (
@@ -38,25 +36,6 @@ LOD_FORMATS_UPPER = frozenset(fmt.upper() for fmt in LOD_FORMATS)
 
 # Tipi di geometria riconosciuti (extra `geometria`).
 GEOMETRY_SHAPES = ("punto", "area", "linea")
-
-
-# Ordine di visualizzazione dei gruppi faccetta come il mockup (Temi per primo,
-# poi Formato, Aggiornamento, Chi pubblica, Caratteristiche e infine le faccette
-# geografiche/classificazioni e le altre). "Tipo di geometria" (2° nel mockup)
-# non ha un campo Solr dedicato senza ckanext-scheming: resta non implementato.
-FACET_ORDER = (
-    query.THEME_ALT,
-    query.THEME,
-    query.RES_FORMAT,
-    "frequency",
-    query.FACET_ANCHOR,
-    query.FEATURES,
-    query.SERIES,
-    "spatial",
-    "groups",
-    "tags",
-    "license_id",
-)
 
 
 # 13 capitoli dell'Annuario Statistico (dal mockup). Il campo `capitolo` non è

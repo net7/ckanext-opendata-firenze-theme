@@ -28,6 +28,8 @@ from urllib.parse import urlparse
 
 import ckan.plugins.toolkit as toolkit
 
+from . import query
+
 log = logging.getLogger(__name__)
 
 OPTION = "ckanext.opendata_firenze_theme.homepage_blocks"
@@ -111,7 +113,7 @@ BLOCKS = (
                 ),
             },
             "cta_label": {"type": "text", "default": "Vedi tutti i Linked Open Data"},
-            "cta_url": {"type": "url", "default": "/dataset?odf_features=lod"},
+            "cta_url": {"type": "url", "default": f"/dataset?{query.FEATURES}={query.LOD}"},
         },
     },
     {

@@ -203,7 +203,7 @@ def odf_dataset_related(pkg, limit=3):
     tema = odf_package_theme(pkg)
     if not tema:
         return []
-    data = _common._search(rows=limit + 1, fq=f"dcat_theme:{tema}", sort="metadata_modified desc")
+    data = _common._search(rows=limit + 1, fq=query.theme(tema), sort="metadata_modified desc")
     return [r for r in data["results"] if r.get("id") != pkg.get("id")][:limit]
 
 

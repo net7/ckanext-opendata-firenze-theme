@@ -27,7 +27,6 @@ from .catalog import (
 )
 from .constants import (
     ANNUARIO_CHAPTERS,
-    FACET_ORDER,
     GEO_FORMATS,
     GEO_FORMATS_UPPER,
     GEOMETRY_SHAPES,
@@ -76,6 +75,7 @@ from .home import (
 )
 from .home_blocks import entries_from_form, odf_home_blocks, odf_home_blocks_admin
 from .home_sections import odf_home_sections
+from .query import FACET_ORDER
 from .resource import (
     odf_resource_download_url,
     odf_resource_filename,
