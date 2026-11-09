@@ -60,7 +60,12 @@ from .dataset import (
     odf_sql_console_enabled,
 )
 from .dataset_page import odf_dataset_page
-from .editorial import odf_annuario_chapters, odf_annuario_count, odf_annuario_datasets
+from .editorial import (
+    odf_annuario_chapters,
+    odf_annuario_count,
+    odf_annuario_datasets,
+    odf_annuario_page,
+)
 from .format import FREQUENCY_LABELS, odf_date, odf_filesize, odf_frequency_label, odf_time_ago
 from .home import (
     odf_dataset_count,

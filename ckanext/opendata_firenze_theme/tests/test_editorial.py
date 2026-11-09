@@ -97,3 +97,25 @@ def test_sviluppatori_geo_panel_lists_geo_datasets(app):
     )
     body = _body(app.get("/sviluppatori-e-lod?tab=geo"))
     assert "Geodati di prova" in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_annuario_page_helper(with_plugins, with_request_context):
+    """Selezione, conteggio e righe in un solo contesto."""
+    from unittest import mock
+
+    from ckanext.opendata_firenze_theme.helpers import editorial
+
+    with (
+        mock.patch.object(editorial, "odf_annuario_count", return_value=2),
+        mock.patch.object(editorial, "odf_annuario_datasets", return_value=["d"]),
+    ):
+        page = editorial.odf_annuario_page("Popolazione")
+        fallback = editorial.odf_annuario_page("Non esiste")
+
+    assert page["selected"] == "Popolazione"
+    assert page["current"]["name"] == "Popolazione"
+    assert page["count"] == 2
+    assert page["datasets"] == ["d"]
+    assert fallback["selected"] == editorial.ANNUARIO_CHAPTERS[0]
+    assert fallback["current"]["index"] == 1
