@@ -31,6 +31,18 @@ def test_tema_overline(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_theme_registry_icons_exist_in_the_icon_set(with_plugins, with_request_context):
+    """Ogni chiave icona del registro temi esiste davvero in `icon.html`."""
+    from ckanext.opendata_firenze_theme.helpers import constants
+
+    keys = [icon_key for _, _, icon_key in constants.THEME_REGISTRY]
+    src = "{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}" + "".join(
+        "{{ icon('" + key + "', 20) }}" for key in keys
+    )
+    assert _render(src).count("<svg") == len(keys)
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_tema_overline_fallback(with_plugins, with_request_context):
     """Un tema non mappato usa comunque un'icona (griglia generica)."""
     html = _render(

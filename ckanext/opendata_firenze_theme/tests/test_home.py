@@ -226,6 +226,25 @@ def test_latest_block_renders(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_featured_block_uses_shared_carousel(with_plugins, with_request_context):
+    """ "In evidenza" usa lo stesso macro carosello degli altri blocchi."""
+    from flask import render_template_string
+
+    pkgs = [
+        {"id": "a", "name": "a", "title": "Alpha"},
+        {"id": "b", "name": "b", "title": "Beta"},
+    ]
+    html = render_template_string(
+        "{% include 'home/blocks/featured.html' %}",
+        block={"title": "In evidenza", "subtitle": "", "cta_label": "", "cta_url": ""},
+        block_data={"datasets": pkgs},
+    )
+    assert 'aria-label="Dataset in evidenza"' in html
+    assert "rtt-carousel" in html
+    assert "Beta" in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_home_search_button_is_textual_and_accessible(with_plugins, with_request_context):
     """Il pulsante della home ha testo visibile e nessun aria-label che lo contraddica."""
     from flask import render_template_string

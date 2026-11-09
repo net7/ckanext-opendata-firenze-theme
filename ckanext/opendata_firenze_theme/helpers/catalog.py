@@ -7,7 +7,7 @@ import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
 from . import _common, query
-from .constants import FACET_ORDER, THEME_CODES, THEMES
+from .constants import FACET_ORDER, THEME_CODES, THEME_REGISTRY, THEMES
 
 
 def odf_package_theme(pkg):
@@ -44,6 +44,24 @@ def _theme_code(raw):
         return None
     code = raw.rstrip("/").rsplit("/", 1)[-1]
     return code if code in THEME_CODES else None
+
+
+def odf_theme_meta(tema):
+    """Metadati di un tema DCAT-AP_IT, o None se non è uno dei 13.
+
+    Accetta il codice ("ENVI"), la label ("Ambiente") o l'URI
+    ("http://.../data-theme/ENVI"). Ritorna `{code, label, icon}`: la chiave
+    dell'icona è nello stesso registro (`constants.THEME_REGISTRY`), così
+    aggiungere un tema non richiede tre modifiche.
+    """
+    if not tema:
+        return None
+    value = str(tema).strip()
+    tail = value.rstrip("/").rsplit("/", 1)[-1] if "/" in value else value
+    for code, label, icon in THEME_REGISTRY:
+        if value in (code, label) or tail == code:
+            return {"code": code, "label": label, "icon": icon}
+    return None
 
 
 def _theme_from_aggregate(raw):
@@ -167,6 +185,7 @@ def odf_facet_groups(facets):
 # derivato da questi mapping.
 HELPERS = {
     "odf_package_theme": odf_package_theme,
+    "odf_theme_meta": odf_theme_meta,
     "odf_facet_all_url": odf_facet_all_url,
     "odf_active_filters": odf_active_filters,
     "odf_facet_groups": odf_facet_groups,

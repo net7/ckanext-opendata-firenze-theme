@@ -2,23 +2,30 @@
 
 from . import query
 
-# 13 temi DCAT-AP_IT: (codice EU, label italiana). Stessa fonte di
-# templates/snippets/opendata_firenze_theme/tema-overline.html.
-THEMES = (
-    ("AGRI", "Agricoltura, pesca, silvicoltura e prodotti alimentari"),
-    ("ECON", "Economia e finanze"),
-    ("EDUC", "Istruzione, cultura e sport"),
-    ("ENER", "Energia"),
-    ("ENVI", "Ambiente"),
-    ("GOVE", "Governo e settore pubblico"),
-    ("HEAL", "Salute"),
-    ("INTR", "Tematiche internazionali"),
-    ("JUST", "Giustizia, sistema giuridico e sicurezza pubblica"),
-    ("REGI", "Regioni e città"),
-    ("SOCI", "Popolazione e società"),
-    ("TECH", "Scienza e tecnologia"),
-    ("TRAN", "Trasporti"),
+# 13 temi DCAT-AP_IT: (codice EU, label italiana, chiave icona). Fonte unica:
+# `THEMES` (codice + label) e `THEME_ICONS` (codice + icona) sono derivate.
+THEME_REGISTRY = (
+    ("AGRI", "Agricoltura, pesca, silvicoltura e prodotti alimentari", "tema-agricoltura"),
+    ("ECON", "Economia e finanze", "tema-economia"),
+    ("EDUC", "Istruzione, cultura e sport", "tema-istruzione"),
+    ("ENER", "Energia", "tema-energia"),
+    ("ENVI", "Ambiente", "tema-ambiente"),
+    ("GOVE", "Governo e settore pubblico", "tema-governo"),
+    ("HEAL", "Salute", "tema-salute"),
+    ("INTR", "Tematiche internazionali", "tema-internazionali"),
+    ("JUST", "Giustizia, sistema giuridico e sicurezza pubblica", "tema-giustizia"),
+    ("REGI", "Regioni e città", "tema-regioni"),
+    ("SOCI", "Popolazione e società", "tema-popolazione"),
+    ("TECH", "Scienza e tecnologia", "tema-scienza"),
+    ("TRAN", "Trasporti", "tema-trasporti"),
 )
+
+
+THEMES = tuple((code, label) for code, label, _ in THEME_REGISTRY)
+THEME_ICONS = {code: icon for code, _, icon in THEME_REGISTRY}
+
+
+THEME_CODES = frozenset(THEME_ICONS)
 
 
 # Formati con anteprima su mappa (per il chip "geo").
@@ -30,9 +37,6 @@ LOD_FORMATS = frozenset(("RDF", "RDF/XML", "TTL", "N3"))
 
 GEO_FORMATS_UPPER = frozenset(fmt.upper() for fmt in GEO_FORMATS)
 LOD_FORMATS_UPPER = frozenset(fmt.upper() for fmt in LOD_FORMATS)
-
-
-THEME_CODES = frozenset(code for code, _ in THEMES)
 
 
 # Tipi di geometria riconosciuti (extra `geometria`).
