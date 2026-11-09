@@ -123,7 +123,7 @@
   }
 }
 
-/* Reveal-on-scroll. Un IntersectionObserver (in shell.jsx) aggiunge .is-revealed
+/* Reveal-on-scroll. Un IntersectionObserver (in reveal.js) aggiunge .is-revealed
    agli elementi .rtt-reveal quando entrano in vista, e mette html.js-reveal a
    conferma che lo script gira: SENZA quella classe .rtt-reveal resta pienamente
    visibile (nessun contenuto nascosto se il JS non parte). Con
