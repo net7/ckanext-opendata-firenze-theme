@@ -34,21 +34,29 @@ def browser():
         browser.close()
 
 
+DEFAULT_SCRIPTS = ("header.js", "reveal.js", "dropdowns.js", "pager.js")
+
+
+def _document(body, scripts):
+    """HTML con gli script inline in fondo al body, come nel bundle reale."""
+    code = "".join(f"<script>{(JS_DIR / name).read_text()}</script>" for name in scripts)
+    return (
+        "<!doctype html><html><head><meta charset='utf-8'></head><body>"
+        + body
+        + code
+        + "</body></html>"
+    )
+
+
 @pytest.fixture
 def open_page(browser):
     """Apre una pagina con il DOM dato e gli script del tema già eseguiti."""
     pages = []
 
-    def _open(body, scripts=("header.js", "reveal.js", "dropdowns.js", "pager.js"), **kwargs):
+    def _open(body, scripts=DEFAULT_SCRIPTS, **kwargs):
         page = browser.new_page(**kwargs)
         pages.append(page)
-        page.set_content(
-            "<!doctype html><html><head><meta charset='utf-8'></head><body>"
-            + body
-            + "</body></html>"
-        )
-        for name in scripts:
-            page.add_script_tag(content=(JS_DIR / name).read_text())
+        page.set_content(_document(body, scripts))
         return page
 
     yield _open
@@ -56,13 +64,16 @@ def open_page(browser):
         page.close()
 
 
-def test_scripts_load_without_errors(open_page):
-    """Gli script del tema si eseguono su una pagina normale senza errori."""
+def test_scripts_load_without_errors(browser):
+    """Gli script si eseguono nell'ordine del bundle, senza errori."""
+    page = browser.new_page()
     errors = []
-    page = open_page(HEADER, viewport={"width": 1000, "height": 700})
     page.on("pageerror", lambda error: errors.append(str(error)))
-    page.reload()
+    page.set_content(_document(HEADER, DEFAULT_SCRIPTS))
     assert errors == []
+    # prova che gli script sono partiti davvero (reveal aggiunge la classe)
+    assert page.evaluate("document.documentElement.classList.contains('js-reveal')")
+    page.close()
 
 
 def test_header_hides_on_scroll_and_returns(open_page):
