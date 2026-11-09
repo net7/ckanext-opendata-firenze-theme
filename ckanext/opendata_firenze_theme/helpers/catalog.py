@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
+from . import _common
 from .constants import FACET_ORDER, THEME_CODES, THEMES
 
 
@@ -17,24 +18,21 @@ def odf_package_theme(pkg):
     - extra `theme` (URI o lista JSON) — aggiunto da dcatapit per l'API;
     - extra `Theme` (maiuscolo) — la forma che arriva alle pagine;
     - extra `themes_aggregate` = [{"theme": "TRAN", ...}] — forma grezza.
-    Si tiene solo se corrisponde a uno dei 13 temi (dcatapit usa `OP_DATPRO`
+    La lettura passa da `_common.pkg_field` (unico adattatore delle forme del
+    package); si tiene solo un codice fra i 13 temi (dcatapit usa `OP_DATPRO`
     = "Other" come default, che non mostriamo).
     """
-    extras = pkg.get("extras") or []
-    if isinstance(extras, dict):
-        extras = [{"key": key, "value": value} for key, value in extras.items()]
+    raw = _common.pkg_field(pkg, "theme")
+    code = _theme_code(raw)
+    if code:
+        return code
+    return _theme_from_aggregate(_common.pkg_field(pkg, "themes_aggregate"))
 
-    def _extra(name):
-        # dcatapit capitalizza il campo (`Theme`) in alcune viste: confronto
-        # case-insensitive per non perdere il tema.
-        for extra in extras:
-            if str(extra.get("key") or "").lower() == name:
-                return extra.get("value")
-        return None
 
-    raw = pkg.get("theme") or _extra("theme")
+def _theme_code(raw):
+    """Codice del tema da un URI, una lista JSON o una lista di URI."""
     if not raw:
-        return _theme_from_aggregate(_extra("themes_aggregate") or pkg.get("themes_aggregate"))
+        return None
     if isinstance(raw, str):
         try:
             raw = json.loads(raw)
@@ -175,3 +173,13 @@ def odf_facet_groups(facets):
             }
         )
     return {"groups": groups, "active": active}
+
+
+# Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
+# derivato da questi mapping.
+HELPERS = {
+    "odf_package_theme": odf_package_theme,
+    "odf_facet_all_url": odf_facet_all_url,
+    "odf_active_filters": odf_active_filters,
+    "odf_facet_groups": odf_facet_groups,
+}

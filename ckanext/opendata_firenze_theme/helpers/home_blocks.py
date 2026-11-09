@@ -339,3 +339,10 @@ def entries_from_form(enabled_ids, order_values, text_values, current_ids):
         rows.append((order, position.get(block_id, len(current)), block_id, entry))
     rows.sort()
     return [row[3] for row in rows]
+
+
+# Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
+# derivato da questi mapping.
+HELPERS = {
+    "odf_home_blocks": odf_home_blocks,
+}

@@ -37,3 +37,12 @@ def odf_annuario_datasets(chapter, limit=None):
     rows = limit if limit is not None else 200
     data = _common._search(rows=rows, fq=f'extras_capitolo:"{chapter}"', sort="title_string asc")
     return data["results"]
+
+
+# Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
+# derivato da questi mapping.
+HELPERS = {
+    "odf_annuario_chapters": odf_annuario_chapters,
+    "odf_annuario_count": odf_annuario_count,
+    "odf_annuario_datasets": odf_annuario_datasets,
+}

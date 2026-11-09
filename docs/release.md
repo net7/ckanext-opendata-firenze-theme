@@ -54,6 +54,13 @@ del pin.
    stack dev**: dev e prod-style condividono i volumi (Postgres, Solr,
    `home_dir`, `site_packages`) e non vanno avviati insieme.
 
+   Dopo il deploy serve un **rebuild completo** dell'indice
+   (`ckan search-index rebuild`, senza `-o`) **prima** di considerare
+   l'ambiente pronto: il KPI "dataset geografici", la lista geodati e il link
+   "Filtra il catalogo per geodati" leggono `odf_features:geo`. Finché l'indice
+   non è popolato mostrano 0, mentre le schede calcolano il badge "Geodati" dal
+   vivo e continuano a mostrarlo.
+
    ```bash
    make dev down
    make prod up

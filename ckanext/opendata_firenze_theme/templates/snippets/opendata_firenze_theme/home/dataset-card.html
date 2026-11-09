@@ -11,12 +11,9 @@
 {% macro dataset_card(pkg, compact=False, show_hvd=False, show_realtime=False, show_serie=False, date_field='metadata_modified', date_prefix=None, series_counts=None) %}
 {%- set title_id = 'dcard-title-' ~ (pkg.id or pkg.name or 'dataset') -%}
 {%- set tema = h.odf_package_theme(pkg) -%}
-{%- set hvd = h.odf_pkg_extra(pkg, 'hvd') or pkg.get('hvd') -%}
-{%- set is_hvd = hvd and hvd|string|lower in ['1', 'true', 'yes', 'si', 'sì', 'y'] -%}
-{%- set rt = h.odf_pkg_extra(pkg, 'realtime') -%}
-{%- set is_rt = show_realtime and rt and rt|string|lower in ['1', 'true', 'yes', 'si', 'sì', 'y'] -%}
+{%- set is_hvd = h.odf_dataset_is_hvd(pkg) -%}
+{%- set is_rt = show_realtime and h.odf_dataset_is_realtime(pkg) -%}
 {%- set date_prefix = date_prefix if date_prefix is not none else _('Ultimo aggiornamento:') -%}
-{%- set rf = pkg.res_format if pkg.res_format is not string else [pkg.res_format] -%}
 {#- Il prototipo mostra il badge "Serie · N dataset" accanto al tema; il numero
     arriva dal facet `odf_series` della pagina corrente (`series_counts`), quindi
     senza filtri attivi coincide col totale della serie. #}
@@ -24,9 +21,9 @@
 {%- set is_serie = serie_name -%}
 {%- set serie_n = (series_counts or {}).get(serie_name, 0) if serie_name else 0 -%}
 {%- set is_lod = h.odf_dataset_is_lod(pkg) -%}
-{%- set formats = [] -%}
-{%- for f in (rf or []) -%}{%- if f and f not in formats -%}{%- set _ = formats.append(f) -%}{%- endif -%}{%- endfor -%}
-{%- for res in (pkg.resources or []) -%}{%- if res.format and res.format not in formats -%}{%- set _ = formats.append(res.format) -%}{%- endif -%}{%- endfor -%}
+{#- Formati deduplicati (case-insensitive) dallo stesso helper della scheda:
+    niente seconda lista di formati geo qui dentro. #}
+{%- set formats = h.odf_dataset_formats(pkg) -%}
 <div class="rtt-dcard-wrap">
   <a class="rtt-dcard{% if compact %} rtt-dcard--compact{% endif %}" href="{{ h.url_for('dataset.read', id=pkg.name) }}" aria-labelledby="{{ title_id }}">
     <span class="rtt-dcard__arrow" aria-hidden="true">{{ icon('arrow-right', 16) }}</span>
@@ -37,7 +34,7 @@
     <div class="rtt-dcard__meta">
       {% if show_hvd and is_hvd %}{{ status_chip(_('HVD'), 'hvd') }}{% endif %}
       {% if is_lod %}{{ status_chip(_('LOD'), 'lod') }}{% endif %}
-      {% for f in formats[:3] %}{{ format_chip(f, 'geo' if f in ['GeoJSON', 'SHP', 'KML', 'WMS', 'WFS'] else 'neutral') }}{% endfor %}
+      {% for f in formats[:3] %}{{ format_chip(f, 'geo' if h.odf_format_is_geo(f) else 'neutral') }}{% endfor %}
     </div>
     {% endif %}
     {% if not compact and (pkg.get(date_field) or pkg.metadata_modified) %}
@@ -63,8 +60,7 @@
 {%- set ts = pkg.get('tracking_summary') or {} -%}
 {%- set views = ts.get('total') or ts.get('recent') -%}
 {%- set geo = h.odf_dataset_is_geo(pkg) -%}
-{%- set rt = h.odf_pkg_extra(pkg, 'realtime') -%}
-{%- set is_rt = rt and rt|string|lower in ['1', 'true', 'yes', 'si', 'sì', 'y'] -%}
+{%- set is_rt = h.odf_dataset_is_realtime(pkg) -%}
 {%- set updated = _('Aggiornato pochi minuti fa') if is_rt else (_('Aggiornato il {date}').format(date=h.render_datetime(pkg.metadata_modified, date_format='%d/%m/%Y')) if pkg.metadata_modified else '') -%}
 <div class="rtt-dcard-wrap">
   <a class="rtt-dcard rtt-dcard--consultati" href="{{ h.url_for('dataset.read', id=pkg.name) }}" aria-labelledby="{{ title_id }}">

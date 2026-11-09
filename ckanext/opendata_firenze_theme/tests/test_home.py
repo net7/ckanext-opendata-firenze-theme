@@ -182,6 +182,27 @@ def test_latest_and_lod_home_lists(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_home_geo_uses_indexed_features(with_plugins, with_request_context):
+    """KPI e lista geodati leggono `odf_features:geo`, la stessa fonte della
+    faccetta "Caratteristiche" e del badge della scheda."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    calls = []
+
+    def fake_search(**params):
+        calls.append(params)
+        return {"count": 3, "results": [{"id": "a"}], "search_facets": {}}
+
+    with mock.patch.object(helpers._common, "_search", side_effect=fake_search):
+        helpers.odf_home_kpis()
+        helpers.odf_geo_datasets(5)
+
+    fqs = [call.get("fq") for call in calls]
+    assert fqs.count("odf_features:geo") == 2
+    assert helpers.odf_geo_search_query() == "odf_features:geo"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_latest_block_renders(with_plugins, with_request_context):
     """Il blocco "Ultimi pubblicati" usa il carosello e le card del tema."""
     from flask import render_template_string
