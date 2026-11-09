@@ -274,3 +274,43 @@ def test_search_form_submit_text_has_no_conflicting_label(with_plugins, with_req
     assert ">Cerca<" in html
     assert ">Vai<" in html
     assert 'aria-label="Avvia la ricerca"' not in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_most_viewed_uses_tracking_when_present(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    calls = []
+
+    def fake_search(**params):
+        calls.append(params)
+        return {
+            "results": [{"id": "a", "tracking_summary": {"total": 5, "recent": 1}}],
+            "count": 1,
+        }
+
+    with mock.patch.object(helpers._common, "_search", side_effect=fake_search):
+        viewed = helpers.odf_most_viewed(4)
+
+    assert [pkg["id"] for pkg in viewed] == ["a"]
+    assert len(calls) == 1
+    assert calls[0]["sort"] == "views_recent desc"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_most_viewed_falls_back_without_views(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    calls = []
+
+    def fake_search(**params):
+        calls.append(params)
+        if params.get("sort") == "views_recent desc":
+            return {"results": [{"id": "a", "tracking_summary": {"total": 0}}], "count": 1}
+        return {"results": [{"id": "recent"}], "count": 1}
+
+    with mock.patch.object(helpers._common, "_search", side_effect=fake_search):
+        viewed = helpers.odf_most_viewed(4)
+
+    assert [pkg["id"] for pkg in viewed] == ["recent"]
+    assert calls[-1]["sort"] == "metadata_modified desc"

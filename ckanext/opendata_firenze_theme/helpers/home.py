@@ -120,10 +120,17 @@ def odf_featured_datasets(limit=3):
 
 
 def odf_most_viewed(limit=4):
-    """Dataset più consultati: per viste se il tracking è attivo, altrimenti recenti."""
-    tracked = _common._search(rows=limit, sort="views_recent desc")
-    if tracked["count"]:
-        return tracked["results"]
+    """Dataset più consultati: per viste se il tracking ha dati, altrimenti recenti.
+
+    Il criterio è la presenza di visualizzazioni in `tracking_summary` (il
+    plugin `tracking` la aggiunge ai risultati), non il numero di risultati:
+    un catalogo non vuoto restituisce comunque righe anche senza viste.
+    L'ordinamento resta sulle viste recenti mentre la card mostra il totale:
+    è la nota aperta con l'Ente in `docs/decisions.md`.
+    """
+    results = _common._search(rows=limit, sort="views_recent desc")["results"]
+    if any((result.get("tracking_summary") or {}).get("total") for result in results):
+        return results
     return _common._search(rows=limit, sort="metadata_modified desc")["results"]
 
 
