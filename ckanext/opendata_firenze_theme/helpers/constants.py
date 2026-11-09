@@ -3,7 +3,7 @@
 from . import query
 
 # 13 temi DCAT-AP_IT: (codice EU, label italiana, chiave icona). Fonte unica:
-# `THEMES` (codice + label) e `THEME_ICONS` (codice + icona) sono derivate.
+# `THEMES` (codice + label) e `THEME_CODES` sono derivate.
 THEME_REGISTRY = (
     ("AGRI", "Agricoltura, pesca, silvicoltura e prodotti alimentari", "tema-agricoltura"),
     ("ECON", "Economia e finanze", "tema-economia"),
@@ -22,10 +22,7 @@ THEME_REGISTRY = (
 
 
 THEMES = tuple((code, label) for code, label, _ in THEME_REGISTRY)
-THEME_ICONS = {code: icon for code, _, icon in THEME_REGISTRY}
-
-
-THEME_CODES = frozenset(THEME_ICONS)
+THEME_CODES = frozenset(code for code, _, _ in THEME_REGISTRY)
 
 
 # Formati con anteprima su mappa (per il chip "geo").
