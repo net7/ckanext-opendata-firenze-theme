@@ -15,6 +15,7 @@ from . import (  # noqa: F401
     home_blocks,
     home_sections,
     resource,
+    series,
 )
 from ._common import odf_number
 from .catalog import (
@@ -49,8 +50,6 @@ from .dataset import (
     odf_dataset_map_resource,
     odf_dataset_openness,
     odf_dataset_related,
-    odf_dataset_revisions,
-    odf_dataset_series,
     odf_dataset_size,
     odf_datastore_resource_id,
     odf_format_is_geo,
@@ -59,8 +58,6 @@ from .dataset import (
     odf_pkg_extra,
     odf_resource_filename,
     odf_resource_separator,
-    odf_series_context,
-    odf_series_info,
     odf_sql_console_enabled,
     odf_views_map_first,
 )
@@ -83,6 +80,12 @@ from .home import (
 from .home_blocks import entries_from_form, odf_home_blocks, odf_home_blocks_admin
 from .home_sections import odf_home_sections
 from .resource import odf_resource_download_url, odf_resource_preview_url, odf_resource_view_title
+from .series import (
+    odf_dataset_revisions,
+    odf_dataset_series,
+    odf_series_context,
+    odf_series_info,
+)
 
 # Moduli che dichiarano i propri helper in `HELPERS`: il registro dei template
 # è derivato da lì. Aggiungere un helper costa la voce in `HELPERS` e l'import
@@ -98,6 +101,7 @@ HELPER_MODULES = (
     home_blocks,
     home_sections,
     resource,
+    series,
     _common,
 )
 
