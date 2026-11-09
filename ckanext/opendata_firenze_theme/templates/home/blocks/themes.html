@@ -1,5 +1,4 @@
-{% from 'snippets/opendata_firenze_theme/section.html' import section %}
-{% call section(title=block.title, band=True) %}
-  {% if block.subtitle %}<p class="rtt-body rtt-section__intro">{{ block.subtitle }}</p>{% endif %}
+{% from 'snippets/opendata_firenze_theme/home/block.html' import home_block %}
+{% call home_block(block, band=True) %}
   {% snippet 'snippets/opendata_firenze_theme/home/temi.html', themes=block_data.themes %}
 {% endcall %}

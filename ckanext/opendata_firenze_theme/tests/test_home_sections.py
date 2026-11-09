@@ -1,10 +1,13 @@
 """Dati dei blocchi della home raccolti dal collettore (`helpers.home_sections`)."""
 
+import re
+from pathlib import Path
 from unittest import mock
 
 import pytest
 
 PLUGIN = "opendata_firenze_theme"
+TEMPLATES = Path(__file__).resolve().parents[1] / "templates"
 
 
 def test_every_block_has_a_builder():
@@ -98,3 +101,26 @@ def test_sections_skip_inactive_blocks(with_plugins):
     assert got == {"hero": {"count": 3}}
     news.assert_not_called()
     viewed.assert_not_called()
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_block_templates_use_collector_payload(with_plugins):
+    """Il join builder → template: ogni chiave letta esiste nel payload."""
+    from ckanext.opendata_firenze_theme.helpers import home, home_blocks, home_sections
+
+    with (
+        mock.patch.object(home, "odf_dataset_count", return_value=0),
+        mock.patch.object(home, "odf_home_kpis", return_value=[]),
+        mock.patch.object(home, "odf_featured_datasets", return_value=[]),
+        mock.patch.object(home, "odf_latest_datasets", return_value=[]),
+        mock.patch.object(home, "odf_themes_visible", return_value=[]),
+        mock.patch.object(home, "odf_lod_datasets", return_value=[]),
+        mock.patch.object(home, "odf_most_viewed", return_value=[]),
+        mock.patch.object(home, "odf_news", return_value=[]),
+    ):
+        payloads = home_sections.odf_home_sections([{"id": b["id"]} for b in home_blocks.BLOCKS])
+
+    for block in home_blocks.BLOCKS:
+        source = (TEMPLATES / block["template"]).read_text()
+        used = set(re.findall(r"block_data\.([a-z_]+)", source))
+        assert used <= set(payloads[block["id"]]), block["id"]

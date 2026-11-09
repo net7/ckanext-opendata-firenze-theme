@@ -1,0 +1,30 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/section.html' import section %}
+{% from 'snippets/opendata_firenze_theme/home/dataset-carousel.html' import dataset_carousel %}
+
+{#
+  Shell comune dei blocchi della home: titolo, sottotitolo e CTA della sezione,
+  con le varianti di presentazione (`band`, `muted`, `tone`). Il contenuto del
+  blocco si passa con `{% call %}`. Prima ogni blocco ricopiava queste righe.
+#}
+{% macro home_block(block, band=False, muted=False, tone=None) -%}
+{% set cta %}{% if block.cta_label and block.cta_url %}<a class="rtt-actionlink" href="{{ block.cta_url }}">{{ block.cta_label }}{{ icon('arrow-right', 18) }}</a>{% endif %}{% endset %}
+{#- il caller va catturato prima del `call`: dentro il blocco `caller` è ombreggiato #}
+{% set body %}{{ caller() }}{% endset %}
+{% call section(title=block.title, action=cta, band=band, muted=muted, tone=tone) %}
+  {% if block.subtitle %}<p class="rtt-body rtt-section__intro">{{ block.subtitle }}</p>{% endif %}
+  {{ body }}
+{% endcall %}
+{%- endmacro %}
+
+{#
+  Blocco "carosello di dataset": lo usano "Ultimi pubblicati" e "Linked Open
+  Data", che differiscono solo per campo/etichetta della data.
+#}
+{% macro carousel_block(block, items, date_field='metadata_modified', date_prefix=None) -%}
+{% if items %}
+{% call home_block(block) %}
+  {{ dataset_carousel(items, block.title, date_field=date_field, date_prefix=date_prefix) }}
+{% endcall %}
+{% endif %}
+{%- endmacro %}
