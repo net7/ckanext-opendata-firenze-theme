@@ -53,14 +53,17 @@ def odf_dataset_count():
     return _common._search(rows=0)["count"]
 
 
-def odf_home_kpis():
+def odf_home_kpis(total=None):
     """Le 4 card KPI della home (set del mockup).
 
     1) dataset nel catalogo, 2) dataset alfanumerici (non geografici),
     3) dataset geografici, 4) capitoli dell'Annuario Statistico + tavole collegate.
+
+    `total` permette di riusare il conteggio già letto dal collettore della home
+    (hero + KPI): senza, si fa una `package_search` in più.
     """
-    base = _common._search(rows=0, **{"facet.field": ["organization"], "facet.limit": 100})
-    total = base["count"]
+    if total is None:
+        total = _common._search(rows=0)["count"]
     # "geografici" = campo Solr `odf_features` (faccetta "Caratteristiche"),
     # scritto da `before_dataset_index` con la stessa regola del badge
     # "Geodati": formati geo oppure extras spatial/geometria. Così conteggio,

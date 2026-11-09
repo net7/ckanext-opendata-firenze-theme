@@ -87,6 +87,7 @@ def test_template_helpers_registered():
         "odf_active_filters",
         "odf_facet_groups",
         "odf_home_kpis",
+        "odf_home_sections",
         "odf_themes",
         "odf_themes_visible",
         "odf_featured_datasets",

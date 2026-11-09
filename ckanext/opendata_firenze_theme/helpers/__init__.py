@@ -5,7 +5,17 @@ Re-export dei moduli del package: template e test li usano come `h.odf_*` /
 `format`, le query Solr (sostituibili nei test) in `_common`.
 """
 
-from . import _common, catalog, dataset, editorial, format, home, home_blocks, resource  # noqa: F401
+from . import (  # noqa: F401
+    _common,
+    catalog,
+    dataset,
+    editorial,
+    format,
+    home,
+    home_blocks,
+    home_sections,
+    resource,
+)
 from ._common import odf_number
 from .catalog import odf_active_filters, odf_facet_all_url, odf_facet_groups, odf_package_theme
 from .constants import (
@@ -65,6 +75,7 @@ from .home import (
     odf_themes_visible,
 )
 from .home_blocks import entries_from_form, odf_home_blocks, odf_home_blocks_admin
+from .home_sections import odf_home_sections
 from .resource import odf_resource_download_url, odf_resource_preview_url, odf_resource_view_title
 
 # Moduli che dichiarano i propri helper in `HELPERS`: il registro dei template
@@ -79,6 +90,7 @@ HELPER_MODULES = (
     format,
     home,
     home_blocks,
+    home_sections,
     resource,
     _common,
 )
