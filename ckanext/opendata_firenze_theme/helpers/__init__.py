@@ -17,7 +17,13 @@ from . import (  # noqa: F401
     resource,
 )
 from ._common import odf_number
-from .catalog import odf_active_filters, odf_facet_all_url, odf_facet_groups, odf_package_theme
+from .catalog import (
+    odf_active_filters,
+    odf_facet_all_url,
+    odf_facet_groups,
+    odf_package_theme,
+    odf_theme_meta,
+)
 from .constants import (
     ANNUARIO_CHAPTERS,
     FACET_ORDER,

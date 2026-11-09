@@ -1,6 +1,6 @@
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% from 'snippets/opendata_firenze_theme/section.html' import section %}
-{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
+{% from 'snippets/opendata_firenze_theme/home/dataset-carousel.html' import dataset_carousel %}
 {% set featured = block_data.datasets %}
 {% if featured %}
 {% set cta = None %}
@@ -19,20 +19,8 @@
       </div>
     </div>
     {% if featured|length > 1 %}
-    {# Carosello delle card piccole: il track scorre, JS aggiunge indicatori
-       e frecce (nascoste senza JS). #}
-    <div class="rtt-carousel rtt-stagger rtt-evidenza__others" data-rtt-carousel data-dot-label="{{ _('Vai a') }}">
-      <div class="rtt-carousel__track" role="group" tabindex="0" aria-label="{{ _('Dataset in evidenza') }}">
-        {% for pkg in featured[1:] %}<div class="rtt-carousel__item">{{ dataset_card(pkg, show_hvd=True, date_prefix=_('Ultima modifica')) }}</div>{% endfor %}
-      </div>
-      <div class="rtt-carousel__footer">
-        <div class="rtt-carousel__dots" data-rtt-carousel-dots></div>
-        <div class="rtt-carousel__controls">
-          <button type="button" class="rtt-icon-btn" data-rtt-carousel-prev aria-label="{{ _('Precedente') }}">{{ icon('arrow-small-left', 20) }}</button>
-          <button type="button" class="rtt-icon-btn" data-rtt-carousel-next aria-label="{{ _('Successivo') }}">{{ icon('arrow-right', 20) }}</button>
-        </div>
-      </div>
-    </div>
+    {# Stesso carosello degli altri blocchi: un solo markup per tutti. #}
+    {{ dataset_carousel(featured[1:], _('Dataset in evidenza'), date_prefix=_('Ultima modifica')) }}
     {% endif %}
   </div>
 {% endcall %}

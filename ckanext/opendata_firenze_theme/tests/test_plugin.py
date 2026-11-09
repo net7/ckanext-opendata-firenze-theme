@@ -83,6 +83,7 @@ def test_template_helpers_registered():
     expected = {
         "odf_dataset_count",
         "odf_package_theme",
+        "odf_theme_meta",
         "odf_facet_all_url",
         "odf_active_filters",
         "odf_facet_groups",

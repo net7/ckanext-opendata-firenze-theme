@@ -3,45 +3,21 @@
 {# Overline di categoria per un tema DCAT-AP_IT: mostra SEMPRE l'icona del tema
    (fallback a una griglia generica per temi non mappati).
 
-   Fonte unica: (codice EU, label italiana, icona). `tema_overline` accetta
-   indifferentemente la label ("Ambiente"), il codice dcatapit ("ENVI") o l'URI
+   Fonte unica: `h.odf_theme_meta` (registro in helpers/constants.py:
+   codice EU, label italiana, chiave icona). Accetta indifferentemente la label
+   ("Ambiente"), il codice dcatapit ("ENVI") o l'URI
    (".../data-theme/ENVI"); il testo mostrato è la label italiana, salvo
    override esplicito con `label`. `tema_label`/`tema_icon` espongono le due
    parti separatamente (es. card dei temi). #}
-{% set TEMA_THEMES = [
-  ('AGRI', 'Agricoltura, pesca, silvicoltura e prodotti alimentari', 'tema-agricoltura'),
-  ('ECON', 'Economia e finanze', 'tema-economia'),
-  ('EDUC', 'Istruzione, cultura e sport', 'tema-istruzione'),
-  ('ENER', 'Energia', 'tema-energia'),
-  ('ENVI', 'Ambiente', 'tema-ambiente'),
-  ('GOVE', 'Governo e settore pubblico', 'tema-governo'),
-  ('HEAL', 'Salute', 'tema-salute'),
-  ('INTR', 'Tematiche internazionali', 'tema-internazionali'),
-  ('JUST', 'Giustizia, sistema giuridico e sicurezza pubblica', 'tema-giustizia'),
-  ('REGI', 'Regioni e città', 'tema-regioni'),
-  ('SOCI', 'Popolazione e società', 'tema-popolazione'),
-  ('TECH', 'Scienza e tecnologia', 'tema-scienza'),
-  ('TRAN', 'Trasporti', 'tema-trasporti'),
-] %}
-
-{# Indice del tema in TEMA_THEMES, oppure -1. #}
-{% macro tema_index(tema) -%}
-{%- set ns = namespace(i=-1) -%}
-{%- set tail = tema.rstrip('/').rsplit('/', 1)[-1] if tema is string and '/' in tema else tema -%}
-{%- for code, name, icon_key in TEMA_THEMES -%}
-{%- if ns.i == -1 and (tema == code or tema == name or tail == code) -%}{%- set ns.i = loop.index0 -%}{%- endif -%}
-{%- endfor -%}
-{{- ns.i -}}
-{%- endmacro %}
 
 {% macro tema_label(tema) -%}
-{%- set i = tema_index(tema)|int -%}
-{{- TEMA_THEMES[i][1] if i >= 0 else tema -}}
+{%- set meta = h.odf_theme_meta(tema) -%}
+{{- meta.label if meta else tema -}}
 {%- endmacro %}
 
 {% macro tema_icon(tema, size=20) -%}
-{%- set i = tema_index(tema)|int -%}
-{{- icon(TEMA_THEMES[i][2] if i >= 0 else 'grid', size) -}}
+{%- set meta = h.odf_theme_meta(tema) -%}
+{{- icon(meta.icon if meta else 'grid', size) -}}
 {%- endmacro %}
 
 {% macro tema_overline(tema, size='sm', label=None) -%}

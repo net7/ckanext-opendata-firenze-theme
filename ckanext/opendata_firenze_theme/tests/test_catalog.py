@@ -90,6 +90,23 @@ def test_package_theme_helper():
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_theme_meta_helper(with_plugins, with_request_context):
+    """Il registro temi è unico: codice, label, icona e URI risolvono lo stesso tema."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    assert helpers.odf_theme_meta("ENVI") == {
+        "code": "ENVI",
+        "label": "Ambiente",
+        "icon": "tema-ambiente",
+    }
+    assert helpers.odf_theme_meta("Ambiente")["code"] == "ENVI"
+    uri = "http://publications.europa.eu/resource/authority/data-theme/TRAN"
+    assert helpers.odf_theme_meta(uri)["code"] == "TRAN"
+    assert helpers.odf_theme_meta("OP_DATPRO") is None
+    assert helpers.odf_theme_meta("") is None
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_catalog_facets_active_and_sort(with_plugins, app):
     """Con un filtro in URL il gruppo mostra il chip attivo + "Azzera tutto"."""
     from flask import render_template_string
