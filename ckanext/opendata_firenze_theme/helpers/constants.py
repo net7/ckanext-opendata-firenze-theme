@@ -98,3 +98,7 @@ VIEW_TITLES = {
     "html_view": "Anteprima",
     "web_view": "Anteprima",
 }
+
+
+# Tipi di vista che rappresentano una mappa (titolo "Mappa" in VIEW_TITLES).
+MAP_VIEW_TYPES = frozenset(name for name, title in VIEW_TITLES.items() if title == "Mappa")

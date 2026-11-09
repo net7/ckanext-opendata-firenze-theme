@@ -1,7 +1,5 @@
 """Helper della scheda dataset: badge, formati, metadati, QA, risorse."""
 
-from urllib.parse import unquote, urlsplit
-
 import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
@@ -9,6 +7,7 @@ from . import _common, query
 from .catalog import odf_package_theme
 from .constants import GEO_FORMATS_UPPER, GEOMETRY_SHAPES, LOD_FORMATS_UPPER
 from .format import odf_filesize
+from .resource import odf_resource_download_url
 
 
 def odf_pkg_extra(pkg, key, default=None):
@@ -72,18 +71,6 @@ def odf_dataset_map_resource(pkg):
         if odf_format_is_geo(res.get("format")):
             return res
     return None
-
-
-def odf_views_map_first(views):
-    """Viste della risorsa con la mappa per prima (poi l'ordine originale)."""
-    if not views:
-        return []
-    map_types = {"geoview", "geo_view", "geojson_view", "wmts_view", "shp_view", "recline_map_view"}
-
-    def _is_map(view):
-        return (view.get("view_type") or "").lower() in map_types
-
-    return sorted(views, key=lambda view: 0 if _is_map(view) else 1)
 
 
 def odf_index_features(pkg):
@@ -248,7 +235,7 @@ def odf_dataset_downloads(pkg):
             {
                 "format": fmt,
                 "name": res.get("name") or res.get("id"),
-                "href": _common._resource_download_url(pkg, res),
+                "href": odf_resource_download_url(pkg, res),
                 "geo": odf_format_is_geo(fmt),
             }
         )
@@ -264,51 +251,6 @@ def odf_dataset_size(pkg):
         except (TypeError, ValueError):
             continue
     return odf_filesize(total)
-
-
-# Estensioni di script lato server: un URL che termina cosi' non e' un nome di
-# file da mostrare (es. `download.php?id=…` del vecchio portale).
-_NON_FILE_EXTENSIONS = frozenset(("php", "asp", "aspx", "jsp", "cgi", "pl", "do"))
-
-
-def odf_resource_filename(res):
-    """Nome file della risorsa (basename dell'URL) se ne ha uno, altrimenti ''.
-
-    Si mostra solo quando l'URL termina con un nome di file vero (estensione,
-    esclusi gli script lato server): per i link generici (WMS, pagine web,
-    `download.php`) il nome non esiste e non va inventato.
-    """
-    path = urlsplit((res or {}).get("url") or "").path
-    name = unquote(path.rsplit("/", 1)[-1]) if path else ""
-    if "." not in name:
-        return ""
-    return "" if name.rsplit(".", 1)[-1].lower() in _NON_FILE_EXTENSIONS else name
-
-
-# Etichette italiane dei separatori CSV riconosciuti.
-_SEPARATOR_LABELS = {
-    ";": "punto e virgola",
-    ",": "virgola",
-    "\t": "tabulazione",
-    "|": "barra verticale",
-}
-
-
-def odf_resource_separator(pkg, res):
-    """Separatore di campo di una risorsa CSV, dall'extra `separatore` del dataset.
-
-    Non si deduce dal contenuto: se il dataset non dichiara l'extra (o la
-    risorsa non è CSV) non si mostra nulla, per non inventare un dato.
-    """
-    if ((res or {}).get("format") or "").strip().upper() != "CSV":
-        return ""
-    sep = (odf_pkg_extra(pkg, "separatore") or "").strip()
-    if not sep:
-        return ""
-    label = _SEPARATOR_LABELS.get(sep, sep)
-    return toolkit._("Separatore di campo: «{sep}» ({label})").format(
-        sep="TAB" if sep == "\t" else sep, label=label
-    )
 
 
 def odf_sql_console_enabled():
@@ -339,7 +281,6 @@ HELPERS = {
     "odf_dataset_is_realtime": odf_dataset_is_realtime,
     "odf_dataset_is_series": odf_dataset_is_series,
     "odf_dataset_map_resource": odf_dataset_map_resource,
-    "odf_views_map_first": odf_views_map_first,
     "odf_dataset_geometry": odf_dataset_geometry,
     "odf_dataset_is_geo": odf_dataset_is_geo,
     "odf_dataset_badges": odf_dataset_badges,
@@ -348,8 +289,6 @@ HELPERS = {
     "odf_dataset_contact": odf_dataset_contact,
     "odf_dataset_downloads": odf_dataset_downloads,
     "odf_dataset_size": odf_dataset_size,
-    "odf_resource_filename": odf_resource_filename,
-    "odf_resource_separator": odf_resource_separator,
     "odf_sql_console_enabled": odf_sql_console_enabled,
     "odf_datastore_resource_id": odf_datastore_resource_id,
 }

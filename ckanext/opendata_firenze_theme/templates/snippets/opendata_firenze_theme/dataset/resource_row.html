@@ -8,7 +8,7 @@
 {% macro resource_row(pkg, res) -%}
 {% set fmt = (res.format or '')|upper %}
 {% set href = h.url_for('resource.read', id=pkg.name, resource_id=res.id) %}
-{% set download = h.url_for('resource.download', id=pkg.name, resource_id=res.id) if res.url_type == 'upload' else (res.url if res.url and h.is_url(res.url) else '') %}
+{% set download = h.odf_resource_download_url(pkg, res) %}
 {% set preview = h.odf_resource_preview_url(pkg, res) %}
 {% set size = h.odf_filesize(res.size) %}
 {% set filename = h.odf_resource_filename(res) %}

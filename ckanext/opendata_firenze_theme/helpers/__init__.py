@@ -56,10 +56,7 @@ from .dataset import (
     odf_index_features,
     odf_index_series,
     odf_pkg_extra,
-    odf_resource_filename,
-    odf_resource_separator,
     odf_sql_console_enabled,
-    odf_views_map_first,
 )
 from .editorial import odf_annuario_chapters, odf_annuario_count, odf_annuario_datasets
 from .format import FREQUENCY_LABELS, odf_date, odf_filesize, odf_frequency_label, odf_time_ago
@@ -79,7 +76,14 @@ from .home import (
 )
 from .home_blocks import entries_from_form, odf_home_blocks, odf_home_blocks_admin
 from .home_sections import odf_home_sections
-from .resource import odf_resource_download_url, odf_resource_preview_url, odf_resource_view_title
+from .resource import (
+    odf_resource_download_url,
+    odf_resource_filename,
+    odf_resource_preview_url,
+    odf_resource_separator,
+    odf_resource_view_title,
+    odf_views_map_first,
+)
 from .series import (
     odf_dataset_revisions,
     odf_dataset_series,

@@ -99,18 +99,6 @@ def _present(value):
     return str(value).strip().lower() not in _FALSE_TEXT
 
 
-def _resource_download_url(pkg, res):
-    """URL di download di una risorsa (route CKAN per gli upload)."""
-    if res.get("url_type") == "upload":
-        try:
-            return toolkit.url_for(
-                "resource.download", id=pkg.get("name"), resource_id=res.get("id")
-            )
-        except Exception:
-            return res.get("url") or ""
-    return res.get("url") or ""
-
-
 # Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
 # derivato da questi mapping.
 HELPERS = {
