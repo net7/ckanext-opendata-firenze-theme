@@ -15,6 +15,7 @@ from . import (  # noqa: F401
     home,
     home_blocks,
     home_sections,
+    navigation,
     resource,
     series,
 )
@@ -77,6 +78,7 @@ from .home import (
 )
 from .home_blocks import entries_from_form, odf_home_blocks, odf_home_blocks_admin
 from .home_sections import odf_home_sections
+from .navigation import odf_breadcrumbs
 from .query import FACET_ORDER
 from .resource import (
     odf_resource_download_url,
@@ -107,6 +109,7 @@ HELPER_MODULES = (
     home,
     home_blocks,
     home_sections,
+    navigation,
     resource,
     series,
     _common,

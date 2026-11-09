@@ -18,7 +18,7 @@
 <main class="rtt-editorial-page" id="content" tabindex="-1">
   {% call page_head(
       _('Sviluppatori & Linked Open Data'),
-      crumbs=[{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Sviluppatori & LOD')}],
+      crumbs=h.odf_breadcrumbs(_('Sviluppatori & LOD')),
       lead=_("Endpoint, API e servizi geografici per consumare il catalogo in modo programmatico. Tutte le interfacce sono pubbliche, in sola lettura e non richiedono chiave."),
       aside=svil_aside
     ) %}

@@ -293,3 +293,18 @@ def test_catalog_feature_facet_labels(with_plugins, with_request_context):
         "Geodati",
         "Linked Open Data",
     ]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_breadcrumbs_helper(with_plugins, with_request_context):
+    """Home, sezione, tema, genitore e foglia in una sola lista."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    crumbs = helpers.odf_breadcrumbs("Scheda", section="catalog", theme="ENVI")
+    assert [crumb["label"] for crumb in crumbs] == ["Home", "Catalogo", "Ambiente", "Scheda"]
+    assert crumbs[-1] == {"label": "Scheda"}
+    assert crumbs[1]["href"].startswith("/dataset")
+
+    contact = helpers.odf_breadcrumbs("Richiesta inviata", section="contact")
+    assert [crumb["label"] for crumb in contact] == ["Home", "Collaborazione", "Richiesta inviata"]
+    assert contact[1]["href"] == "/contact"
