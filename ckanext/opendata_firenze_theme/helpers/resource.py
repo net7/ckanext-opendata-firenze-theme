@@ -1,14 +1,34 @@
-"""Helper della scheda risorsa: titoli dei pannelli vista, URL di download."""
+"""Helper della risorsa: link, nome file, separatore, viste.
 
+Un solo punto per la regola di download (upload CKAN oppure URL esterna valida)
+e per le proprietà della singola risorsa; la scheda dataset usa questi helper
+anche per il menu "Scarica" e il pannello serie.
+"""
+
+from urllib.parse import unquote, urlsplit
+
+import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
 from . import _common
-from .constants import VIEW_TITLES
+from .constants import MAP_VIEW_TYPES, VIEW_TITLES
 
 
 def odf_resource_download_url(pkg, res):
-    """URL di download di una singola risorsa (route CKAN per gli upload)."""
-    return _common._resource_download_url(pkg, res)
+    """URL di download della risorsa.
+
+    Per gli upload si usa la route CKAN (`resource.download`); per le risorse
+    esterne solo un URL valido, altrimenti '' (niente link rotti).
+    """
+    if (res or {}).get("url_type") == "upload":
+        try:
+            return toolkit.url_for(
+                "resource.download", id=pkg.get("name"), resource_id=res.get("id")
+            )
+        except Exception:
+            return res.get("url") or ""
+    url = (res or {}).get("url") or ""
+    return url if url and ckan_h.is_url(url) else ""
 
 
 def odf_resource_view_title(view):
@@ -46,10 +66,69 @@ def odf_resource_preview_url(pkg, res):
         return ""
 
 
+def odf_views_map_first(views):
+    """Viste della risorsa con la mappa per prima (poi l'ordine originale)."""
+    if not views:
+        return []
+
+    def _is_map(view):
+        return (view.get("view_type") or "").lower() in MAP_VIEW_TYPES
+
+    return sorted(views, key=lambda view: 0 if _is_map(view) else 1)
+
+
+# Estensioni di script lato server: un URL che termina cosi' non e' un nome di
+# file da mostrare (es. `download.php?id=…` del vecchio portale).
+_NON_FILE_EXTENSIONS = frozenset(("php", "asp", "aspx", "jsp", "cgi", "pl", "do"))
+
+
+def odf_resource_filename(res):
+    """Nome file della risorsa (basename dell'URL) se ne ha uno, altrimenti ''.
+
+    Si mostra solo quando l'URL termina con un nome di file vero (estensione,
+    esclusi gli script lato server): per i link generici (WMS, pagine web,
+    `download.php`) il nome non esiste e non va inventato.
+    """
+    path = urlsplit((res or {}).get("url") or "").path
+    name = unquote(path.rsplit("/", 1)[-1]) if path else ""
+    if "." not in name:
+        return ""
+    return "" if name.rsplit(".", 1)[-1].lower() in _NON_FILE_EXTENSIONS else name
+
+
+# Etichette italiane dei separatori CSV riconosciuti.
+_SEPARATOR_LABELS = {
+    ";": "punto e virgola",
+    ",": "virgola",
+    "\t": "tabulazione",
+    "|": "barra verticale",
+}
+
+
+def odf_resource_separator(pkg, res):
+    """Separatore di campo di una risorsa CSV, dall'extra `separatore` del dataset.
+
+    Non si deduce dal contenuto: se il dataset non dichiara l'extra (o la
+    risorsa non è CSV) non si mostra nulla, per non inventare un dato.
+    """
+    if ((res or {}).get("format") or "").strip().upper() != "CSV":
+        return ""
+    sep = (_common.pkg_field(pkg, "separatore") or "").strip()
+    if not sep:
+        return ""
+    label = _SEPARATOR_LABELS.get(sep, sep)
+    return toolkit._("Separatore di campo: «{sep}» ({label})").format(
+        sep="TAB" if sep == "\t" else sep, label=label
+    )
+
+
 # Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
 # derivato da questi mapping.
 HELPERS = {
     "odf_resource_download_url": odf_resource_download_url,
     "odf_resource_view_title": odf_resource_view_title,
     "odf_resource_preview_url": odf_resource_preview_url,
+    "odf_resource_filename": odf_resource_filename,
+    "odf_resource_separator": odf_resource_separator,
+    "odf_views_map_first": odf_views_map_first,
 }

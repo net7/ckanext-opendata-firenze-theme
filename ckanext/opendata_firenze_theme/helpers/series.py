@@ -15,6 +15,7 @@ import ckan.plugins.toolkit as toolkit
 from . import _common, query
 from .dataset import odf_dataset_formats, odf_pkg_extra
 from .format import odf_filesize
+from .resource import odf_resource_download_url
 
 _SERIES_SORT = "title_string asc"
 _YEAR_RE = re.compile(r"\b(?:19|20)\d{2}\b")
@@ -34,7 +35,7 @@ def _series_item(result):
         "title": result.get("title") or result.get("name"),
         "formats": odf_dataset_formats(result),
         "year": _revision_year_from(result),
-        "download": _common._resource_download_url(result, first) if first else "",
+        "download": odf_resource_download_url(result, first) if first else "",
         "size": odf_filesize(first.get("size")),
     }
 
