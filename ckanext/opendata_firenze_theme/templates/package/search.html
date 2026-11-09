@@ -9,7 +9,7 @@
 {% block content %}
 <main class="rtt-catalog" id="content" tabindex="-1">
   <div class="rtt-container rtt-catalog__inner">
-    {{ breadcrumbs([{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Catalogo')}]) }}
+    {{ breadcrumbs(h.odf_breadcrumbs(_('Catalogo'), section='catalog')) }}
     <div class="rtt-catalog__head">
       <div class="rtt-catalog__titles">
         <h1 class="rtt-h1 rtt-catalog__title">{{ _('Catalogo') }}</h1>

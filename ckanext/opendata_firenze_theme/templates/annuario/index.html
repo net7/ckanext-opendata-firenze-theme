@@ -15,7 +15,7 @@
 <main class="rtt-editorial-page" id="content" tabindex="-1">
   {% call page_head(
       _('Annuario Statistico del Comune di Firenze'),
-      crumbs=[{'label': _('Home'), 'href': h.url_for('home.index')}, {'label': _('Annuario Statistico')}],
+      crumbs=h.odf_breadcrumbs(_('Annuario Statistico')),
       lead=_("Questa sezione contiene i dati dell'Annuario Statistico del Comune di Firenze, suddivisi in tredici capitoli tematici. L'elaborazione e la pubblicazione dei dati è curata dall'ufficio comunale di statistica.")
     ) %}
   <p class="rtt-body rtt-editorial-page__note"><strong>{{ _('Storia ed evoluzione.') }}</strong> {{ _("Il primo Annuario Statistico del Comune di Firenze risale a oltre un secolo fa; le pubblicazioni, interrotte per vent'anni, sono riprese circa dieci anni fa. Da allora l'Annuario non è più un volume a cadenza fissa ma un flusso continuo: le tavole vengono aggiornate mano a mano che i dati sono raccolti e validati, invece di attendere che l'intera annualità sia disponibile. La cura editoriale resta all'ufficio comunale di statistica, che dal 2001 accompagna questo lavoro anche con il Bollettino mensile di statistica.") }}</p>
