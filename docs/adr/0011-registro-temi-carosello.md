@@ -21,8 +21,8 @@ Due duplicazioni nel tema:
 
 1. **Un solo registro dei temi** in `helpers/constants.py`:
    `THEME_REGISTRY = ((codice, label, chiave_icona), …)`. `THEMES` (codice +
-   label), `THEME_ICONS` e `THEME_CODES` sono derivate. La tabella Jinja
-   `TEMA_THEMES` sparisce.
+   label) e `THEME_CODES` sono derivate. La tabella Jinja `TEMA_THEMES`
+   sparisce.
 2. **Un helper per i metadati**: `odf_theme_meta(tema)` accetta codice, label o
    URI e ritorna `{code, label, icon}` (None se non è uno dei 13). I macro di
    `tema-overline.html` diventano renderer; il fallback per i temi non mappati

@@ -36,6 +36,9 @@ def test_theme_registry_icons_exist_in_the_icon_set(with_plugins, with_request_c
     from ckanext.opendata_firenze_theme.helpers import constants
 
     keys = [icon_key for _, _, icon_key in constants.THEME_REGISTRY]
+    # ogni tema ha un'icona sua, con la convenzione dei nomi del set
+    assert len(keys) == len(set(keys)), "chiavi icona duplicate"
+    assert all(key.startswith("tema-") for key in keys)
     src = "{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}" + "".join(
         "{{ icon('" + key + "', 20) }}" for key in keys
     )
