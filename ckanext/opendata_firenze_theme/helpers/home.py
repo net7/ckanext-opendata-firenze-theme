@@ -98,12 +98,14 @@ def odf_home_kpis(total=None):
 
 
 def odf_featured_datasets(limit=3):
-    """Dataset in evidenza: prima gli HVD (`extras_hvd`), poi i più recenti.
+    """Dataset in evidenza: prima gli HVD (`odf_features`), poi i più recenti.
 
     Gli HVD hanno la precedenza; se sono meno di `limit` si completa con i
     dataset aggiornati di recente, così il carosello ha sempre abbastanza voci.
     """
-    featured = _common._search(rows=limit, fq=query.hvd(), sort="metadata_modified desc")["results"]
+    featured = _common._search(
+        rows=limit, fq=query.features(query.HVD), sort="metadata_modified desc"
+    )["results"]
     if len(featured) >= limit:
         return featured
     recent = _common._search(rows=limit + len(featured), sort="metadata_modified desc")["results"]

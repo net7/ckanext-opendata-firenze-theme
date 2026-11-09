@@ -80,7 +80,7 @@ def test_featured_datasets_hvd_then_recent(with_plugins, with_request_context):
     from ckanext.opendata_firenze_theme import helpers
 
     def fake_search(**params):
-        if params.get("fq") == "extras_hvd:true":
+        if params.get("fq") == "odf_features:hvd":
             return {"results": [{"id": "a"}], "count": 1}
         return {"results": [{"id": "a"}, {"id": "b"}, {"id": "c"}]}
 
