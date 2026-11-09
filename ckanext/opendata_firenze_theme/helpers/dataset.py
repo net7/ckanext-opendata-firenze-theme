@@ -279,7 +279,6 @@ HELPERS = {
     "odf_dataset_is_lod": odf_dataset_is_lod,
     "odf_dataset_is_hvd": odf_dataset_is_hvd,
     "odf_dataset_is_realtime": odf_dataset_is_realtime,
-    "odf_dataset_is_series": odf_dataset_is_series,
     "odf_dataset_map_resource": odf_dataset_map_resource,
     "odf_dataset_geometry": odf_dataset_geometry,
     "odf_dataset_is_geo": odf_dataset_is_geo,
@@ -288,7 +287,6 @@ HELPERS = {
     "odf_dataset_related": odf_dataset_related,
     "odf_dataset_contact": odf_dataset_contact,
     "odf_dataset_downloads": odf_dataset_downloads,
-    "odf_dataset_size": odf_dataset_size,
     "odf_sql_console_enabled": odf_sql_console_enabled,
     "odf_datastore_resource_id": odf_datastore_resource_id,
 }
