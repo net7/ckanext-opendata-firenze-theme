@@ -65,8 +65,10 @@ def test_home_theme_link_uses_dcat_theme(with_plugins, with_request_context):
 
     fake = {"search_facets": {"dcat_theme": {"items": [{"name": "TRAN", "count": 2}]}}}
     with mock.patch.object(helpers._common, "_search", return_value=fake):
+        themes = helpers.odf_themes_visible()
         html = render_template_string(
-            "{% include 'snippets/opendata_firenze_theme/home/temi.html' %}"
+            "{% include 'snippets/opendata_firenze_theme/home/temi.html' %}",
+            themes=themes,
         )
     assert "dcat_theme=TRAN" in html
     # il vecchio parametro errato non deve comparire
@@ -207,19 +209,17 @@ def test_latest_block_renders(with_plugins, with_request_context):
     """Il blocco "Ultimi pubblicati" usa il carosello e le card del tema."""
     from flask import render_template_string
 
-    from ckanext.opendata_firenze_theme import helpers
-
     pkg = {"id": "a", "name": "a", "title": "Alpha", "res_format": ["CSV"]}
-    with mock.patch.object(helpers._common, "_search", return_value={"count": 1, "results": [pkg]}):
-        html = render_template_string(
-            "{% include 'home/blocks/latest.html' %}",
-            block={
-                "title": "Ultimi pubblicati",
-                "subtitle": "",
-                "cta_label": "",
-                "cta_url": "",
-            },
-        )
+    html = render_template_string(
+        "{% include 'home/blocks/latest.html' %}",
+        block={
+            "title": "Ultimi pubblicati",
+            "subtitle": "",
+            "cta_label": "",
+            "cta_url": "",
+        },
+        block_data={"datasets": [pkg]},
+    )
     assert "Ultimi pubblicati" in html
     assert "Alpha" in html
     assert "rtt-carousel" in html

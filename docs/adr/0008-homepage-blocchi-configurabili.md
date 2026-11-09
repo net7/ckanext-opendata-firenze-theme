@@ -27,7 +27,8 @@ Vincoli:
 1. **Registro dei blocchi nel tema** (`helpers/home_blocks.py`): `BLOCKS`
    elenca, per ogni blocco, id, etichetta, template e campi tipizzati (`text` o
    `url`) con il proprio default. Aggiungere un blocco = una voce qui + un
-   template in `templates/home/blocks/`.
+   template in `templates/home/blocks/` + un builder nel collettore dei dati
+   (ADR 0010).
 2. **Configurazione runtime standard CKAN**: ordine, blocchi attivi e testi
    (titolo, sottotitolo, testo e URL del link) sono una **lista ordinata** in
    JSON nell'opzione `ckanext.opendata_firenze_theme.homepage_blocks`,

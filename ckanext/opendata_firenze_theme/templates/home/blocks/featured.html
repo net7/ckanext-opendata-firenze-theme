@@ -1,7 +1,7 @@
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% from 'snippets/opendata_firenze_theme/section.html' import section %}
 {% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
-{% set featured = h.odf_featured_datasets(7) %}
+{% set featured = block_data.datasets %}
 {% if featured %}
 {% set cta = None %}
 {% if block.cta_label and block.cta_url %}{% set cta %}<a class="rtt-actionlink" href="{{ block.cta_url }}">{{ block.cta_label }}{{ icon('arrow-right', 18) }}</a>{% endset %}{% endif %}

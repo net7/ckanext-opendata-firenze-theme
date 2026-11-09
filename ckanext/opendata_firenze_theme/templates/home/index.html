@@ -8,8 +8,12 @@
   <div class="alert alert-dismissible fade show {{ category }}">{{ h.literal(message) }}</div>
   {% endfor %}
 
-  {# Ordine e blocchi attivi sono configurabili da /ckan-admin/homepage. #}
-  {% for block in h.odf_home_blocks() %}
+  {# Ordine e blocchi attivi sono configurabili da /ckan-admin/homepage.
+     I dati arrivano tutti da `odf_home_sections`: i blocchi sono renderer. #}
+  {% set blocks = h.odf_home_blocks() %}
+  {% set sections = h.odf_home_sections(blocks) %}
+  {% for block in blocks %}
+  {% set block_data = sections[block.id] %}
   {% include block.template %}
   {% endfor %}
 </main>
