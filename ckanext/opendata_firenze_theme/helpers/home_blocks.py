@@ -348,3 +348,21 @@ def entries_from_form(enabled_ids, order_values, text_values, current_ids):
 HELPERS = {
     "odf_home_blocks": odf_home_blocks,
 }
+
+
+def form_view(form):
+    """Stato del form admin a partire dal mapping del form (una sola interfaccia).
+
+    `views.homepage_blocks` non compone più i nomi `order_<id>`/`<field>_<id>`:
+    li conosce questo modulo e restituisce voci, errori e blocchi da mostrare.
+    """
+    blocks = admin_blocks(_entries())
+    current = [block["id"] for block in blocks]
+    orders = {block["id"]: form.get(f"order_{block['id']}") for block in blocks}
+    texts = {
+        block["id"]: {field: form.get(f"{field}_{block['id']}") for field in block["fields"]}
+        for block in blocks
+    }
+    entries = entries_from_form(form.getlist("enabled"), orders, texts, current)
+    errors = validate_entries(entries)
+    return {"entries": entries, "errors": errors, "blocks": admin_blocks(entries)}

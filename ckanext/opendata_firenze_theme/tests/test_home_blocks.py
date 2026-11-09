@@ -388,3 +388,35 @@ def test_account_menu_admin_link_only_for_sysadmin(app):
     app.set_session_user(user["name"])
     body = _response_body(app.get("/", base_url=_TEST_BASE_URL))
     assert not admin_link.search(body)
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_form_view_roundtrip(with_plugins):
+    """Il form admin passa da un'unica interfaccia: voci, errori, blocchi."""
+    from werkzeug.datastructures import MultiDict
+
+    from ckanext.opendata_firenze_theme.helpers import home_blocks
+
+    form = MultiDict(
+        [
+            ("enabled", "featured"),
+            ("order_featured", "0"),
+            ("title_featured", "Scelti per te"),
+            ("cta_url_featured", "/dataset"),
+        ]
+    )
+    state = home_blocks.form_view(form)
+
+    assert state["errors"] == {}
+    assert {entry["id"] for entry in state["entries"]} == set(home_blocks.DEFAULT_IDS)
+    featured = next(entry for entry in state["entries"] if entry["id"] == "featured")
+    assert featured["enabled"] is True
+    assert featured["title"] == "Scelti per te"
+    assert state["blocks"][0]["id"] == "hero"
+
+    bad = MultiDict(
+        [("enabled", "featured"), ("order_featured", "0"), ("cta_url_featured", "javascript:x")]
+    )
+    state = home_blocks.form_view(bad)
+    assert "featured" in state["errors"]
+    assert "cta_url" in state["errors"]["featured"]
