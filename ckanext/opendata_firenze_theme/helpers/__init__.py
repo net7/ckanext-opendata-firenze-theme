@@ -9,6 +9,7 @@ from . import (  # noqa: F401
     _common,
     catalog,
     dataset,
+    dataset_page,
     editorial,
     format,
     home,
@@ -57,6 +58,7 @@ from .dataset import (
     odf_pkg_extra,
     odf_sql_console_enabled,
 )
+from .dataset_page import odf_dataset_page
 from .editorial import odf_annuario_chapters, odf_annuario_count, odf_annuario_datasets
 from .format import FREQUENCY_LABELS, odf_date, odf_filesize, odf_frequency_label, odf_time_ago
 from .home import (
@@ -99,6 +101,7 @@ from .series import (
 HELPER_MODULES = (
     catalog,
     dataset,
+    dataset_page,
     editorial,
     format,
     home,

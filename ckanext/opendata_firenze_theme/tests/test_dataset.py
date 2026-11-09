@@ -575,3 +575,33 @@ def test_series_info_single_search(with_plugins, with_request_context):
     assert info["count"] == 3
     assert [member["name"] for member in info["members"]] == ["a"]
     assert helpers.odf_series_info({"extras": []}) == {"serie": "", "count": 0, "members": []}
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_page_context_reuses_series_info(with_plugins, with_request_context):
+    """La scheda compone i dati e cerca la serie una volta sola."""
+    from ckanext.opendata_firenze_theme.helpers import dataset_page
+
+    info = {"serie": "S", "count": 2, "members": []}
+    context = {
+        "kind": "series",
+        "label": "S",
+        "total": 2,
+        "entries": [],
+        "serie": "S",
+        "serie_total": 2,
+    }
+    pkg = {"id": "x", "name": "x"}
+    with (
+        mock.patch.object(dataset_page.series, "odf_series_info", return_value=info) as series_info,
+        mock.patch.object(
+            dataset_page.series, "odf_series_context", return_value=context
+        ) as series_context,
+    ):
+        page = dataset_page.odf_dataset_page(pkg)
+
+    series_info.assert_called_once_with(pkg)
+    series_context.assert_called_once_with(pkg, info=info)
+    assert page["series"] is context
+    assert page["tab"] == "essenziale"
+    assert page["advanced"] is False

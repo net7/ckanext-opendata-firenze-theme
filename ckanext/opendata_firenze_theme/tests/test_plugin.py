@@ -104,6 +104,7 @@ def test_template_helpers_registered():
         "odf_dataset_formats",
         "odf_format_is_geo",
         "odf_dataset_badges",
+        "odf_dataset_page",
         "odf_dataset_geometry",
         "odf_dataset_is_geo",
         "odf_number",

@@ -13,24 +13,25 @@
 {% from 'snippets/opendata_firenze_theme/dataset/preview_modal.html' import resource_preview_modal %}
 
 {% block content %}
-{% set tema = h.odf_package_theme(pkg) %}
-{% set badges = h.odf_dataset_badges(pkg) %}
-{% set is_realtime = badges|selectattr('kind', 'equalto', 'realtime')|list %}
-{% set downloads = h.odf_dataset_downloads(pkg) %}
-{% set quality = h.odf_dataset_openness(pkg) %}
-{% set map_res = h.odf_dataset_map_resource(pkg) %}
-{% set serie_info = h.odf_series_info(pkg) %}
-{% set serie = serie_info.serie %}
-{% set contact = h.odf_dataset_contact(pkg) %}
-{% set related = h.odf_dataset_related(pkg) %}
+{% set dataset_page = h.odf_dataset_page(pkg, request.args.get('tab', 'essenziale')) %}
+{% set tema = dataset_page.theme %}
+{% set badges = dataset_page.badges %}
+{% set is_realtime = dataset_page.is_realtime %}
+{% set downloads = dataset_page.downloads %}
+{% set quality = dataset_page.quality %}
+{% set map_res = dataset_page.map_resource %}
+{% set serie_ctx = dataset_page.series %}
+{% set serie = serie_ctx.serie %}
+{% set contact = dataset_page.contact %}
+{% set related = dataset_page.related %}
 {% set notes = h.get_translated(pkg, 'notes') %}
-{% set uso = h.odf_pkg_extra(pkg, 'uso') %}
-{% set tab = request.args.get('tab', 'essenziale') %}
-{% set avanzata = tab == 'avanzata' %}
+{% set uso = dataset_page.uso %}
+{% set tab = dataset_page.tab %}
+{% set avanzata = dataset_page.advanced %}
 {% set tags = pkg.tags|map(attribute='display_name')|join(', ') %}
-{% set geometria = h.odf_dataset_geometry(pkg) %}
+{% set geometria = dataset_page.geometry %}
 {% set geo_shapes = {'punto': _('Punto'), 'area': _('Area'), 'linea': _('Linea')} %}
-{% set is_geo = badges|selectattr('kind', 'equalto', 'geo')|list %}
+{% set is_geo = dataset_page.is_geo %}
 {% set extra_rows = [] %}
 {% for e in pkg.extras %}{% set _ = extra_rows.append((e.key, e.value)) %}{% endfor %}
 {% set meta_action %}<span class="rtt-body-sm">{{ _('Profilo italiano del vocabolario DCAT') }}</span>{% endset %}
@@ -57,7 +58,7 @@
               {{ status_chip(b.label, b.kind) }}
               {% endif %}
             {% endfor %}
-            {% if serie_info.count > 1 %}{{ status_chip(_('Serie') ~ ' · ' ~ serie_info.count ~ ' dataset', 'serie') }}{% endif %}
+            {% if serie_ctx.serie_total > 1 %}{{ status_chip(_('Serie') ~ ' · ' ~ serie_ctx.serie_total ~ ' dataset', 'serie') }}{% endif %}
           </div>
           <h1 class="rtt-h1 rtt-dataset__title">{{ _('Dataset:') }} {{ h.dataset_display_name(pkg) }}</h1>
           {% if uso %}<p class="rtt-body-lg rtt-dataset__uso">{{ uso }}</p>{% endif %}
@@ -126,7 +127,7 @@
 
       {#- Il contesto riusa la serie già letta per il badge: niente seconda
           ricerca della serie, e le revisioni si cercano solo in questa vista. #}
-      {{ series_panel(h.odf_series_context(pkg, info=serie_info)) }}
+      {{ series_panel(serie_ctx) }}
       {% else %}
       {% call panel(_('Metadati DCAT-AP_IT'), action=meta_action) %}
         {{ meta_table([
