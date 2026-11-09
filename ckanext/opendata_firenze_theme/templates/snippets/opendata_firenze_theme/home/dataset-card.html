@@ -2,6 +2,19 @@
 {% from 'snippets/opendata_firenze_theme/chip.html' import format_chip, status_chip %}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 
+{#- Shell comune delle card: link a tutta superficie, freccia, id del titolo e
+    classe della variante. Il contenuto (overline, titolo, meta, data) arriva
+    dal chiamante con `{% call %}`. Prima `dataset_card` e `consultati_card`
+    ricopiavano questa struttura. #}
+{% macro card_shell(pkg, variant, title_id) -%}
+<div class="rtt-dcard-wrap">
+  <a class="rtt-dcard{% if variant == 'compact' %} rtt-dcard--compact{% elif variant == 'consultati' %} rtt-dcard--consultati{% endif %}" href="{{ h.url_for('dataset.read', id=pkg.name) }}" aria-labelledby="{{ title_id }}">
+    <span class="rtt-dcard__arrow" aria-hidden="true">{{ icon('arrow-right', 16) }}</span>
+    {{ caller() }}
+  </a>
+</div>
+{%- endmacro %}
+
 {# Card di un dataset (da package_search): tema, titolo, chip dei formati e (se
    non `compact`) descrizione e data di ultimo aggiornamento. Come la Card del
    mockup è un `<a>`: tutta la superficie è cliccabile. Nel risultato di ricerca
@@ -24,9 +37,7 @@
 {#- Formati deduplicati (case-insensitive) dallo stesso helper della scheda:
     niente seconda lista di formati geo qui dentro. #}
 {%- set formats = h.odf_dataset_formats(pkg) -%}
-<div class="rtt-dcard-wrap">
-  <a class="rtt-dcard{% if compact %} rtt-dcard--compact{% endif %}" href="{{ h.url_for('dataset.read', id=pkg.name) }}" aria-labelledby="{{ title_id }}">
-    <span class="rtt-dcard__arrow" aria-hidden="true">{{ icon('arrow-right', 16) }}</span>
+{% call card_shell(pkg, 'compact' if compact else 'default', title_id) %}
     {% if tema or is_rt or (show_serie and is_serie) %}<div class="rtt-dcard__overline">{% if tema %}{{ tema_overline(tema) }}{% endif %}{% if is_rt %}<span class="rtt-live rtt-live--plain"><span class="rtt-live__dot" aria-hidden="true"></span>{{ _('in tempo reale') }}</span>{% endif %}{% if show_serie and is_serie %}{{ status_chip(_('Serie · {num} dataset').format(num=serie_n) if serie_n else _('Serie'), 'serie') }}{% endif %}</div>{% endif %}
     <h3 class="rtt-dcard__title" id="{{ title_id }}">{{ pkg.title or pkg.name }}</h3>
     {% if not compact and pkg.notes %}<p class="rtt-dcard__desc">{{ pkg.notes|striptags|truncate(160) }}</p>{% endif %}
@@ -40,8 +51,7 @@
     {% if not compact and (pkg.get(date_field) or pkg.metadata_modified) %}
     <span class="rtt-dcard__date">{{ date_prefix }} {{ h.render_datetime(pkg.get(date_field) or pkg.metadata_modified, date_format='%d/%m/%Y') }}</span>
     {% endif %}
-  </a>
-</div>
+{% endcall %}
 {% endmacro %}
 
 {# Card "I più consultati" (mockup): tema (+ chip "in tempo reale"), titolo e una
@@ -62,9 +72,7 @@
 {%- set geo = h.odf_dataset_is_geo(pkg) -%}
 {%- set is_rt = h.odf_dataset_is_realtime(pkg) -%}
 {%- set updated = _('Aggiornato pochi minuti fa') if is_rt else (_('Aggiornato il {date}').format(date=h.render_datetime(pkg.metadata_modified, date_format='%d/%m/%Y')) if pkg.metadata_modified else '') -%}
-<div class="rtt-dcard-wrap">
-  <a class="rtt-dcard rtt-dcard--consultati" href="{{ h.url_for('dataset.read', id=pkg.name) }}" aria-labelledby="{{ title_id }}">
-    <span class="rtt-dcard__arrow" aria-hidden="true">{{ icon('arrow-right', 16) }}</span>
+{% call card_shell(pkg, 'consultati', title_id) %}
     {% if tema %}
     <div class="rtt-dcard__overline">
       {{ tema_overline(tema) }}
@@ -82,6 +90,5 @@
       {% if geo %}{{ format_chip(_('Geodati'), 'geo') }}{% endif %}
     </div>
     {% endif %}
-  </a>
-</div>
+{% endcall %}
 {% endmacro %}
