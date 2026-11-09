@@ -32,6 +32,28 @@ def test_dataset_page_renders_essential(app):
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.usefixtures("with_plugins")
+def test_dataset_page_shows_series_badge_and_panel(app):
+    """La scheda collega il contesto serie a badge, riga metadati e pannello."""
+    import uuid
+
+    from ckan.tests import factories
+
+    # nome unico: il core Solr di test non viene svuotato fra un test e l'altro,
+    # quindi un nome fisso conterebbe anche i dataset delle esecuzioni precedenti
+    serie = f"Serie {uuid.uuid4().hex}"
+    extras = [{"key": "serie", "value": serie}]
+    factories.Dataset(title="Prima della serie", extras=extras)
+    pkg = factories.Dataset(title="Seconda della serie", extras=extras)
+
+    body = _body(app.get(f"/dataset/{pkg['name']}"))
+    assert "Serie · 2 dataset" in body
+    assert f"Serie «{serie}»" in body
+    assert "Prima della serie" in body
+    assert "Vedi tutta la serie nel catalogo" in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
 def test_dataset_download_links_are_not_tracked(app):
     """I link di download del tema non portano `resource-url-analytics`.
 
@@ -216,7 +238,7 @@ def test_series_context_prefers_revisions(with_plugins, with_request_context):
     assert context["kind"] == "revisions"
     assert context["label"] == ""
     assert context["total"] == 2
-    assert [item["name"] for item in context["items"]] == ["r-2024"]
+    assert [item["name"] for item in context["entries"]] == ["r-2024"]
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
@@ -237,7 +259,28 @@ def test_series_context_falls_back_to_series(with_plugins, with_request_context)
     assert context["kind"] == "series"
     assert context["label"] == "S"
     assert context["total"] == 3
-    assert [item["name"] for item in context["items"]] == ["a"]
+    assert [item["name"] for item in context["entries"]] == ["a"]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.ckan_config("ckan.site_url", "https://opendata-firenze.test")
+def test_series_context_reuses_info(with_plugins, with_request_context):
+    """Con `info` già calcolato non si ripete la ricerca della serie."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    info = {"serie": "S", "count": 2, "members": [{"name": "a", "title": "A"}]}
+    calls = []
+
+    def fake_search(**params):
+        calls.append(params)
+        return {"results": [], "count": 0}
+
+    with mock.patch.object(helpers._common, "_search", side_effect=fake_search):
+        context = helpers.odf_series_context({"id": "self", "name": "self"}, info=info)
+
+    assert context["kind"] == "series"
+    assert [entry["name"] for entry in context["entries"]] == ["a"]
+    assert all("extras_serie" not in (call.get("fq") or "") for call in calls)
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
@@ -251,7 +294,7 @@ def test_series_context_empty(with_plugins, with_request_context):
             "kind": None,
             "label": "",
             "total": 0,
-            "items": [],
+            "entries": [],
             "serie": "",
             "serie_total": 0,
         }

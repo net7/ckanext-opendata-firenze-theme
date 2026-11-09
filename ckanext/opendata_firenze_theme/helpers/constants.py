@@ -1,5 +1,7 @@
 """Costanti del tema: temi DCAT-AP_IT, formati geo, capitoli Annuario, viste."""
 
+from . import query
+
 # 13 temi DCAT-AP_IT: (codice EU, label italiana). Stessa fonte di
 # templates/snippets/opendata_firenze_theme/tema-overline.html.
 THEMES = (
@@ -42,13 +44,13 @@ GEOMETRY_SHAPES = ("punto", "area", "linea")
 # geografiche/classificazioni e le altre). "Tipo di geometria" (2° nel mockup)
 # non ha un campo Solr dedicato senza ckanext-scheming: resta non implementato.
 FACET_ORDER = (
-    "theme",
-    "dcat_theme",
-    "res_format",
+    query.THEME_ALT,
+    query.THEME,
+    query.RES_FORMAT,
     "frequency",
-    "organization",
-    "odf_features",
-    "odf_series",
+    query.FACET_ANCHOR,
+    query.FEATURES,
+    query.SERIES,
     "spatial",
     "groups",
     "tags",

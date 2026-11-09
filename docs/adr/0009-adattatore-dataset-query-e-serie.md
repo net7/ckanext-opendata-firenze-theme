@@ -47,12 +47,13 @@ renderizzava, e la stessa raccolta di membri era scritta in tre punti.
    (`features`, `series_member`, `revision`, `chapter`, …), la policy
    `hide_revisions` e le faccette aggiunte dal tema con le loro etichette.
    `plugin.py` resta un adattatore CKAN e delega.
-5. **Un contesto per serie e revisioni**: `odf_series_context(pkg)` risolve una
-   volta sola `{kind, label, total, items, serie, serie_total}`. Il pannello
-   `series_panel(context)` rende soltanto; la scheda non chiama più due
-   acquisizioni separate. Il ramo “Revisioni temporali” ha la precedenza, come
-   nel mockup; `serie`/`serie_total` restano disponibili per il badge della
-   testata e la tabella metadati.
+5. **Un contesto per serie e revisioni**: `odf_series_context(pkg, info=None)`
+   risolve una volta sola `{kind, label, total, entries, serie, serie_total}`.
+   Il pannello `series_panel(context)` rende soltanto; la scheda non chiama più
+   due acquisizioni separate e può passare l'`odf_series_info` già letto per il
+   badge, così la serie non viene cercata due volte. Il ramo “Revisioni
+   temporali” ha la precedenza, come nel mockup; `serie`/`serie_total` restano
+   disponibili per il badge della testata e la tabella metadati.
 
 Le query Solr prodotte restano identiche a prima: cambia il posto in cui sono
 scritte, non il testo.

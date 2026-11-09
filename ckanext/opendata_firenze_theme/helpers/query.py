@@ -51,6 +51,11 @@ def features(value):
     return f"{FEATURES}:{value}"
 
 
+def hvd():
+    """Dataset High Value (`extras_hvd`)."""
+    return f"{HVD_EXTRA}:true"
+
+
 def series_member(serie):
     """Dataset che dichiarano la stessa serie (extra `serie`)."""
     return f'{SERIES_EXTRA}:"{serie}"'
