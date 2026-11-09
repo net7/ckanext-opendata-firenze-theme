@@ -28,9 +28,13 @@ opendata_firenze_theme-js:
     - js/reveal.js
     - js/dropdowns.js
     - js/pager.js
-    - js/components.js
+    - js/chips.js
+    - js/copy.js
+    - js/placeholders.js
+    - js/line-clamp.js
+    - js/sql-console.js
+    - js/preview.js
     - js/home.js
-    - js/dataset.js
     - js/contact.js
   extra:
     preload:
