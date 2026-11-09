@@ -183,15 +183,7 @@ def odf_news(limit=3):
 # Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
 # derivato da questi mapping.
 HELPERS = {
-    "odf_themes": odf_themes,
-    "odf_themes_visible": odf_themes_visible,
-    "odf_dataset_count": odf_dataset_count,
-    "odf_home_kpis": odf_home_kpis,
-    "odf_featured_datasets": odf_featured_datasets,
     "odf_most_viewed": odf_most_viewed,
-    "odf_latest_datasets": odf_latest_datasets,
-    "odf_lod_datasets": odf_lod_datasets,
     "odf_geo_datasets": odf_geo_datasets,
     "odf_geo_search_query": odf_geo_search_query,
-    "odf_news": odf_news,
 }

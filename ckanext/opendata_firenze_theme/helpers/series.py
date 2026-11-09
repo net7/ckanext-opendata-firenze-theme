@@ -278,7 +278,4 @@ def odf_series_context(pkg, info=None, limit=20):
 
 # Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
 # derivato da questi mapping.
-HELPERS = {
-    "odf_series_info": odf_series_info,
-    "odf_series_context": odf_series_context,
-}
+HELPERS = {}

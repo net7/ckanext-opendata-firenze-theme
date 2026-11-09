@@ -159,16 +159,15 @@ def odf_dataset_badges(pkg):
     (ckanext-scheming non installato), la geometria si deduce anche dai formati.
     """
     facts = odf_dataset_facts(pkg)
+    labels = query.feature_labels()
     badges = []
     if facts["is_hvd"]:
-        badges.append({"kind": "hvd", "label": toolkit._("High Value Dataset")})
+        badges.append({"kind": "hvd", "label": labels[query.HVD]})
     if facts["is_lod"]:
-        badges.append({"kind": "lod", "label": toolkit._("Linked Open Data")})
+        badges.append({"kind": "lod", "label": labels[query.LOD]})
     if facts["is_geo"]:
         shape = {"punto": "puntuale", "area": "areale", "linea": "lineare"}.get(facts["geometry"])
-        label = (
-            toolkit._("Geodati · {shape}").format(shape=shape) if shape else toolkit._("Geodati")
-        )
+        label = toolkit._("Geodati · {shape}").format(shape=shape) if shape else labels[query.GEO]
         badges.append({"kind": "geo", "label": label})
     if facts["is_realtime"]:
         badges.append({"kind": "realtime", "label": toolkit._("In aggiornamento continuo")})
@@ -279,14 +278,7 @@ HELPERS = {
     "odf_dataset_is_lod": odf_dataset_is_lod,
     "odf_dataset_is_hvd": odf_dataset_is_hvd,
     "odf_dataset_is_realtime": odf_dataset_is_realtime,
-    "odf_dataset_map_resource": odf_dataset_map_resource,
-    "odf_dataset_geometry": odf_dataset_geometry,
     "odf_dataset_is_geo": odf_dataset_is_geo,
-    "odf_dataset_badges": odf_dataset_badges,
-    "odf_dataset_openness": odf_dataset_openness,
-    "odf_dataset_related": odf_dataset_related,
-    "odf_dataset_contact": odf_dataset_contact,
-    "odf_dataset_downloads": odf_dataset_downloads,
     "odf_sql_console_enabled": odf_sql_console_enabled,
     "odf_datastore_resource_id": odf_datastore_resource_id,
 }

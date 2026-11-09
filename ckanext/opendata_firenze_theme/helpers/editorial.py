@@ -62,8 +62,5 @@ def odf_annuario_page(chapter=None):
 # Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
 # derivato da questi mapping.
 HELPERS = {
-    "odf_annuario_chapters": odf_annuario_chapters,
-    "odf_annuario_count": odf_annuario_count,
-    "odf_annuario_datasets": odf_annuario_datasets,
     "odf_annuario_page": odf_annuario_page,
 }

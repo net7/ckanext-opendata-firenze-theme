@@ -21,7 +21,7 @@ def odf_breadcrumbs(leaf, section=None, parent=None, theme=None):
     if section == "catalog":
         crumbs.append({"label": toolkit._("Catalogo"), "href": toolkit.url_for("dataset.search")})
     elif section == "contact":
-        crumbs.append({"label": toolkit._("Collaborazione"), "href": "/contact"})
+        crumbs.append({"label": toolkit._("Collaborazione"), "href": toolkit.url_for("/contact")})
     if theme:
         meta = odf_theme_meta(theme)
         crumbs.append(
