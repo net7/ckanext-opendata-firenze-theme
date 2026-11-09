@@ -42,30 +42,18 @@ def homepage_blocks():
         toolkit.abort(403, toolkit._("Serve un amministratore di sistema."))
 
     if request.method == "POST":
-        blocks = home_blocks.odf_home_blocks_admin()
-        current = [block["id"] for block in blocks]
-        orders = {block["id"]: request.form.get(f"order_{block['id']}") for block in blocks}
-        texts = {
-            block["id"]: {
-                field: request.form.get(f"{field}_{block['id']}") for field in block["fields"]
-            }
-            for block in blocks
-        }
-        entries = home_blocks.entries_from_form(
-            request.form.getlist("enabled"), orders, texts, current
-        )
-        errors = home_blocks.validate_entries(entries)
-        if errors:
+        state = home_blocks.form_view(request.form)
+        if state["errors"]:
             return toolkit.render(
                 "admin/homepage_blocks.html",
                 extra_vars={
-                    "blocks": home_blocks.admin_blocks(entries),
-                    "errors": errors,
+                    "blocks": state["blocks"],
+                    "errors": state["errors"],
                     "error_summary": toolkit._("Controlla i campi evidenziati."),
                 },
             )
         toolkit.get_action("config_option_update")(
-            context, {home_blocks.OPTION: json.dumps(entries)}
+            context, {home_blocks.OPTION: json.dumps(state["entries"])}
         )
         toolkit.h.flash_success(toolkit._("Blocchi della homepage aggiornati."))
         return toolkit.redirect_to("odf_admin.homepage_blocks")
