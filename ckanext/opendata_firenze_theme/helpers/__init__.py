@@ -17,7 +17,6 @@ from . import (  # noqa: F401
     home_sections,
     navigation,
     resource,
-    series,
 )
 from ._common import odf_number
 from .catalog import (
@@ -51,7 +50,6 @@ from .dataset import (
     odf_dataset_map_resource,
     odf_dataset_openness,
     odf_dataset_related,
-    odf_dataset_size,
     odf_datastore_resource_id,
     odf_format_is_geo,
     odf_index_features,
@@ -116,7 +114,6 @@ HELPER_MODULES = (
     home_sections,
     navigation,
     resource,
-    series,
     _common,
 )
 
@@ -132,7 +129,6 @@ _PUBLIC_FUNCTIONS = (
     "odf_dataset_is_series",
     "odf_dataset_revisions",
     "odf_dataset_series",
-    "odf_dataset_size",
     "odf_index_features",
     "odf_index_series",
     "odf_theme_counts",

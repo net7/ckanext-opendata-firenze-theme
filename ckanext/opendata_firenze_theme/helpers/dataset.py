@@ -6,7 +6,6 @@ import ckan.plugins.toolkit as toolkit
 from . import _common, query
 from .catalog import odf_package_theme
 from .constants import GEO_FORMATS_UPPER, GEOMETRY_SHAPES, LOD_FORMATS_UPPER
-from .format import odf_filesize
 from .resource import odf_resource_download_url
 
 
@@ -239,17 +238,6 @@ def odf_dataset_downloads(pkg):
             }
         )
     return downloads
-
-
-def odf_dataset_size(pkg):
-    """Dimensione totale delle risorse (formattata); '' se non disponibile."""
-    total = 0
-    for res in pkg.get("resources") or []:
-        try:
-            total += int(float(res.get("size") or 0))
-        except (TypeError, ValueError):
-            continue
-    return odf_filesize(total)
 
 
 def odf_sql_console_enabled():

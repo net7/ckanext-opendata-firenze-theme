@@ -274,8 +274,3 @@ def odf_series_context(pkg, info=None, limit=20):
             entries=info["members"],
         )
     return context
-
-
-# Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
-# derivato da questi mapping.
-HELPERS = {}
