@@ -179,11 +179,13 @@ def test_series_panel_renders(with_plugins, with_request_context):
         return found
 
     with mock.patch.object(helpers._common, "_search", side_effect=fake_search):
+        context = helpers.odf_series_context(pkg)
         html = _render(
             "{% from 'snippets/opendata_firenze_theme/dataset/serie.html' import series_panel %}"
-            "{{ series_panel(pkg) }}",
-            pkg=pkg,
+            "{{ series_panel(context) }}",
+            context=context,
         )
+    assert context["kind"] == "series"
     assert "Serie «Open SDIAF»" in html
     assert "rtt-accordion" in html
     assert "Altra banca dati" in html
@@ -223,11 +225,13 @@ def test_revisions_panel_renders(with_plugins, with_request_context):
         ]
     }
     with mock.patch.object(helpers._common, "_search", return_value=found):
+        context = helpers.odf_series_context(pkg)
         html = _render(
             "{% from 'snippets/opendata_firenze_theme/dataset/serie.html' import series_panel %}"
-            "{{ series_panel(pkg) }}",
-            pkg=pkg,
+            "{{ series_panel(context) }}",
+            context=context,
         )
+    assert context["kind"] == "revisions"
     assert "Revisioni temporali" in html
     assert "rtt-accordion" in html
     assert "Revisioni precedenti · 1" in html

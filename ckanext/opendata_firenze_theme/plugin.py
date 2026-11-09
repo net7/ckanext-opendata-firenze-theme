@@ -2,7 +2,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 from ckanext.opendata_firenze_theme import helpers, views
-from ckanext.opendata_firenze_theme.helpers import home_blocks
+from ckanext.opendata_firenze_theme.helpers import home_blocks, query
 
 # Favicon di CKAN (default di ckan.favicon): il tema la sostituisce con il giglio del Comune,
 # ma solo se la configurazione non ne indica gia' un'altra.
@@ -56,21 +56,8 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
     # IFacets
 
     def dataset_facets(self, facets_dict, package_type):
-        """Aggiunge la faccetta "Caratteristiche" (campo Solr `odf_features`).
-
-        I valori (geo/alfanumerico/hvd/lod) sono calcolati in
-        `before_dataset_index`; qui si aggiunge solo il gruppo al catalogo,
-        subito dopo "Chi pubblica" come nel mockup.
-        """
-        facets = type(facets_dict)()
-        for key, value in facets_dict.items():
-            facets[key] = value
-            if key == "organization":
-                facets["odf_features"] = toolkit._("Caratteristiche")
-                facets["odf_series"] = toolkit._("Serie")
-        facets.setdefault("odf_features", toolkit._("Caratteristiche"))
-        facets.setdefault("odf_series", toolkit._("Serie"))
-        return facets
+        """Aggiunge "Caratteristiche" e "Serie" (policy in `helpers.query`)."""
+        return query.dataset_facets(facets_dict)
 
     def group_facets(self, facets_dict, group_type, package_type):
         return facets_dict
@@ -89,19 +76,5 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
     # IPackageController
 
     def before_dataset_search(self, search_params):
-        """Nasconde dal catalogo le revisioni temporali (dataset con `is_version_of`).
-
-        Convenzione: il dataset **corrente** non ha `is_version_of` ed è l'unico
-        visibile in catalogo; le revisioni precedenti lo puntano e qui vengono
-        escluse. Restano raggiungibili dal pannello "Revisioni temporali", che
-        cerca esplicitamente `extras_is_version_of`: in quel caso il filtro non
-        si applica. Vedi `odf_dataset_revisions`.
-        """
-        haystack = " ".join(str(search_params.get(key) or "") for key in ("q", "fq"))
-        if "extras_is_version_of" in haystack:
-            return search_params
-        fq = search_params.get("fq") or ""
-        if isinstance(fq, list):
-            fq = " ".join(str(part) for part in fq)
-        search_params["fq"] = (fq + " -extras_is_version_of:[* TO *]").strip()
-        return search_params
+        """Nasconde dal catalogo le revisioni temporali (policy in `helpers.query`)."""
+        return query.hide_revisions(search_params)

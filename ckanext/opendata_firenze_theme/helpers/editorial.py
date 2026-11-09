@@ -1,6 +1,6 @@
 """Helper delle pagine editoriali: Annuario (capitoli) e news."""
 
-from . import _common
+from . import _common, query
 from .constants import ANNUARIO_CHAPTERS
 
 
@@ -23,7 +23,7 @@ def odf_annuario_count(chapter):
     """
     if not chapter:
         return 0
-    return _common._search(rows=0, fq=f'extras_capitolo:"{chapter}"')["count"]
+    return _common._search(rows=0, fq=query.chapter(chapter))["count"]
 
 
 def odf_annuario_datasets(chapter, limit=None):
@@ -35,7 +35,7 @@ def odf_annuario_datasets(chapter, limit=None):
     if not chapter:
         return []
     rows = limit if limit is not None else 200
-    data = _common._search(rows=rows, fq=f'extras_capitolo:"{chapter}"', sort="title_string asc")
+    data = _common._search(rows=rows, fq=query.chapter(chapter), sort="title_string asc")
     return data["results"]
 
 

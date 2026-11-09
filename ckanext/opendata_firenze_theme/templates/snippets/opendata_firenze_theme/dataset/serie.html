@@ -46,23 +46,17 @@
 <button type="button" class="rtt-btn rtt-btn--outline rtt-btn--sm">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica tutta la serie') }}</button>
 {%- endmacro %}
 
-{% macro series_panel(pkg, members=None, count=None) -%}
-{% set revisions = h.odf_dataset_revisions(pkg) %}
-{% if revisions %}
+{% macro series_panel(context) -%}
+{% if context and context.kind == 'revisions' %}
 {% call panel(_('Revisioni temporali'), action=_download_all_button()) %}
   <p class="rtt-body-sm rtt-panel__note">{{ _('Questo dataset viene aggiornato periodicamente: qui trovi le revisioni pubblicate negli anni precedenti.') }}</p>
-  {{ _series_accordion(_('Revisioni precedenti · {num}').format(num=revisions|length), revisions, True) }}
+  {{ _series_accordion(_('Revisioni precedenti · {num}').format(num=context['items']|length), context['items'], True) }}
 {% endcall %}
-{% else %}
-{% set serie = h.odf_pkg_extra(pkg, 'serie') %}
-{% set siblings = members if members is not none else h.odf_dataset_series(pkg) %}
-{% if serie and siblings %}
-{% set total = count if count is not none else siblings|length + 1 %}
-{% call panel(_('Serie «{serie}»').format(serie=serie), action=_download_all_button()) %}
-  <p class="rtt-body-sm rtt-panel__note">{{ _('Questo dataset fa parte di una serie di {num} dataset collegati. Aprine uno per vederne la scheda.').format(num=total) }}</p>
-  {{ _series_accordion(_('I dataset della serie · {num}').format(num=siblings|length), siblings, False) }}
-  <a class="rtt-actionlink" href="{{ h.url_for('dataset.search', odf_series=serie) }}">{{ _('Vedi tutta la serie nel catalogo') }}{{ icon('arrow-right', 20, 'rtt-actionlink__icon') }}</a>
+{% elif context and context.kind == 'series' and context['items'] %}
+{% call panel(_('Serie «{serie}»').format(serie=context.label), action=_download_all_button()) %}
+  <p class="rtt-body-sm rtt-panel__note">{{ _('Questo dataset fa parte di una serie di {num} dataset collegati. Aprine uno per vederne la scheda.').format(num=context.total) }}</p>
+  {{ _series_accordion(_('I dataset della serie · {num}').format(num=context['items']|length), context['items'], False) }}
+  <a class="rtt-actionlink" href="{{ h.url_for('dataset.search', odf_series=context.label) }}">{{ _('Vedi tutta la serie nel catalogo') }}{{ icon('arrow-right', 20, 'rtt-actionlink__icon') }}</a>
 {% endcall %}
-{% endif %}
 {% endif %}
 {%- endmacro %}

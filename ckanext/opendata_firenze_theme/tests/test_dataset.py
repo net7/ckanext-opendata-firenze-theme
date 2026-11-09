@@ -205,6 +205,60 @@ def test_dataset_series_helper(with_plugins, with_request_context):
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.ckan_config("ckan.site_url", "https://opendata-firenze.test")
+def test_series_context_prefers_revisions(with_plugins, with_request_context):
+    """Il contesto sceglie le revisioni quando ci sono (come il mockup)."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    pkg = {"id": "self", "name": "self", "extras": [{"key": "serie", "value": "S"}]}
+    found = {"results": [{"id": "r", "name": "r-2024", "title": "R 2024"}], "count": 2}
+    with mock.patch.object(helpers._common, "_search", return_value=found):
+        context = helpers.odf_series_context(pkg)
+    assert context["kind"] == "revisions"
+    assert context["label"] == ""
+    assert context["total"] == 2
+    assert [item["name"] for item in context["items"]] == ["r-2024"]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.ckan_config("ckan.site_url", "https://opendata-firenze.test")
+def test_series_context_falls_back_to_series(with_plugins, with_request_context):
+    """Senza revisioni, il contesto è la serie dichiarata dall'extra."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    pkg = {"id": "self", "name": "self", "extras": [{"key": "serie", "value": "S"}]}
+
+    def fake_search(**params):
+        if "is_version_of" in (params.get("fq") or ""):
+            return {"results": [], "count": 0}
+        return {"results": [{"id": "a", "name": "a", "title": "A"}], "count": 3}
+
+    with mock.patch.object(helpers._common, "_search", side_effect=fake_search):
+        context = helpers.odf_series_context(pkg)
+    assert context["kind"] == "series"
+    assert context["label"] == "S"
+    assert context["total"] == 3
+    assert [item["name"] for item in context["items"]] == ["a"]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.ckan_config("ckan.site_url", "https://opendata-firenze.test")
+def test_series_context_empty(with_plugins, with_request_context):
+    """Senza serie e senza revisioni il pannello non ha nulla da mostrare."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    with mock.patch.object(helpers._common, "_search", return_value={"results": []}):
+        assert helpers.odf_series_context({"id": "x", "name": "x"}) == {
+            "kind": None,
+            "label": "",
+            "total": 0,
+            "items": [],
+            "serie": "",
+            "serie_total": 0,
+        }
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.ckan_config("ckan.site_url", "https://opendata-firenze.test")
 def test_dataset_revisions_helper(with_plugins, with_request_context):
     from ckanext.opendata_firenze_theme import helpers
 

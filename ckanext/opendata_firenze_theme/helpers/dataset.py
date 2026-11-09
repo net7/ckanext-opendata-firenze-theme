@@ -6,7 +6,7 @@ from urllib.parse import unquote, urlsplit
 import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
-from . import _common
+from . import _common, query
 from .catalog import odf_package_theme
 from .constants import GEO_FORMATS_UPPER, GEOMETRY_SHAPES, LOD_FORMATS_UPPER
 from .format import odf_filesize
@@ -95,11 +95,11 @@ def odf_index_features(pkg):
     sul dict appiattito che CKAN passa a `before_dataset_index` (`extras_*`).
     """
     facts = odf_dataset_facts(pkg)
-    features = ["geo"] if facts["is_geo"] else ["alfanumerico"]
+    features = [query.GEO] if facts["is_geo"] else [query.ALPHANUMERIC]
     if facts["is_lod"]:
-        features.append("lod")
+        features.append(query.LOD)
     if facts["is_hvd"]:
-        features.append("hvd")
+        features.append(query.HVD)
     return features
 
 
@@ -244,16 +244,14 @@ def _series_item(result):
     }
 
 
-def _series_siblings(pkg, fq, limit):
-    """Altri dataset che soddisfano `fq`, escluso sé stesso (via package_search).
+def _members_from_search(pkg, data, limit):
+    """Voci del pannello dai risultati di una ricerca, escluso il dataset stesso.
 
-    Nel caso delle revisioni `fq` cita `extras_is_version_of`: il filtro del
-    catalogo (vedi `before_dataset_search` nel plugin) le lascia passare proprio
-    perché la ricerca le nomina esplicitamente.
+    È l'unico punto che applica la regola "salta sé stesso, fermati a `limit`":
+    serie e revisioni la condividono.
     """
-    data = _common._search(rows=limit + 1, fq=fq, sort=_SERIES_SORT)
     items = []
-    for result in data["results"]:
+    for result in data.get("results") or []:
         if result.get("id") == pkg.get("id"):
             continue
         items.append(_series_item(result))
@@ -262,25 +260,32 @@ def _series_siblings(pkg, fq, limit):
     return items
 
 
+def _series_siblings(pkg, fq, limit):
+    """Altri dataset che soddisfano `fq`, escluso sé stesso (via package_search).
+
+    Nel caso delle revisioni `fq` cita `extras_is_version_of`: il filtro del
+    catalogo (vedi `helpers.query.hide_revisions`) le lascia passare proprio
+    perché la ricerca le nomina esplicitamente.
+    """
+    data = _common._search(rows=limit + 1, fq=fq, sort=_SERIES_SORT)
+    return _members_from_search(pkg, data, limit)
+
+
 def odf_series_info(pkg, limit=20):
     """Serie del dataset in una sola ricerca: nome, totale e membri.
 
     `count` è il totale della serie (incluso il dataset corrente), `members`
     sono al massimo `limit` voci pronte per il pannello (escluso sé stesso).
-    Usato dalla scheda dataset per non fare due ricerche (conteggio + lista).
     """
     serie = odf_pkg_extra(pkg, "serie")
     if not serie:
         return {"serie": "", "count": 0, "members": []}
-    data = _common._search(rows=limit + 1, fq=f'extras_serie:"{serie}"', sort=_SERIES_SORT)
-    members = []
-    for result in data.get("results") or []:
-        if result.get("id") == pkg.get("id"):
-            continue
-        members.append(_series_item(result))
-        if len(members) >= limit:
-            break
-    return {"serie": serie, "count": data.get("count", 0), "members": members}
+    data = _common._search(rows=limit + 1, fq=query.series_member(serie), sort=_SERIES_SORT)
+    return {
+        "serie": serie,
+        "count": data.get("count", 0),
+        "members": _members_from_search(pkg, data, limit),
+    }
 
 
 def odf_dataset_series(pkg, limit=20):
@@ -299,7 +304,7 @@ def odf_dataset_series(pkg, limit=20):
     serie = odf_pkg_extra(pkg, "serie")
     if not serie:
         return []
-    return _series_siblings(pkg, f'extras_serie:"{serie}"', limit)
+    return _series_siblings(pkg, query.series_member(serie), limit)
 
 
 def _is_version_of_roots(pkg):
@@ -388,7 +393,7 @@ def _revision_year_from(result):
     return _revision_year(result.get("title"), result.get("name"))
 
 
-def odf_dataset_revisions(pkg, limit=20):
+def _revision_items(pkg, limit=20):
     """Revisioni temporali (`dct:isVersionOf`) per il pannello della scheda.
 
     Convenzione: il dataset **corrente** non ha `is_version_of` ed è quello
@@ -409,12 +414,12 @@ def odf_dataset_revisions(pkg, limit=20):
         canonical = _dataset_by_uri_root(roots)
         if canonical and canonical.get("id") != pkg.get("id"):
             items.append(_series_item(canonical))
-        fqs = [f'extras_is_version_of:"{root}"' for root in roots]
+        fqs = [query.revision(root) for root in roots]
     else:
         uris = _dataset_uris(pkg)
         if not uris:
             return []
-        fqs = [f'extras_is_version_of:"{uri}"' for uri in uris]
+        fqs = [query.revision(uri) for uri in uris]
     # Una query per URI: con `OR` nel fq il parser Solr scavalca i filtri che
     # CKAN antepone (`+capacity:public`, `+state:(active)`) e matcha tutto.
     seen = {pkg.get("id")} | {item.get("name") for item in items}
@@ -429,6 +434,48 @@ def odf_dataset_revisions(pkg, limit=20):
         if len(items) >= limit:
             break
     return items[:limit]
+
+
+def odf_dataset_revisions(pkg, limit=20):
+    """Revisioni temporali (`dct:isVersionOf`) del dataset (vedi `_revision_items`)."""
+    return _revision_items(pkg, limit)
+
+
+def odf_series_context(pkg, limit=20):
+    """Contesto del pannello serie/revisioni della scheda, in una sola risoluzione.
+
+    Ritorna `{kind, label, total, items, serie, serie_total}`:
+    - `kind`: "revisions" (il ramo temporale ha la precedenza, come il mockup),
+      "series" oppure None;
+    - `label`: nome della serie mostrata dal pannello (`kind="series"`);
+    - `total`: totale dei dataset del ramo attivo, incluso quello corrente;
+    - `items`: voci pronte per il pannello, escluso il dataset corrente;
+    - `serie`/`serie_total`: la serie dichiarata dall'extra e il suo totale,
+      indipendenti dal ramo, per il badge e la tabella metadati della testata.
+
+    La scheda chiama questo una volta sola: prima `read.html` chiedeva i membri
+    della serie e poi il pannello rifaceva la ricerca delle revisioni.
+    """
+    info = odf_series_info(pkg, limit)
+    revisions = _revision_items(pkg, limit)
+    context = {
+        "serie": info["serie"],
+        "serie_total": info["count"],
+        "label": "",
+        "total": 0,
+        "items": [],
+        "kind": None,
+    }
+    if revisions:
+        context.update(kind="revisions", total=len(revisions) + 1, items=revisions)
+    elif info["members"]:
+        context.update(
+            kind="series",
+            label=info["serie"],
+            total=info["count"],
+            items=info["members"],
+        )
+    return context
 
 
 def odf_dataset_contact(pkg):
@@ -559,6 +606,7 @@ HELPERS = {
     "odf_series_info": odf_series_info,
     "odf_dataset_series": odf_dataset_series,
     "odf_dataset_revisions": odf_dataset_revisions,
+    "odf_series_context": odf_series_context,
     "odf_dataset_contact": odf_dataset_contact,
     "odf_dataset_downloads": odf_dataset_downloads,
     "odf_dataset_size": odf_dataset_size,
