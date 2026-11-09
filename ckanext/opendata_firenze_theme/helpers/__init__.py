@@ -66,7 +66,7 @@ from .editorial import (
     odf_annuario_datasets,
     odf_annuario_page,
 )
-from .format import FREQUENCY_LABELS, odf_date, odf_filesize, odf_frequency_label, odf_time_ago
+from .format import odf_date, odf_filesize, odf_frequency_label, odf_time_ago
 from .home import (
     odf_dataset_count,
     odf_featured_datasets,
@@ -126,19 +126,13 @@ for _module in HELPER_MODULES:
 
 # Nomi pubblici che non sono helper da template: costanti e funzioni usate da
 # plugin, viste e test.
-_PUBLIC_CONSTANTS = (
-    "ANNUARIO_CHAPTERS",
-    "FACET_ORDER",
-    "GEO_FORMATS",
-    "GEO_FORMATS_UPPER",
-    "GEOMETRY_SHAPES",
-    "THEME_CODES",
-    "THEMES",
-    "VIEW_TITLES",
-    "FREQUENCY_LABELS",
-)
+_PUBLIC_CONSTANTS = ("THEMES",)
 _PUBLIC_FUNCTIONS = (
     "odf_dataset_facts",
+    "odf_dataset_is_series",
+    "odf_dataset_revisions",
+    "odf_dataset_series",
+    "odf_dataset_size",
     "odf_index_features",
     "odf_index_series",
     "odf_theme_counts",

@@ -280,7 +280,5 @@ def odf_series_context(pkg, info=None, limit=20):
 # derivato da questi mapping.
 HELPERS = {
     "odf_series_info": odf_series_info,
-    "odf_dataset_series": odf_dataset_series,
-    "odf_dataset_revisions": odf_dataset_revisions,
     "odf_series_context": odf_series_context,
 }
