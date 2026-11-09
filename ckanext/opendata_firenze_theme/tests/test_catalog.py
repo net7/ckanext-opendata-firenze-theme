@@ -77,6 +77,16 @@ def test_package_theme_helper():
     assert helpers.odf_package_theme(aggr) == "SOCI"
     # extras come dict
     assert helpers.odf_package_theme({"extras": {"Theme": f'["{base}TRAN"]'}}) == "TRAN"
+    # package_search appiattisce gli extra in `extras_*`: il tema non si perde
+    assert helpers.odf_package_theme({"extras_theme": f'["{base}ENVI"]'}) == "ENVI"
+    # extra `theme` e campo in cima insieme: vince l'extra, come per ogni altro
+    # campo letto da `_common.pkg_field`
+    assert (
+        helpers.odf_package_theme(
+            {"theme": f"{base}AGRI", "extras": [{"key": "theme", "value": f'["{base}ENVI"]'}]}
+        )
+        == "ENVI"
+    )
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

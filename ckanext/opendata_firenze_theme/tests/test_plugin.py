@@ -121,6 +121,8 @@ def test_template_helpers_registered():
         "odf_resource_filename",
         "odf_resource_separator",
         "odf_dataset_is_lod",
+        "odf_dataset_is_hvd",
+        "odf_dataset_is_realtime",
         "odf_dataset_is_series",
         "odf_dataset_map_resource",
         "odf_views_map_first",
@@ -132,6 +134,26 @@ def test_template_helpers_registered():
         "odf_time_ago",
     }
     assert set(helpers.get_helpers()) == expected
+
+
+def test_helper_registry_is_derived_from_modules():
+    """Il registro viene dai `HELPERS` dei moduli, non da un elenco a parte.
+
+    Se un helper finisce in un modulo ma non nel suo `HELPERS`, il template lo
+    perde in silenzio; se il nome della chiave non coincide con la funzione, il
+    test lo segnala subito invece di far rendere vuoto un `h.odf_*`.
+    """
+    from ckanext.opendata_firenze_theme import helpers
+
+    declared = {}
+    for module in helpers.HELPER_MODULES:
+        for name, function in module.HELPERS.items():
+            assert function.__name__ == name, f"{module.__name__}: {name}"
+            assert name not in declared, f"{name} dichiarato due volte"
+            declared[name] = function
+
+    assert set(helpers.get_helpers()) == set(declared)
+    assert set(declared) <= set(helpers.__all__)
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

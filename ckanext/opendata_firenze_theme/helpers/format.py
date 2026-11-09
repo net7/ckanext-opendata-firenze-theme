@@ -93,3 +93,13 @@ def odf_filesize(size):
             return f"{value:.1f}".replace(".", ",") + f" {unit}"
         value /= 1024
     return ""
+
+
+# Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
+# derivato da questi mapping.
+HELPERS = {
+    "odf_date": odf_date,
+    "odf_time_ago": odf_time_ago,
+    "odf_frequency_label": odf_frequency_label,
+    "odf_filesize": odf_filesize,
+}

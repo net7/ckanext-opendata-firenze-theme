@@ -65,9 +65,9 @@ def test_sviluppatori_page(app):
     assert "GetCapabilities" in geo
     # pannello dei dataset con estensione spaziale
     assert "Dataset con estensione spaziale" in geo
-    # il link filtra davvero il catalogo (query sui formati geografici)
+    # il link filtra davvero il catalogo (query sul campo delle caratteristiche)
     assert "Filtra il catalogo per geodati" in geo
-    assert "q=res_format:(GeoJSON" in geo
+    assert "q=odf_features:geo" in geo
     mcp = _body(app.get("/sviluppatori-e-lod?tab=mcp"))
     assert "MCP Server pubblico" in mcp
     assert "search_datasets" in mcp

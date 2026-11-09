@@ -95,8 +95,8 @@ def test_dataset_helpers(with_plugins, with_request_context):
     assert helpers.odf_dataset_formats(
         {"resources": [{"format": "csv"}, {"format": "CSV"}, {"format": "GeoJSON"}]}
     ) == [
-        "CSV",
-        "GEOJSON",
+        "csv",
+        "GeoJSON",
     ]
 
     # geometria normalizzata, qualunque sia il maiuscolo dell'extra
@@ -125,6 +125,29 @@ def test_dataset_helpers(with_plugins, with_request_context):
     assert helpers.odf_index_features(lod) == ["alfanumerico", "lod"]
     index_dict = {"res_format": ["GeoJSON"], "extras_hvd": "true"}
     assert helpers.odf_index_features(index_dict) == ["geo", "hvd"]
+
+    # regola unica di "geodato": badge, faccetta e card concordano
+    assert helpers.odf_dataset_is_geo({"extras": [{"key": "spatial", "value": "true"}]}) is True
+    assert helpers.odf_dataset_is_geo({"extras": [{"key": "spatial", "value": "false"}]}) is False
+    assert helpers.odf_index_features({"extras": [{"key": "spatial", "value": "false"}]}) == [
+        "alfanumerico"
+    ]
+    assert helpers.odf_index_features({"extras": [{"key": "spatial", "value": "true"}]}) == ["geo"]
+    # `spatial` è spesso una WKT, non una parola booleana: conta comunque
+    wkt = {"extras": [{"key": "spatial", "value": "POLYGON((0 0, 1 0, 1 1, 0 0))"}]}
+    assert helpers.odf_dataset_is_geo(wkt) is True
+    assert helpers.odf_index_features(wkt) == ["geo"]
+    # geometria non riconosciuta: resta un geodato, ma senza forma nel badge
+    geometry_only = {"extras": [{"key": "geometria", "value": "x"}]}
+    assert helpers.odf_dataset_is_geo(geometry_only) is True
+    assert helpers.odf_index_features(geometry_only) == ["geo"]
+    assert helpers.odf_dataset_badges(geometry_only)[0]["label"] == "Geodati"
+    # extras appiattiti di package_search: stessa risposta del package_show
+    flat = {"extras_geometria": "area", "extras_spatial_geometry": "true"}
+    assert helpers.odf_dataset_is_geo(flat) is True
+    assert helpers.odf_index_features(flat) == ["geo"]
+    assert helpers.odf_dataset_is_hvd({"extras_hvd": "true"}) is True
+    assert "hvd" in {b["kind"] for b in helpers.odf_dataset_badges({"extras_hvd": "true"})}
 
     # ckanext-dcat rinomina le chiavi con l'etichetta nelle viste: `theme` -> `Theme`
     assert helpers.odf_pkg_extra({"extras": [{"key": "Theme", "value": "x"}]}, "theme") == "x"
@@ -177,7 +200,7 @@ def test_dataset_series_helper(with_plugins, with_request_context):
         series = helpers.odf_dataset_series(pkg)
     # sé stesso escluso, formati deduplicati da Solr (res_format)
     assert [s["name"] for s in series] == ["a", "b"]
-    assert series[0]["formats"] == ["CSV", "GEOJSON"]
+    assert series[0]["formats"] == ["CSV", "GeoJSON"]
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

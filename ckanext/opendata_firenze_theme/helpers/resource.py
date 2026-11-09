@@ -44,3 +44,12 @@ def odf_resource_preview_url(pkg, res):
         )
     except Exception:
         return ""
+
+
+# Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
+# derivato da questi mapping.
+HELPERS = {
+    "odf_resource_download_url": odf_resource_download_url,
+    "odf_resource_view_title": odf_resource_view_title,
+    "odf_resource_preview_url": odf_resource_preview_url,
+}

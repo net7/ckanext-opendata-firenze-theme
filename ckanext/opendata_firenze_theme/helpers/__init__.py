@@ -5,7 +5,7 @@ Re-export dei moduli del package: template e test li usano come `h.odf_*` /
 `format`, le query Solr (sostituibili nei test) in `_common`.
 """
 
-from . import _common  # noqa: F401  (esposto per i test: helpers._common._search)
+from . import _common, catalog, dataset, editorial, format, home, home_blocks, resource  # noqa: F401
 from ._common import odf_number
 from .catalog import odf_active_filters, odf_facet_all_url, odf_facet_groups, odf_package_theme
 from .constants import (
@@ -22,10 +22,13 @@ from .dataset import (
     odf_dataset_badges,
     odf_dataset_contact,
     odf_dataset_downloads,
+    odf_dataset_facts,
     odf_dataset_formats,
     odf_dataset_geometry,
     odf_dataset_is_geo,
+    odf_dataset_is_hvd,
     odf_dataset_is_lod,
+    odf_dataset_is_realtime,
     odf_dataset_is_series,
     odf_dataset_map_resource,
     odf_dataset_openness,
@@ -63,12 +66,29 @@ from .home import (
 from .home_blocks import entries_from_form, odf_home_blocks, odf_home_blocks_admin
 from .resource import odf_resource_download_url, odf_resource_preview_url, odf_resource_view_title
 
-__all__ = [
-    "odf_number",
-    "odf_active_filters",
-    "odf_facet_all_url",
-    "odf_facet_groups",
-    "odf_package_theme",
+# Moduli che dichiarano i propri helper in `HELPERS`: il registro dei template
+# è derivato da lì. Aggiungere un helper costa la voce in `HELPERS` e l'import
+# in questo file; `__all__` e `get_helpers()` non vanno più toccati. La lista
+# esplicita in `tests/test_plugin.py` resta di proposito: è la guardia contro
+# le rimozioni silenziose.
+HELPER_MODULES = (
+    catalog,
+    dataset,
+    editorial,
+    format,
+    home,
+    home_blocks,
+    resource,
+    _common,
+)
+
+_REGISTRY = {}
+for _module in HELPER_MODULES:
+    _REGISTRY.update(_module.HELPERS)
+
+# Nomi pubblici che non sono helper da template: costanti e funzioni usate da
+# plugin, viste e test.
+_PUBLIC_CONSTANTS = (
     "ANNUARIO_CHAPTERS",
     "FACET_ORDER",
     "GEO_FORMATS",
@@ -77,106 +97,20 @@ __all__ = [
     "THEME_CODES",
     "THEMES",
     "VIEW_TITLES",
-    "odf_dataset_badges",
-    "odf_dataset_contact",
-    "odf_dataset_downloads",
-    "odf_dataset_formats",
-    "odf_dataset_geometry",
-    "odf_dataset_is_geo",
-    "odf_dataset_is_lod",
-    "odf_dataset_openness",
-    "odf_dataset_related",
-    "odf_dataset_revisions",
-    "odf_dataset_series",
-    "odf_dataset_size",
-    "odf_series_info",
-    "odf_datastore_resource_id",
-    "odf_format_is_geo",
+    "FREQUENCY_LABELS",
+)
+_PUBLIC_FUNCTIONS = (
+    "odf_dataset_facts",
     "odf_index_features",
     "odf_index_series",
-    "odf_pkg_extra",
-    "odf_views_map_first",
-    "odf_resource_filename",
-    "odf_resource_separator",
-    "odf_sql_console_enabled",
-    "odf_annuario_chapters",
-    "odf_annuario_count",
-    "odf_annuario_datasets",
-    "FREQUENCY_LABELS",
-    "odf_date",
-    "odf_filesize",
-    "odf_frequency_label",
-    "odf_time_ago",
-    "odf_dataset_count",
-    "odf_featured_datasets",
-    "odf_geo_datasets",
-    "odf_geo_search_query",
-    "odf_home_kpis",
-    "odf_latest_datasets",
-    "odf_lod_datasets",
-    "odf_most_viewed",
-    "odf_news",
     "odf_theme_counts",
-    "odf_themes",
-    "odf_themes_visible",
-    "odf_home_blocks",
     "odf_home_blocks_admin",
     "entries_from_form",
-    "odf_resource_download_url",
-    "odf_resource_preview_url",
-    "odf_resource_view_title",
-]
+)
+
+__all__ = [*_REGISTRY, *_PUBLIC_CONSTANTS, *_PUBLIC_FUNCTIONS]
 
 
 def get_helpers():
-    return {
-        "odf_dataset_count": odf_dataset_count,
-        "odf_package_theme": odf_package_theme,
-        "odf_facet_all_url": odf_facet_all_url,
-        "odf_active_filters": odf_active_filters,
-        "odf_facet_groups": odf_facet_groups,
-        "odf_home_kpis": odf_home_kpis,
-        "odf_themes": odf_themes,
-        "odf_themes_visible": odf_themes_visible,
-        "odf_featured_datasets": odf_featured_datasets,
-        "odf_latest_datasets": odf_latest_datasets,
-        "odf_lod_datasets": odf_lod_datasets,
-        "odf_most_viewed": odf_most_viewed,
-        "odf_geo_datasets": odf_geo_datasets,
-        "odf_geo_search_query": odf_geo_search_query,
-        "odf_news": odf_news,
-        "odf_home_blocks": odf_home_blocks,
-        "odf_annuario_chapters": odf_annuario_chapters,
-        "odf_annuario_count": odf_annuario_count,
-        "odf_annuario_datasets": odf_annuario_datasets,
-        "odf_pkg_extra": odf_pkg_extra,
-        "odf_dataset_formats": odf_dataset_formats,
-        "odf_format_is_geo": odf_format_is_geo,
-        "odf_dataset_badges": odf_dataset_badges,
-        "odf_dataset_geometry": odf_dataset_geometry,
-        "odf_dataset_is_geo": odf_dataset_is_geo,
-        "odf_dataset_is_lod": odf_dataset_is_lod,
-        "odf_dataset_is_series": odf_dataset_is_series,
-        "odf_dataset_map_resource": odf_dataset_map_resource,
-        "odf_views_map_first": odf_views_map_first,
-        "odf_number": odf_number,
-        "odf_dataset_openness": odf_dataset_openness,
-        "odf_dataset_related": odf_dataset_related,
-        "odf_dataset_revisions": odf_dataset_revisions,
-        "odf_dataset_series": odf_dataset_series,
-        "odf_series_info": odf_series_info,
-        "odf_dataset_contact": odf_dataset_contact,
-        "odf_dataset_downloads": odf_dataset_downloads,
-        "odf_resource_download_url": odf_resource_download_url,
-        "odf_resource_preview_url": odf_resource_preview_url,
-        "odf_resource_view_title": odf_resource_view_title,
-        "odf_dataset_size": odf_dataset_size,
-        "odf_resource_filename": odf_resource_filename,
-        "odf_resource_separator": odf_resource_separator,
-        "odf_sql_console_enabled": odf_sql_console_enabled,
-        "odf_datastore_resource_id": odf_datastore_resource_id,
-        "odf_date": odf_date,
-        "odf_frequency_label": odf_frequency_label,
-        "odf_filesize": odf_filesize,
-        "odf_time_ago": odf_time_ago,
-    }
+    """Helper registrati in ITemplateHelpers (plugin.py)."""
+    return dict(_REGISTRY)

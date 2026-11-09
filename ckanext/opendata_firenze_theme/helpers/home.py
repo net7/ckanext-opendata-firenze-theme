@@ -5,7 +5,7 @@ import logging
 import ckan.plugins.toolkit as toolkit
 
 from . import _common
-from .constants import ANNUARIO_CHAPTERS, GEO_FORMATS, THEMES
+from .constants import ANNUARIO_CHAPTERS, THEMES
 
 log = logging.getLogger(__name__)
 
@@ -59,11 +59,11 @@ def odf_home_kpis():
     """
     base = _common._search(rows=0, **{"facet.field": ["organization"], "facet.limit": 100})
     total = base["count"]
-    # "geografici" = dataset con almeno una risorsa in un formato geo: piu'
-    # affidabile del campo Solr `spatial` (ckanext-spatial non indicizza gli
-    # extra `spatial` impostati a mano) e coerente col badge "Geodati".
-    geo_formats = " OR ".join(sorted(GEO_FORMATS))
-    geo = _common._search(rows=0, fq=f"res_format:({geo_formats})")["count"]
+    # "geografici" = campo Solr `odf_features` (faccetta "Caratteristiche"),
+    # scritto da `before_dataset_index` con la stessa regola del badge
+    # "Geodati": formati geo oppure extras spatial/geometria. Così conteggio,
+    # badge, faccetta e lista usano un'unica definizione.
+    geo = _common._search(rows=0, fq="odf_features:geo")["count"]
     tavole = _common._search(rows=0, fq="extras_capitolo:[* TO *]")["count"]
     serie = _common._search(rows=0, fq="extras_serie:[* TO *]")["count"]
     return [
@@ -135,25 +135,26 @@ def odf_lod_datasets(limit=6):
 
 
 def odf_geo_datasets(limit=12):
-    """Dataset con almeno una risorsa in un formato geografico.
+    """Dataset con contenuto geografico (campo Solr `odf_features`).
 
-    Usa la stessa definizione di "dati geografici" delle KPI della home (formati
-    in `GEO_FORMATS`), così conteggi e liste restano coerenti.
+    Usa la stessa definizione di "dati geografici" delle KPI della home, della
+    faccetta "Caratteristiche" e del badge "Geodati": così conteggi e liste
+    restano coerenti.
     """
-    geo_formats = " OR ".join(sorted(GEO_FORMATS))
-    return _common._search(
-        rows=limit, fq=f"res_format:({geo_formats})", sort="metadata_modified desc"
-    )["results"]
+    return _common._search(rows=limit, fq="odf_features:geo", sort="metadata_modified desc")[
+        "results"
+    ]
 
 
 def odf_geo_search_query():
-    """Query Solr che filtra il catalogo sui formati geografici.
+    """Query Solr che filtra il catalogo sui geodati.
 
     Per il link "Filtra il catalogo per geodati": CKAN non sa fare l'OR tra più
     valori di una faccetta via URL (i parametri ripetuti finiscono in AND nel
-    `fq`), quindi si passa la query al campo `q` della ricerca.
+    `fq`), quindi si passa la query al campo `q` della ricerca. Il campo
+    `odf_features` è già il risultato della regola unica di geodato.
     """
-    return "res_format:(" + " OR ".join(sorted(GEO_FORMATS)) + ")"
+    return "odf_features:geo"
 
 
 def odf_news(limit=3):
@@ -165,3 +166,20 @@ def odf_news(limit=3):
     except Exception:
         log.warning("ckanext-pages non disponibile per le news", exc_info=True)
         return []
+
+
+# Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
+# derivato da questi mapping.
+HELPERS = {
+    "odf_themes": odf_themes,
+    "odf_themes_visible": odf_themes_visible,
+    "odf_dataset_count": odf_dataset_count,
+    "odf_home_kpis": odf_home_kpis,
+    "odf_featured_datasets": odf_featured_datasets,
+    "odf_most_viewed": odf_most_viewed,
+    "odf_latest_datasets": odf_latest_datasets,
+    "odf_lod_datasets": odf_lod_datasets,
+    "odf_geo_datasets": odf_geo_datasets,
+    "odf_geo_search_query": odf_geo_search_query,
+    "odf_news": odf_news,
+}
