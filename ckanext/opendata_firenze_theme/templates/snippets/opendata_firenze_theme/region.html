@@ -1,0 +1,15 @@
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+
+{#
+  Regione con titolo e azione: lo scheletro comune di `section` (home) e
+  `panel` (dettaglio). Il chiamante passa `title`, `action` e il contenuto con
+  `{% call %}`; `head_class` avvolge titolo/azione in un <header> (pannello),
+  mentre la sezione li lascia figli diretti della griglia.
+#}
+{% macro region(title=None, action=None, title_class='rtt-h2', action_class='', body_class='', head_class=None) -%}
+{%- if head_class and (title or action) %}<header class="{{ head_class }}">{%- endif %}
+{%- if title %}<h2 class="{{ title_class }}">{{ title }}</h2>{%- endif %}
+{%- if action %}<div class="{{ action_class }}">{{ action|safe }}</div>{%- endif %}
+{%- if head_class and (title or action) %}</header>{%- endif %}
+<div class="{{ body_class }}">{{ caller() if caller is defined else '' }}</div>
+{%- endmacro %}

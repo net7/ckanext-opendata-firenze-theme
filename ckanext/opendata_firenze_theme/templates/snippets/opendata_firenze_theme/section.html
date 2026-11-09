@@ -5,20 +5,17 @@
 
    L'azione è resa una sola volta: su desktop sta sulla riga del titolo, su
    mobile scende sotto il contenuto (riordino via grid, niente duplicati). #}
+{% from 'snippets/opendata_firenze_theme/region.html' import region %}
+
 {% macro section(title=None, action=None, muted=False, texture=False, band=False, tone=None) -%}
 <section class="rtt-section rtt-reveal{% if band %} rtt-section--band{% elif texture %} rtt-section--texture{% elif muted %} rtt-section--muted{% elif tone == 'consultati' %} rtt-section--consultati{% endif %}"{% if band %} data-on-dark{% endif %}>
   {%- if band or texture %}
   <div class="rtt-section__overlay" aria-hidden="true"></div>
   {%- endif %}
   <div class="rtt-container rtt-section__inner">
-    {%- if title %}
-    <h2 class="rtt-h2 rtt-section__title">{{ title }}</h2>
-    {%- endif %}
-    {%- if action %}
-    {# l'azione è markup composto dal template chiamante, non testo utente #}
-    <div class="rtt-section__action">{{ action|safe }}</div>
-    {%- endif %}
-    <div class="rtt-section__body">{% if caller is defined %}{{ caller() }}{% endif %}</div>
+    {#- `caller` va catturato prima del `call`: dentro il blocco è ombreggiato #}
+    {%- set body %}{{ caller() if caller is defined else '' }}{% endset -%}
+    {% call region(title=title, action=action, title_class='rtt-h2 rtt-section__title', action_class='rtt-section__action', body_class='rtt-section__body') %}{{ body }}{% endcall %}
   </div>
 </section>
 {%- endmacro %}
