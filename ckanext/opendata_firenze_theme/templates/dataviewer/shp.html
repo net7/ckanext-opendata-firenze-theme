@@ -1,0 +1,27 @@
+{#
+  Gli shapefile del vecchio portale hanno DBF in Windows-1252/Latin-1 (code page
+  0 o 87), mentre il viewer di ckanext-geoview usa UTF-8 come default: i byte
+  accentati diventano U+FFFD. Il default qui e' solo un fallback: un encoding
+  dichiarato sul resource o nella config del viewer ha la precedenza.
+#}
+{% ckan_extends %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    (function () {
+      var config = {};
+      var el = document.querySelector('[data-module-shp_config]');
+      if (el) {
+        try {
+          config = JSON.parse(el.getAttribute('data-module-shp_config')) || {};
+        } catch (e) {
+          config = {};
+        }
+      }
+      if (window.preload_resource && !window.preload_resource.encoding && !config.encoding) {
+        window.preload_resource.encoding = 'windows-1252';
+      }
+    })();
+  </script>
+{% endblock %}

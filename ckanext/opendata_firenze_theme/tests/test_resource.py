@@ -53,6 +53,23 @@ def test_resource_page_with_view(app):
     assert "http://example.com/a.png" in body
 
 
+@pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} shp_view")
+@pytest.mark.usefixtures("with_plugins")
+def test_shp_view_defaults_to_windows_1252(app):
+    """I DBF del vecchio portale sono Windows-1252/Latin-1, non UTF-8."""
+    pkg = factories.Dataset(title="Dataset di prova")
+    res = factories.Resource(
+        package_id=pkg["id"],
+        name="Shapefile di prova",
+        format="SHP",
+        url="http://example.com/prova.zip",
+    )
+    view = factories.ResourceView(resource_id=res["id"], title="Shapefile", view_type="shp_view")
+
+    body = _body(app.get(f"/dataset/{pkg['name']}/resource/{res['id']}/view/{view['id']}"))
+    assert "windows-1252" in body
+
+
 @pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} datatables_view")
 @pytest.mark.usefixtures("with_plugins")
 def test_resource_page_skips_datatables_view_without_datastore(app):
