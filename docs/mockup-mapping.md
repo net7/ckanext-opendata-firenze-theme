@@ -127,9 +127,15 @@ include `package/snippets/resources_list.html`, `package/snippets/tags.html`,
 - Anteprima risorsa (modale) → `dataset/preview_modal.html` + `preview.js`
   (`initResourcePreview`): il link "Vedi anteprima" (che senza JS resta un
   link alla scheda risorsa) apre un `<dialog>` che incorpora la prima vista
-  CKAN della risorsa (`odf_resource_preview_url`: `datatables_view`/datastore
-  per le tabelle, `geoview`/`geojson_view` per le mappe). Senza viste: stato
-  vuoto con download. Footer con link alla scheda risorsa.
+  CKAN utilizzabile (`odf_resource_preview`: `datatables_view`/datastore per
+  le tabelle, `geoview`/`geojson_view` per le mappe); `odf_resource_views`
+  scarta le viste tabellari senza una tabella DataStore anche nella scheda
+  risorsa. Tabelle, mappe, pagine e documenti usano il dialogo largo
+  (`rtt-modal--wide`). Senza viste: stato vuoto con il motivo (`datastore`,
+  `no-view`, `geo`, `external`, `unsupported`) e azioni nel footer: "Chiudi"
+  a sinistra, "Vedi la scheda della risorsa" e "Scarica la risorsa" a destra.
+  Lo stesso testo è usato nella scheda risorsa
+  (`dataset/preview_modal.html`).
 - Metadati DCAT-AP_IT / extras → `package/snippets/additional_info.html` (+ campi
   dcatapit); form → `package/snippets/package_metadata_fields.html`.
 - API + console SQL → action API + `datastore_search_sql`; snippet custom.

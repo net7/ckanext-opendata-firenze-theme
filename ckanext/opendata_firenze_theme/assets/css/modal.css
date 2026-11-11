@@ -13,11 +13,35 @@
   overflow: hidden;
 }
 
+.rtt-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+
 .rtt-modal::backdrop {
   background: var(--overlays-backdrop-black-50);
 }
 
+/* Tabelle, mappe, pagine e documenti: il dialogo usa quasi tutta la
+   larghezza dello schermo, così il visualizzatore CKAN non nasce stretto. */
+.rtt-modal--wide {
+  width: min(1200px, calc(100vw - 32px));
+  height: min(90vh, 860px);
+  max-height: 90vh;
+}
+
+.rtt-modal--wide .rtt-modal__body {
+  max-height: none;
+}
+
+.rtt-modal--wide .rtt-modal__iframe {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 360px;
+}
+
 .rtt-modal__head {
+  flex: 0 0 auto;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -34,6 +58,19 @@
 }
 
 .rtt-modal__title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.rtt-modal__resource {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.rtt-modal__resource-name {
   margin: 0;
   overflow-wrap: anywhere;
 }
@@ -60,6 +97,8 @@
 .rtt-modal__body {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
   gap: 12px;
   padding: 0 24px;
   max-height: 60vh;
@@ -80,10 +119,58 @@
   color: var(--neutral-neutral-700);
 }
 
+.rtt-modal__empty p {
+  margin: 0;
+}
+
 .rtt-modal__foot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px 24px 24px;
+}
+
+.rtt-modal__actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  padding: 16px 24px 24px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.rtt-modal__foot-close--mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  /* Sul telefono le azioni vanno a colonna: niente "Chiudi" isolato in alto
+     a sinistra, e ogni pulsante resta un target comodo. */
+  .rtt-modal__foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .rtt-modal__actions {
+    flex-direction: column;
+    align-items: stretch;
+    margin-left: 0;
+  }
+
+  .rtt-modal__actions .rtt-btn,
+  .rtt-modal__foot-close--mobile {
+    width: 100%;
+  }
+
+  .rtt-modal__foot-close--desktop {
+    display: none;
+  }
+
+  .rtt-modal__foot-close--mobile {
+    display: inline-flex;
+  }
 }

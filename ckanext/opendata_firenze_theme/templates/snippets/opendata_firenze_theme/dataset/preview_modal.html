@@ -6,25 +6,53 @@
 
   Un solo <dialog> per pagina; il link `data-rtt-preview` di ogni riga
   risorsa lo popola via JS (preview.js) con nome, formato e URL della vista.
-  Se la risorsa non ha viste si mostra lo stato vuoto con il download.
+  Se la risorsa non ha viste si mostra lo stato vuoto con il motivo
+  (`data-preview-reason`) e il download; per tabelle, mappe, pagine e
+  documenti il JS allarga il dialogo (`rtt-modal--wide`).
 #}
+{% macro preview_reason_text(reason) -%}
+{% if reason == "datastore" -%}
+<p class="rtt-body">{{ _("Questa risorsa tabellare non è stata caricata nel DataStore, l'archivio che alimenta le tabelle di anteprima. Puoi scaricare il file.") }}</p>
+{% elif reason == "no-view" -%}
+<p class="rtt-body">{{ _("Per questa risorsa tabellare non è configurata una vista per l'anteprima. Puoi scaricare il file.") }}</p>
+{% elif reason == "geo" -%}
+<p class="rtt-body">{{ _("Non è configurato un visualizzatore geografico per questa risorsa. Puoi scaricare il file.") }}</p>
+{% elif reason == "external" -%}
+<p class="rtt-body">{{ _("È un collegamento esterno: l'anteprima non può essere incorporata. Puoi raggiungerlo dal link nei dettagli della risorsa.") }}</p>
+{% elif reason == "unsupported" -%}
+<p class="rtt-body">{{ _("Questo formato non ha un visualizzatore in anteprima. Puoi scaricare il file.") }}</p>
+{% else -%}
+<p class="rtt-body">{{ _("Nessuna anteprima disponibile per questa risorsa.") }}</p>
+{% endif -%}
+{%- endmacro %}
+
 {% macro resource_preview_modal() -%}
 <dialog class="rtt-modal" data-rtt-preview-modal aria-labelledby="rtt-preview-title">
   <header class="rtt-modal__head">
     <div class="rtt-modal__intro">
-      <span class="rtt-format-chip rtt-format-chip--neutral" data-rtt-preview-chip hidden></span>
-      <h2 class="rtt-h4 rtt-modal__title" id="rtt-preview-title" data-rtt-preview-title></h2>
+      <h2 class="rtt-h4 rtt-modal__title" id="rtt-preview-title">{{ _('Visualizzazione anteprima risorsa') }}</h2>
     </div>
     <button type="button" class="rtt-modal__close" data-rtt-preview-close aria-label="{{ _('Chiudi anteprima') }}">{{ icon('close', 24) }}</button>
   </header>
   <div class="rtt-modal__body">
+    <div class="rtt-modal__resource">
+      <span class="rtt-format-chip rtt-format-chip--neutral" data-rtt-preview-chip hidden></span>
+      <p class="rtt-body-strong rtt-modal__resource-name" data-rtt-preview-name></p>
+    </div>
     <iframe class="rtt-modal__iframe" data-rtt-preview-iframe title="{{ _('Anteprima della risorsa') }}" hidden></iframe>
-    <p class="rtt-body rtt-modal__empty" data-rtt-preview-empty hidden>{{ _('Nessuna anteprima disponibile per questa risorsa.') }}</p>
-    <a class="rtt-btn rtt-btn--primary rtt-btn--sm" data-rtt-preview-download hidden href="#">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica la risorsa') }}</a>
+    <div class="rtt-modal__empty" data-rtt-preview-empty hidden>
+      {% for reason in ('datastore', 'no-view', 'geo', 'external', 'unsupported', 'generic') %}
+      <div data-rtt-preview-reason="{{ reason }}" hidden>{{ preview_reason_text(reason) }}</div>
+      {% endfor %}
+    </div>
   </div>
   <footer class="rtt-modal__foot">
-    <a class="rtt-btn rtt-btn--text rtt-btn--sm" data-rtt-preview-full href="#">{{ icon('arrow-top-right', 20, 'rtt-btn__icon') }}{{ _('Vedi la scheda della risorsa') }}</a>
-    <button type="button" class="rtt-btn rtt-btn--outline rtt-btn--sm" data-rtt-preview-close>{{ _('Chiudi') }}</button>
+    <button type="button" class="rtt-btn rtt-btn--outline rtt-btn--sm rtt-modal__foot-close rtt-modal__foot-close--desktop" data-rtt-preview-close>{{ _('Chiudi') }}</button>
+    <div class="rtt-modal__actions">
+      <a class="rtt-btn rtt-btn--text rtt-btn--sm" data-rtt-preview-full href="#">{{ icon('arrow-top-right', 20, 'rtt-btn__icon') }}{{ _('Vedi la scheda della risorsa') }}</a>
+      <a class="rtt-btn rtt-btn--primary rtt-btn--sm" data-rtt-preview-download hidden href="#">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica la risorsa') }}</a>
+    </div>
+    <button type="button" class="rtt-btn rtt-btn--outline rtt-btn--sm rtt-modal__foot-close rtt-modal__foot-close--mobile" data-rtt-preview-close>{{ _('Chiudi') }}</button>
   </footer>
 </dialog>
 {%- endmacro %}

@@ -251,12 +251,15 @@ PREVIEW_BODY = """
         data-preview-format="CSV"
         data-preview-geo="false"
         data-preview-view="/vista"
+        data-preview-kind="table"
+        data-preview-reason=""
         data-preview-full="/dataset/x"
         data-preview-download="/file.csv">Apri</button>
 <dialog data-rtt-preview-modal>
   <button type="button" data-rtt-preview-close>Chiudi</button>
   <span data-rtt-preview-chip></span>
-  <h3 data-rtt-preview-title></h3>
+  <h3 data-rtt-preview-title>Visualizzazione anteprima risorsa</h3>
+  <p data-rtt-preview-name></p>
   <iframe data-rtt-preview-iframe hidden></iframe>
   <div data-rtt-preview-empty hidden></div>
   <a data-rtt-preview-download hidden></a>
@@ -269,15 +272,23 @@ def test_preview_modal_opens_and_closes(open_page):
     page = open_page(PREVIEW_BODY, scripts=("preview.js",))
     page.click("[data-rtt-preview]")
     assert page.evaluate("document.querySelector('[data-rtt-preview-modal]').open")
-    assert page.text_content("[data-rtt-preview-title]") == "Risorsa"
+    assert page.text_content("[data-rtt-preview-title]") == "Visualizzazione anteprima risorsa"
+    assert page.text_content("[data-rtt-preview-name]") == "Risorsa"
     assert page.get_attribute("[data-rtt-preview-iframe]", "src") == "/vista"
     assert page.evaluate("document.body.style.overflow") == "hidden"
+    # tabella: dialogo largo
+    assert page.evaluate(
+        "document.querySelector('[data-rtt-preview-modal]').classList.contains('rtt-modal--wide')"
+    )
 
     page.click("[data-rtt-preview-close]")
     assert not page.evaluate("document.querySelector('[data-rtt-preview-modal]').open")
     # l'evento `close` del <dialog> è asincrono: attende il reset
     page.wait_for_function("document.body.style.overflow === ''")
     assert page.get_attribute("[data-rtt-preview-iframe]", "src") is None
+    assert page.evaluate(
+        "!document.querySelector('[data-rtt-preview-modal]').classList.contains('rtt-modal--wide')"
+    )
 
 
 def test_carousel_pages_and_dots(open_page):
@@ -385,3 +396,46 @@ def test_placeholder_links_do_not_navigate(open_page):
     )
     page.click("#ph")
     assert page.evaluate("window.__defaultPrevented")
+
+
+PREVIEW_REASON_BODY = """
+<button type="button" data-rtt-preview
+        data-preview-name="Risorsa"
+        data-preview-format="CSV"
+        data-preview-geo="false"
+        data-preview-view=""
+        data-preview-kind="table"
+        data-preview-reason="datastore"
+        data-preview-full="/dataset/x"
+        data-preview-download="/file.csv">Apri</button>
+<dialog data-rtt-preview-modal>
+  <button type="button" data-rtt-preview-close>Chiudi</button>
+  <h3 data-rtt-preview-title>Visualizzazione anteprima risorsa</h3>
+  <p data-rtt-preview-name></p>
+  <iframe data-rtt-preview-iframe hidden></iframe>
+  <div data-rtt-preview-empty hidden>
+    <div data-rtt-preview-reason="datastore" hidden>motivo datastore</div>
+    <div data-rtt-preview-reason="generic" hidden>motivo generico</div>
+  </div>
+  <a data-rtt-preview-download hidden></a>
+  <a data-rtt-preview-full></a>
+</dialog>
+"""
+
+
+def test_preview_modal_shows_the_reason_and_the_download(open_page):
+    """Senza vista il modale spiega il motivo e offre il download."""
+    page = open_page(PREVIEW_REASON_BODY, scripts=("preview.js",))
+    page.click("[data-rtt-preview]")
+
+    assert page.evaluate("document.querySelector('[data-rtt-preview-modal]').open")
+    assert page.evaluate("!document.querySelector('[data-rtt-preview-empty]').hidden")
+    assert page.evaluate(
+        "!document.querySelector('[data-rtt-preview-reason=\"datastore\"]').hidden"
+    )
+    assert page.evaluate("document.querySelector('[data-rtt-preview-reason=\"generic\"]').hidden")
+    assert page.get_attribute("[data-rtt-preview-download]", "href") == "/file.csv"
+    assert page.evaluate("!document.querySelector('[data-rtt-preview-download]').hidden")
+    assert page.evaluate(
+        "!document.querySelector('[data-rtt-preview-modal]').classList.contains('rtt-modal--wide')"
+    )

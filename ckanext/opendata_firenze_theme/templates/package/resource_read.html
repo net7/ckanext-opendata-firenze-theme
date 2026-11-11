@@ -4,6 +4,7 @@
 {% from 'snippets/opendata_firenze_theme/chip.html' import format_chip %}
 {% from 'snippets/opendata_firenze_theme/dataset/panel.html' import panel %}
 {% from 'snippets/opendata_firenze_theme/dataset/meta_table.html' import meta_table %}
+{% from 'snippets/opendata_firenze_theme/dataset/preview_modal.html' import preview_reason_text %}
 
 {% set res = resource %}
 
@@ -15,6 +16,7 @@
 {% set geo = h.odf_format_is_geo(fmt) %}
 {% set size = h.odf_filesize(res.size) %}
 {% set download = h.odf_resource_download_url(pkg, res) %}
+{% set views = h.odf_resource_views(res, resource_views) %}
 <main class="rtt-resource" id="content" tabindex="-1">
   <header class="rtt-resource__header">
     <div class="rtt-container">
@@ -47,9 +49,9 @@
   </header>
 
   <div class="rtt-container rtt-resource__body">
-    {% if resource_views %}
+    {% if views %}
     {% set used_titles = namespace(titles=[]) %}
-    {% for view in h.odf_views_map_first(resource_views) %}
+    {% for view in h.odf_views_map_first(views) %}
     {% set label = h.odf_resource_view_title(view) %}
     {% if label in used_titles.titles and view.title %}{% set label = label ~ ' · ' ~ view.title %}{% endif %}
     {% set used_titles.titles = used_titles.titles + [label] %}
@@ -65,7 +67,11 @@
     {% endfor %}
     {% else %}
     {% call panel(_('Anteprima dei dati')) %}
-      <p class="rtt-body">{{ _('Nessuna anteprima disponibile per questa risorsa.') }}</p>
+      {% if resource_views %}
+      {{ preview_reason_text('datastore') }}
+      {% else %}
+      {{ preview_reason_text(h.odf_resource_preview(pkg, res, []).reason) }}
+      {% endif %}
       {% if download %}
       <a class="rtt-btn rtt-btn--primary" href="{{ download }}">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica la risorsa') }}</a>
       {% endif %}

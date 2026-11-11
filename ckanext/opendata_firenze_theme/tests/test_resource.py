@@ -28,8 +28,8 @@ def test_resource_page_renders(app):
     # ...e il link non ha la classe che il JS di CKAN usa per tracciare i click
     # sulle risorse: senza, nessun download viene registrato (adr/0007).
     assert "resource-url-analytics" not in body
-    # senza viste: messaggio + invito al download
-    assert "Nessuna anteprima disponibile" in body
+    # senza viste e senza DataStore: il messaggio dice perché e invita al download
+    assert "non è stata caricata nel DataStore" in body
     # l'azione editor non compare per l'anonimo
     assert "Gestisci" not in body
 
@@ -51,6 +51,19 @@ def test_resource_page_with_view(app):
     assert "Nessuna anteprima disponibile" not in body
     assert "Anteprima" in body
     assert "http://example.com/a.png" in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} datatables_view")
+@pytest.mark.usefixtures("with_plugins")
+def test_resource_page_skips_datatables_view_without_datastore(app):
+    """Una tabella senza DataStore non viene resa nella scheda risorsa."""
+    pkg = factories.Dataset(title="Dataset di prova")
+    res = factories.Resource(package_id=pkg["id"], name="Risorsa di prova", format="CSV")
+    factories.ResourceView(resource_id=res["id"], title="Tabella", view_type="datatables_view")
+
+    body = _body(app.get(f"/dataset/{pkg['name']}/resource/{res['id']}"))
+    assert "non è stata caricata nel DataStore" in body
+    assert 'data-module="data-viewer"' not in body
 
 
 @pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} image_view")
@@ -83,3 +96,147 @@ def test_resource_view_title_helper(with_plugins, with_request_context):
     assert helpers.odf_resource_view_title({"view_type": "datatables_view"}) == "Anteprima dei dati"
     assert helpers.odf_resource_view_title({"view_type": "custom", "title": "Titolo"}) == "Titolo"
     assert helpers.odf_resource_view_title({"view_type": "custom"}) == "Anteprima"
+
+
+PKG = {"name": "demo", "type": "dataset"}
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_preview_table(with_plugins, with_request_context):
+    """Una vista tabellare utilizzabile finisce nella modale larga."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    preview = helpers.odf_resource_preview(
+        PKG,
+        {"id": "r1", "format": "CSV", "datastore_active": True},
+        [{"id": "v1", "view_type": "datatables_view"}],
+    )
+    assert preview == {
+        "url": "/dataset/demo/resource/r1/view/v1",
+        "view_type": "datatables_view",
+        "kind": "table",
+        "reason": "",
+    }
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_views_filters_broken_datatables(with_plugins, with_request_context):
+    """La pagina e la modale scartano una tabella senza DataStore."""
+    from unittest import mock
+
+    from ckanext.opendata_firenze_theme import helpers
+
+    views = [
+        {"id": "v1", "view_type": "datatables_view"},
+        {"id": "v2", "view_type": "image_view"},
+    ]
+    with mock.patch.object(helpers.resource, "_datastore_available", return_value=False):
+        usable = helpers.odf_resource_views(
+            {"id": "r1", "format": "PNG", "datastore_active": False}, views
+        )
+    assert usable == [views[1]]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_views_keeps_datatables_when_datastore_exists(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    views = [{"id": "v1", "view_type": "datatables_view"}]
+    assert helpers.odf_resource_views({"id": "r1", "datastore_active": True}, views) == views
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_preview_map(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    preview = helpers.odf_resource_preview(
+        PKG,
+        {"id": "r1", "format": "GeoJSON"},
+        [{"id": "v1", "view_type": "geojson_view"}],
+    )
+    assert preview["kind"] == "map"
+    assert preview["view_type"] == "geojson_view"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_preview_csv_without_datastore_explains_why(with_plugins, with_request_context):
+    """Il CSV fuori dal DataStore non ha tabella: il motivo è `datastore`."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    preview = helpers.odf_resource_preview(
+        PKG, {"id": "r1", "format": "CSV", "datastore_active": False}, []
+    )
+    assert preview == {"url": "", "view_type": "", "kind": "table", "reason": "datastore"}
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_preview_csv_in_datastore_without_view(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    preview = helpers.odf_resource_preview(
+        PKG, {"id": "r1", "format": "CSV", "datastore_active": True}, []
+    )
+    assert preview["reason"] == "no-view"
+    assert preview["kind"] == "table"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_preview_datastore_any_format_without_view(with_plugins, with_request_context):
+    """In DataStore anche un XLSX può avere la tabella, se la vista manca."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    preview = helpers.odf_resource_preview(
+        PKG, {"id": "r1", "format": "XLSX", "datastore_active": True}, []
+    )
+    assert (preview["reason"], preview["kind"]) == ("no-view", "table")
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_preview_reason_by_format(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme import helpers
+
+    cases = {
+        "SHP": ("geo", "map"),
+        "URL": ("external", "web"),
+        "HTML": ("external", "web"),
+        "RDF": ("unsupported", "file"),
+    }
+    for fmt, (reason, kind) in cases.items():
+        preview = helpers.odf_resource_preview(PKG, {"id": "r1", "format": fmt}, [])
+        assert (preview["reason"], preview["kind"]) == (reason, kind), fmt
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_preview_skips_broken_datatables_view(with_plugins, with_request_context):
+    """Se la prima vista tabellare non ha DataStore, si prova la successiva."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    preview = helpers.odf_resource_preview(
+        PKG,
+        {"id": "r1", "format": "PNG", "datastore_active": False},
+        [
+            {"id": "v1", "view_type": "datatables_view"},
+            {"id": "v2", "view_type": "image_view"},
+        ],
+    )
+    assert preview["view_type"] == "image_view"
+    assert preview["kind"] == "media"
+    assert preview["url"] == "/dataset/demo/resource/r1/view/v2"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_preview_accepts_views_without_querying(with_plugins, with_request_context):
+    """La scheda risorsa passa `resource_views`: niente seconda query."""
+    from unittest import mock
+
+    from ckanext.opendata_firenze_theme import helpers
+
+    with mock.patch.object(
+        helpers.resource.toolkit, "get_action", side_effect=AssertionError("non deve chiamare")
+    ):
+        preview = helpers.odf_resource_preview(
+            PKG,
+            {"id": "r1", "format": "CSV", "datastore_active": False},
+            [],
+        )
+    assert preview["reason"] == "datastore"

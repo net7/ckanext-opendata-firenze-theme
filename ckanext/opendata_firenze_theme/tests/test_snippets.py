@@ -306,6 +306,8 @@ def test_resource_row_preview_button(with_plugins, with_request_context):
     assert "data-rtt-preview" in html
     assert 'data-preview-name="Eventi (CSV)"' in html
     assert 'data-preview-format="CSV"' in html
+    assert 'data-preview-kind="table"' in html
+    assert 'data-preview-reason="datastore"' in html
     assert 'data-preview-full="/dataset/demo/resource/r1"' in html
     # senza JS resta un link valido alla scheda risorsa (progressive enhancement)
     assert (
@@ -352,7 +354,12 @@ def test_preview_modal_renders(with_plugins, with_request_context):
     assert "data-rtt-preview-modal" in html
     assert "data-rtt-preview-iframe" in html
     assert "data-rtt-preview-close" in html
+    assert "Visualizzazione anteprima risorsa" in html
+    assert "rtt-body-strong" in html
+    assert "data-rtt-preview-name" in html
     assert "Vedi la scheda della risorsa" in html
+    assert "Apri a schermo intero" not in html
+    assert 'data-rtt-preview-reason="datastore"' in html
     assert "Nessuna anteprima disponibile per questa risorsa." in html
 
 
@@ -469,3 +476,19 @@ def test_dataset_card_accessibility_name(with_plugins, with_request_context):
     assert 'aria-labelledby="dcard-title-x"' in html
     assert 'id="dcard-title-x"' in html
     assert "<h3" in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_preview_reason_text(with_plugins, with_request_context):
+    """Ogni motivo dello stato vuoto ha il suo testo, senza duplicare le stringhe."""
+    src = (
+        "{% from 'snippets/opendata_firenze_theme/dataset/preview_modal.html'"
+        " import preview_reason_text %}"
+        "{{ preview_reason_text(reason) }}"
+    )
+    assert "caricata nel DataStore" in _render(src, reason="datastore")
+    assert "non è configurata una vista" in _render(src, reason="no-view")
+    assert "visualizzatore geografico" in _render(src, reason="geo")
+    assert "collegamento esterno" in _render(src, reason="external")
+    assert "non ha un visualizzatore" in _render(src, reason="unsupported")
+    assert "Nessuna anteprima disponibile" in _render(src, reason="altro")

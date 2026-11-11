@@ -86,9 +86,11 @@ from .query import FACET_ORDER
 from .resource import (
     odf_resource_download_url,
     odf_resource_filename,
+    odf_resource_preview,
     odf_resource_preview_url,
     odf_resource_separator,
     odf_resource_view_title,
+    odf_resource_views,
     odf_views_map_first,
 )
 from .series import (
@@ -154,6 +156,7 @@ _PUBLIC_FUNCTIONS = (
     "odf_series_info",
     "odf_themes",
     "odf_themes_visible",
+    "odf_resource_preview_url",
 )
 
 __all__ = [*_REGISTRY, *_PUBLIC_CONSTANTS, *_PUBLIC_FUNCTIONS]
