@@ -1,9 +1,12 @@
 """Scheda risorsa: rendering e helper."""
 
+import importlib.util
+
 import pytest
 from ckan.tests import factories
 
 PLUGIN = "opendata_firenze_theme"
+HAS_GEOVIEW = importlib.util.find_spec("ckanext.geoview") is not None
 
 
 def _body(response):
@@ -53,6 +56,7 @@ def test_resource_page_with_view(app):
     assert "http://example.com/a.png" in body
 
 
+@pytest.mark.skipif(not HAS_GEOVIEW, reason="ckanext-geoview non installato")
 @pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} shp_view")
 @pytest.mark.usefixtures("with_plugins")
 def test_shp_view_defaults_to_windows_1252(app):
