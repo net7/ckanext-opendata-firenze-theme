@@ -60,6 +60,9 @@
         </div>
         <div class="rtt-dataset__head-aside">
           <div class="rtt-dataset__head-actions">
+          {% if map_res %}
+          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('resource.read', id=pkg.name, resource_id=map_res.id) }}">{{ _('Vedi su mappa') }}{{ icon('map', 20, 'rtt-btn__icon') }}</a>
+          {% endif %}
           {% if downloads %}
           <details class="rtt-download">
             <summary class="rtt-download__trigger">{{ _('Scarica') }}{{ icon('chevron-down', 20, 'rtt-download__chevron') }}</summary>
@@ -70,11 +73,8 @@
             </div>
           </details>
           {% endif %}
-          {% if map_res %}
-          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('resource.read', id=pkg.name, resource_id=map_res.id) }}">{{ icon('map', 20, 'rtt-btn__icon') }}{{ _('Vedi su mappa') }}</a>
-          {% endif %}
           {% if h.check_access('package_update', {'id': pkg.id}) %}
-          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.edit', id=pkg.name) }}">{{ icon('settings', 20, 'rtt-btn__icon') }}{{ _('Gestisci') }}</a>
+          <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.edit', id=pkg.name) }}">{{ _('Gestisci') }}{{ icon('settings', 20, 'rtt-btn__icon') }}</a>
           {% endif %}
           {% if pkg.groups %}
           <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.groups', id=pkg.name) }}">{{ _('Gruppi') }}</a>

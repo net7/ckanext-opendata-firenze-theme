@@ -1,5 +1,6 @@
 """Scheda dataset: rendering delle due viste e helper dedicati."""
 
+import re
 from unittest import mock
 
 import pytest
@@ -553,6 +554,9 @@ def test_dataset_page_shows_map_button(app):
     )
     body = _body(app.get(f"/dataset/{pkg['name']}"))
     assert "Vedi su mappa" in body
+    # Ordine del mockup: la mappa precede il menu "Scarica" e l'icona è a destra.
+    assert body.index("Vedi su mappa") < body.index("Scarica")
+    assert re.search(r"Vedi su mappa\s*<svg", body)
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

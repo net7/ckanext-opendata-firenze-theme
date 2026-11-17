@@ -87,6 +87,14 @@
   color: var(--basics-white-100);
 }
 
+/* Stessa correzione delle card: Bootstrap aggiunge `text-decoration: underline`
+   su `a:hover`, che qui sarebbe bianco su testo bianco. */
+.rtt-hero__pill:hover,
+.rtt-hero__pill:focus,
+.rtt-hero__pill:visited {
+  text-decoration: none;
+}
+
 .rtt-hero__pill-icon {
   color: currentColor;
 }
@@ -238,6 +246,22 @@
 
 .rtt-tema:visited {
   color: inherit;
+}
+
+/* CKAN carica Bootstrap, che su `a:hover` rimette l'underline: la regola
+   batte `.rtt-tema`/`.rtt-dcard` (text-decoration none solo a riposo) e fa
+   comparire una sottolineatura indesiderata sulle card. Il colore dipende
+   dallo stato del link: sulle card visitate `.rtt-tema:visited` eredita il
+   bianco della banda, sulle altre resta il rosso del link. Le card non sono
+   link testuali: niente underline ne' su hover ne' su focus (il mockup usa
+   un button). */
+.rtt-tema:hover,
+.rtt-tema:focus,
+.rtt-tema:visited,
+.rtt-dcard:hover,
+.rtt-dcard:focus,
+.rtt-dcard:visited {
+  text-decoration: none;
 }
 
 .rtt-tema__body {

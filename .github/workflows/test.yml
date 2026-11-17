@@ -52,6 +52,9 @@ jobs:
       run: |
         pip install -r requirements.txt
         pip install -r dev-requirements.txt
+        # ckanext-geoview serve al test dell'override SHP (templates/dataviewer/shp.html):
+        # stessa versione del pin in opendata-firenze-config (ckan/Dockerfile).
+        pip install -e 'git+https://github.com/ckan/ckanext-geoview.git@v0.3.1#egg=ckanext-geoview'
         pip install -e .
     - name: Setup extension
       # Extra initialization steps
@@ -107,8 +110,8 @@ jobs:
         # il server deve servire gli asset dallo stesso origin che apre Playwright
         sed -i '/^\[app:main\]/a ckan.site_url = http://localhost:5000' test.ini
         ckan -c test.ini db init
-    - name: Run JS behaviour tests (Playwright, senza server)
-      run: pytest --ckan-ini=test.ini -q ckanext/opendata_firenze_theme/tests/test_js_behaviour.py
+    - name: Run JS/CSS behaviour tests (Playwright, senza server)
+      run: pytest --ckan-ini=test.ini -q ckanext/opendata_firenze_theme/tests/test_js_behaviour.py ckanext/opendata_firenze_theme/tests/test_styles.py
     - name: Run axe (WCAG 2.0/2.1/2.2 A+AA)
       run: |
         ckan -c test.ini run --host 0.0.0.0 --port 5000 --disable-reloader --threaded &

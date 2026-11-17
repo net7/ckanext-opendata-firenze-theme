@@ -389,6 +389,10 @@
   color: var(--basics-white-100);
 }
 
+.rtt-btn:not([disabled]):active {
+  transform: translateY(1px);
+}
+
 .rtt-btn__icon {
   color: currentColor;
 }

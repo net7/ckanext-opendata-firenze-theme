@@ -1,5 +1,12 @@
 /* ---- Scheda dataset (step 6) ----------------------------------------- */
 
+:root {
+  /* Verde "in tempo reale" e rosso "Bassa" del mockup: non sono token del
+     design system, li teniamo qui per non ripeterli nelle regole. */
+  --rtt-live-green: #1f9d57;
+  --rtt-quality-low: #e40421;
+}
+
 .rtt-dataset {
   background: var(--neutral-neutral-50);
 }
@@ -59,9 +66,20 @@
 .rtt-dataset__head-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+/* Azioni di testata come nel mockup ("Vedi su mappa" con override esplicito:
+   48px, padding 12/16, raggio 12, 16/500). Il trigger "Scarica" ha gia' lo
+   stile del DropdownMenu lg del design system. */
+.rtt-dataset__head-actions .rtt-btn {
+  min-height: 48px;
+  padding: 12px 16px;
+  border-radius: var(--rtt-radius-xl);
+  font-size: var(--rtt-text-base);
+  font-weight: 500;
 }
 
 /* Badge "in aggiornamento continuo" (pallino verde) */
@@ -83,7 +101,8 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--support-success);
+  /* Verde "in tempo reale" del mockup (stesso valore del gauge qualita'). */
+  background: var(--rtt-live-green);
   box-shadow: 0 0 0 3px rgba(31, 157, 87, 0.18);
 }
 
@@ -129,6 +148,10 @@
   display: none;
 }
 
+.rtt-download__trigger:hover {
+  background: var(--lilac-50);
+}
+
 .rtt-download__chevron {
   color: var(--neutral-neutral-800);
   transition: transform var(--rtt-duration) var(--rtt-ease);
@@ -147,9 +170,8 @@
   max-width: 360px;
   display: flex;
   flex-direction: column;
-  padding: 6px;
+  padding: 4px;
   background: var(--basics-white-100);
-  border: 1px solid var(--neutral-neutral-200);
   border-radius: var(--rtt-radius-lg);
   box-shadow: var(--rtt-shadow-lg);
 }
@@ -157,18 +179,18 @@
 .rtt-download__item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: var(--rtt-radius-md);
-  font-family: var(--rtt-font-text);
-  font-size: 14px;
-  line-height: 22px;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--rtt-radius);
+  font-family: var(--rtt-font-ui);
+  font-size: var(--rtt-text-base);
+  line-height: 20px;
   color: var(--neutral-neutral-900);
   text-decoration: none;
 }
 
 .rtt-download__item:hover {
-  background: var(--lilac-100);
+  background: var(--lilac-50);
 }
 
 /* Gauge qualità del metadato */
@@ -191,7 +213,7 @@
 }
 
 .rtt-quality--high .rtt-quality__bar.is-on {
-  background: var(--support-success);
+  background: var(--rtt-live-green);
 }
 
 .rtt-quality--medium .rtt-quality__bar.is-on {
@@ -199,11 +221,11 @@
 }
 
 .rtt-quality--low .rtt-quality__bar.is-on {
-  background: var(--primary-primary-500-base);
+  background: var(--rtt-quality-low);
 }
 
 .rtt-quality--high strong {
-  color: var(--support-success);
+  color: var(--rtt-live-green);
 }
 
 .rtt-quality--medium strong {
@@ -211,7 +233,7 @@
 }
 
 .rtt-quality--low strong {
-  color: var(--primary-primary-500-base);
+  color: var(--rtt-quality-low);
 }
 
 .rtt-quality__label {
