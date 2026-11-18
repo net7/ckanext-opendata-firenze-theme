@@ -130,6 +130,70 @@ def test_catalog_facets_active_and_sort(with_plugins, app):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_catalog_format_facet_shows_all_values(with_plugins, with_request_context):
+    """Il formato mostra tutti i valori, non solo i primi 10 per conteggio."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    names = [
+        "CSV",
+        "PDF",
+        "XLS",
+        "WMS",
+        "SHP",
+        "KML",
+        "XLSX",
+        "GeoJSON",
+        "ZIP",
+        "HTML",
+        "URL",
+        "RDF",
+    ]
+    items = [
+        {"name": name, "display_name": name, "count": count} for count, name in enumerate(names, 1)
+    ]
+    facets = {"res_format": {"title": "res_format", "items": items}}
+    groups = helpers.odf_facet_groups(facets)["groups"]
+    entries = [group for group in groups if group["name"] == "res_format"][0]["entries"]
+    assert len(entries) == len(names)
+    assert "RDF" in [entry["name"] for entry in entries]
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_catalog_format_facet_renders_all_values(with_plugins, app):
+    """Il template del facet formato riceve e rende anche i valori oltre il 10."""
+    from flask import render_template_string
+
+    names = [
+        "CSV",
+        "PDF",
+        "XLS",
+        "WMS",
+        "SHP",
+        "KML",
+        "XLSX",
+        "GeoJSON",
+        "ZIP",
+        "HTML",
+        "URL",
+        "RDF",
+    ]
+    facets = {
+        "res_format": {
+            "title": "res_format",
+            "items": [
+                {"name": name, "display_name": name, "count": count}
+                for count, name in enumerate(names, 1)
+            ],
+        }
+    }
+    src = "{% include 'snippets/opendata_firenze_theme/catalog/facets.html' %}"
+    with app.flask_app.test_request_context("/dataset"):
+        html = render_template_string(src, search_facets=facets, q="", sort_by_selected="")
+    assert "Formato dei file" in html
+    assert ">RDF<" in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_catalog_facets_dedupe_labels(with_plugins, app):
     """`theme` e `dcat_theme` hanno la stessa etichetta: un solo gruppo."""
     from flask import render_template_string

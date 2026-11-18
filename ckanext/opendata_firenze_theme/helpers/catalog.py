@@ -147,7 +147,13 @@ def odf_facet_groups(facets):
     groups = []
     active = False
     for name in ordered:
-        items = ckan_h.get_facet_items_dict(name, facets)
+        # Il formato è un elenco chiuso e corto: mostra tutti i valori restituiti
+        # da Solr, non solo i primi `search.facets.default` (10). Altrimenti
+        # formati con pochi dataset (es. RDF) restano fuori dal menu.
+        limit = None
+        if name == query.RES_FORMAT:
+            limit = len(facets.get(name, {}).get("items") or [])
+        items = ckan_h.get_facet_items_dict(name, facets, limit=limit)
         if not items:
             continue
         if name == query.FEATURES:

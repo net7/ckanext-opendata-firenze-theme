@@ -1,5 +1,6 @@
 """Scheda dataset: rendering delle due viste e helper dedicati."""
 
+import json
 import re
 from unittest import mock
 
@@ -7,10 +8,20 @@ import pytest
 from ckan.tests import factories
 
 PLUGIN = "opendata_firenze_theme"
+# SESSION_COOKIE_DOMAIN di test-core.ini: le richieste autenticate nei test
+# devono usare questo host, altrimenti il cookie di sessione non viene inviato.
+_TEST_BASE_URL = "http://test.ckan.net"
 
 
 def _body(response):
     return response.body.decode("utf-8") if isinstance(response.body, bytes) else response.body
+
+
+def _has_openness(data):
+    extras = data.get("extras")
+    if isinstance(extras, dict):
+        return "openness_score" in extras
+    return any(extra.get("key") == "openness_score" for extra in (extras or []))
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
@@ -561,6 +572,105 @@ def test_dataset_page_shows_map_button(app):
     # Ordine del mockup: la mappa precede il menu "Scarica" e l'icona è a destra.
     assert body.index("Vedi su mappa") < body.index("Scarica")
     assert re.search(r'Vedi su mappa\s*<svg[^>]*viewBox="0 0 20 20"', body)
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_dataset_quality_gauge_hidden_for_public(app):
+    """La qualità del metadato non compare nel sito pubblico."""
+    org = factories.Organization()
+    pkg = factories.Dataset(owner_org=org["id"], extras=[{"key": "openness_score", "value": "2"}])
+    body = _body(app.get(f"/dataset/{pkg['name']}"))
+    assert "Qualità del metadato" not in body
+    assert 'class="rtt-quality' not in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_dataset_quality_gauge_hidden_for_logged_in_non_editor(app):
+    """Un utente autenticato senza permessi di modifica non vede il gauge."""
+    org = factories.Organization()
+    pkg = factories.Dataset(owner_org=org["id"], extras=[{"key": "openness_score", "value": "2"}])
+    user = factories.User()
+    app.set_session_user(user["name"])
+    body = _body(app.get(f"/dataset/{pkg['name']}", base_url=_TEST_BASE_URL))
+    assert "Qualità del metadato" not in body
+    assert 'class="rtt-quality' not in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_dataset_quality_gauge_visible_to_editor(app):
+    """L'editor dell'organizzazione (uso interno) vede il gauge."""
+    user = factories.User()
+    org = factories.Organization(users=[{"name": user["name"], "capacity": "editor"}])
+    pkg = factories.Dataset(owner_org=org["id"], extras=[{"key": "openness_score", "value": "2"}])
+    app.set_session_user(user["name"])
+    body = _body(app.get(f"/dataset/{pkg['name']}", base_url=_TEST_BASE_URL))
+    assert "Qualità del metadato" in body
+    assert 'class="rtt-quality' in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_api_hides_quality_for_public(app):
+    """L'API pubblica non espone qa/openness_score."""
+    org = factories.Organization()
+    pkg = factories.Dataset(owner_org=org["id"], extras=[{"key": "openness_score", "value": "2"}])
+    response = app.get(f"/api/3/action/package_show?id={pkg['id']}")
+    assert response.status_code == 200
+    data = json.loads(response.body)["result"]
+    assert "qa" not in data
+    assert not _has_openness(data)
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_api_hides_quality_for_logged_in_non_editor(app):
+    """Anche un utente autenticato non editor non vede la qualità via API."""
+    org = factories.Organization()
+    pkg = factories.Dataset(owner_org=org["id"], extras=[{"key": "openness_score", "value": "2"}])
+    user = factories.User()
+    app.set_session_user(user["name"])
+    response = app.get(f"/api/3/action/package_show?id={pkg['id']}", base_url=_TEST_BASE_URL)
+    data = json.loads(response.body)["result"]
+    assert "qa" not in data
+    assert not _has_openness(data)
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
+def test_api_keeps_quality_for_editor(app):
+    """L'editor dell'organizzazione vede openness_score anche via API."""
+    user = factories.User()
+    org = factories.Organization(users=[{"name": user["name"], "capacity": "editor"}])
+    pkg = factories.Dataset(owner_org=org["id"], extras=[{"key": "openness_score", "value": "2"}])
+    app.set_session_user(user["name"])
+    response = app.get(f"/api/3/action/package_show?id={pkg['id']}", base_url=_TEST_BASE_URL)
+    data = json.loads(response.body)["result"]
+    assert _has_openness(data)
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_package_search_strips_quality_for_public(monkeypatch):
+    """Anche i risultati di ricerca nascondono qa/openness_score ai non interni."""
+    from ckanext.opendata_firenze_theme import plugin
+
+    results = {
+        "results": [
+            {
+                "id": "not-a-real-package",
+                "extras": [{"key": "openness_score", "value": "2"}],
+                "qa": {"openness_score": 2},
+                "resources": [{"qa": {"openness_score": 2}}],
+            }
+        ]
+    }
+    monkeypatch.setattr(plugin, "core_package_search", lambda context, data_dict: results)
+    pkg = plugin.odf_package_search({"user": "", "auth_user_obj": None}, {})["results"][0]
+    assert "qa" not in pkg
+    assert not _has_openness(pkg)
+    assert "qa" not in pkg["resources"][0]
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

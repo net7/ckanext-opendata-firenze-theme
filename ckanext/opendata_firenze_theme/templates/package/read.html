@@ -80,7 +80,8 @@
           <a class="rtt-btn rtt-btn--outline" href="{{ h.url_for('dataset.groups', id=pkg.name) }}">{{ _('Gruppi') }}</a>
           {% endif %}
           </div>
-          {% if quality %}{{ quality_gauge(quality) }}{% endif %}
+          {# Qualità del metadato: solo a uso interno (editor/sysadmin del dataset). #}
+          {% if quality and h.check_access('odf_quality_view', {'id': pkg.id}) %}{{ quality_gauge(quality) }}{% endif %}
         </div>
       </div>
     </div>
