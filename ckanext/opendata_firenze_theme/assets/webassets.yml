@@ -39,3 +39,11 @@ opendata_firenze_theme-js:
   extra:
     preload:
       - base/main
+
+# Caricato solo nel viewer GeoJSON (dataviewer/geojson.html): registra i CRS
+# proiettati prima che proj4leaflet costruisca il layer.
+opendata_firenze_theme-geojson-crs:
+  filters: rjsmin
+  output: opendata_firenze_theme/%(version)s-geojson_crs.js
+  contents:
+    - js/geojson-crs.js

@@ -1,0 +1,12 @@
+{#
+  I GeoJSON del portale storico dichiarano CRS proiettati (es. EPSG:3003 e
+  7791): il viewer Leaflet di ckanext-geoview conosce solo EPSG:4326/CRS84 e
+  lascia la mappa vuota. Il bundle registra le definizioni proj4 dopo
+  `geojson_js` e prima del fetch del GeoJSON (moduli CKAN su DOM ready).
+#}
+{% ckan_extends %}
+
+{% block styles %}
+  {{ super() }}
+  {% asset 'opendata_firenze_theme/opendata_firenze_theme-geojson-crs' %}
+{% endblock %}

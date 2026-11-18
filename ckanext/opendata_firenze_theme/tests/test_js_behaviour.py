@@ -50,6 +50,17 @@ ALL_SCRIPTS = (
     "contact.js",
 )
 
+# Stub minimo di proj4: `defs` e' una funzione con proprieta', come il vero.
+_PROJ4_STUB = """
+window.proj4 = function () {};
+window.proj4.defs = function (code, def) {
+  if (def !== undefined) {
+    proj4.defs[code] = def;
+  }
+  return proj4.defs[code];
+};
+"""
+
 
 def _document(body, scripts, prelude=None):
     """HTML con gli script inline in fondo al body, come nel bundle reale."""
@@ -439,3 +450,26 @@ def test_preview_modal_shows_the_reason_and_the_download(open_page):
     assert page.evaluate(
         "!document.querySelector('[data-rtt-preview-modal]').classList.contains('rtt-modal--wide')"
     )
+
+
+def test_geojson_crs_registers_projected_definitions(open_page):
+    """Il viewer GeoJSON conosce i CRS proiettati del portale storico."""
+    page = open_page(
+        "<div></div>",
+        scripts=("geojson-crs.js",),
+        init_script=_PROJ4_STUB,
+    )
+    codes = page.evaluate("() => Object.keys(proj4.defs)")
+    assert "EPSG:3003" in codes
+    assert "EPSG:7791" in codes
+    assert page.evaluate("() => proj4.defs['EPSG:3003'].startsWith('+proj=tmerc')")
+
+
+def test_geojson_crs_keeps_existing_definitions(open_page):
+    """Una definizione gia' presente non viene sovrascritta."""
+    page = open_page(
+        "<div></div>",
+        scripts=("geojson-crs.js",),
+        init_script=_PROJ4_STUB + "proj4.defs['EPSG:3003'] = 'custom';",
+    )
+    assert page.evaluate("() => proj4.defs['EPSG:3003']") == "custom"

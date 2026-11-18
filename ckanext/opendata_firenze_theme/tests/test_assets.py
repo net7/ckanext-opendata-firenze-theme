@@ -1,8 +1,9 @@
 """Il manifest webassets deve includere tutti e soli gli asset su disco.
 
-Il bundle è il contratto di produzione: un file aggiunto ma non elencato (o
+I bundle sono il contratto di produzione: un file aggiunto ma non elencato (o
 rimosso dal manifest) sparisce dal sito senza che i test dei singoli moduli se
-ne accorgano.
+ne accorgano. Ogni asset puo' stare in un bundle dedicato (es. il CRS del
+viewer GeoJSON), ma deve comparire una sola volta nel manifest.
 """
 
 from pathlib import Path
@@ -11,33 +12,31 @@ ASSETS = Path(__file__).resolve().parents[1] / "assets"
 WEBASSETS = ASSETS / "webassets.yml"
 
 
-def _bundle_contents(bundle):
-    """Voci di `contents:` per il bundle indicato, nell'ordine del manifest."""
-    lines = WEBASSETS.read_text().splitlines()
-    start = lines.index(f"{bundle}:")
+def _manifest_contents():
+    """Tutte le voci `contents:` dei bundle, nell'ordine del manifest."""
     paths = []
     in_contents = False
-    for line in lines[start + 1 :]:
+    for line in WEBASSETS.read_text().splitlines():
+        if not line.startswith((" ", "\t")):
+            in_contents = False
+            continue
         stripped = line.strip()
         if stripped == "contents:":
             in_contents = True
-            continue
-        if not in_contents:
-            continue
-        if stripped.startswith("- "):
+        elif in_contents and stripped.startswith("- "):
             paths.append(stripped[2:].strip())
-        elif stripped and not line.startswith("    "):
-            break
+        elif in_contents and stripped:
+            in_contents = False
     return paths
 
 
-def test_js_bundle_lists_every_module():
-    listed = [Path(path).name for path in _bundle_contents("opendata_firenze_theme-js")]
+def test_js_manifest_lists_every_module():
+    listed = sorted(Path(path).name for path in _manifest_contents() if path.endswith(".js"))
     on_disk = sorted(path.name for path in (ASSETS / "js").glob("*.js"))
-    assert sorted(listed) == on_disk
+    assert listed == on_disk
 
 
-def test_css_bundle_lists_every_stylesheet():
-    listed = _bundle_contents("opendata_firenze_theme-css")
+def test_css_manifest_lists_every_stylesheet():
+    listed = sorted(path for path in _manifest_contents() if path.endswith(".css"))
     on_disk = sorted(str(path.relative_to(ASSETS)) for path in (ASSETS / "css").rglob("*.css"))
-    assert sorted(listed) == on_disk
+    assert listed == on_disk
