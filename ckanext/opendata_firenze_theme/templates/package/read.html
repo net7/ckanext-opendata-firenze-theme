@@ -53,7 +53,7 @@
               {{ status_chip(b.label, b.kind) }}
               {% endif %}
             {% endfor %}
-            {% if serie_total > 1 %}{{ status_chip(_('Serie') ~ ' · ' ~ serie_total ~ ' dataset', 'serie') }}{% endif %}
+            {% if serie_total > 1 %}{{ status_chip(_('Serie') ~ ' · ' ~ serie_total ~ ' dataset', 'serie', 'rectangle-stack') }}{% endif %}
           </div>
           <h1 class="rtt-h1 rtt-dataset__title">{{ _('Dataset:') }} {{ h.dataset_display_name(pkg) }}</h1>
           {% if uso %}<p class="rtt-body-lg rtt-dataset__uso">{{ uso }}</p>{% endif %}

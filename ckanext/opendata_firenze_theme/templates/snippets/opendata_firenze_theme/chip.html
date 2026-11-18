@@ -25,7 +25,9 @@
 {%- endmacro %}
 
 {# Chip di stato. Il design system ignora di fatto `tone` (tutti gli stati hanno
-   lo stesso aspetto): il tono resta nel DOM come data-tone per usi futuri. #}
-{% macro status_chip(label, tone='aperto') -%}
-<span class="rtt-status-chip" data-tone="{{ tone }}">{{ label }}</span>
+   lo stesso aspetto): il tono resta nel DOM come data-tone per usi futuri.
+   `icon_name` aggiunge un'icona decorativa (14px) prima del testo, come nel
+   badge serie del mockup. #}
+{% macro status_chip(label, tone='aperto', icon_name=None) -%}
+<span class="rtt-status-chip" data-tone="{{ tone }}">{% if icon_name %}<span class="rtt-status-chip__icon" aria-hidden="true">{{ icon(icon_name, 14) }}</span>{% endif %}{{ label }}</span>
 {%- endmacro %}

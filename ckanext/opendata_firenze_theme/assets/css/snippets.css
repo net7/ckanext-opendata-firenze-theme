@@ -318,6 +318,7 @@
 .rtt-status-chip {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   box-sizing: border-box;
   min-height: 26px;
   padding: 4px 12px;
@@ -331,6 +332,12 @@
   line-height: 16px;
   color: var(--rtt-ink-strong);
   white-space: nowrap;
+}
+
+.rtt-status-chip__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 /* Link visitati: le classi qui sopra perdono contro `a:visited` di semantic.css. */

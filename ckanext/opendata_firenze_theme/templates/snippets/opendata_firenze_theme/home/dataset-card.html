@@ -38,7 +38,7 @@
     niente seconda lista di formati geo qui dentro. #}
 {%- set formats = h.odf_dataset_formats(pkg) -%}
 {% call card_shell(pkg, 'compact' if compact else 'default', title_id) %}
-    {% if tema or is_rt or (show_serie and is_serie) %}<div class="rtt-dcard__overline">{% if tema %}{{ tema_overline(tema) }}{% endif %}{% if is_rt %}<span class="rtt-live rtt-live--plain"><span class="rtt-live__dot" aria-hidden="true"></span>{{ _('in tempo reale') }}</span>{% endif %}{% if show_serie and is_serie %}{{ status_chip(_('Serie · {num} dataset').format(num=serie_n) if serie_n else _('Serie'), 'serie') }}{% endif %}</div>{% endif %}
+    {% if tema or is_rt or (show_serie and is_serie) %}<div class="rtt-dcard__overline">{% if tema %}{{ tema_overline(tema) }}{% endif %}{% if is_rt %}<span class="rtt-live rtt-live--plain"><span class="rtt-live__dot" aria-hidden="true"></span>{{ _('in tempo reale') }}</span>{% endif %}{% if show_serie and is_serie %}{{ status_chip(_('Serie · {num} dataset').format(num=serie_n) if serie_n else _('Serie'), 'serie', 'rectangle-stack') }}{% endif %}</div>{% endif %}
     <h3 class="rtt-dcard__title" id="{{ title_id }}">{{ pkg.title or pkg.name }}</h3>
     {% if not compact and pkg.notes %}<p class="rtt-dcard__desc">{{ pkg.notes|striptags|truncate(160) }}</p>{% endif %}
     {% if is_hvd or is_lod or formats %}

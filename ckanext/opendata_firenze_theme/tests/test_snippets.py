@@ -6,6 +6,7 @@ tema usati dalle pagine), così eventuali errori di sintassi o parametri rotti
 emergono subito.
 """
 
+import re
 from unittest import mock
 
 import pytest
@@ -476,6 +477,27 @@ def test_dataset_card_accessibility_name(with_plugins, with_request_context):
     assert 'aria-labelledby="dcard-title-x"' in html
     assert 'id="dcard-title-x"' in html
     assert "<h3" in html
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_card_series_badge_has_stack_icon(with_plugins, with_request_context):
+    """Il badge serie nel catalogo ha l'icona a pila, come il mockup."""
+    pkg = {
+        "name": "x",
+        "title": "Dataset di prova",
+        "extras": [{"key": "serie", "value": "Open SDIAF"}],
+    }
+    html = _render(
+        "{% from 'snippets/opendata_firenze_theme/home/dataset-card.html'"
+        " import dataset_card %}"
+        "{{ dataset_card(pkg, show_serie=True, series_counts={'Open SDIAF': 2}) }}",
+        pkg=pkg,
+    )
+    assert "Serie · 2 dataset" in html
+    icon = re.search(r'<span class="rtt-status-chip__icon"[^>]*>.*?</span>', html, re.S)
+    assert icon, "badge serie senza icona"
+    assert 'viewBox="0 0 20 20"' in icon.group(0)
+    assert icon.group(0).count("<path") == 3
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
