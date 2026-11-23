@@ -5,13 +5,9 @@ import ckan.plugins.toolkit as toolkit
 
 from . import _common, query
 from .catalog import odf_package_theme
-from .constants import (
-    GEO_FORMATS_UPPER,
-    GEOJSON_FORMATS_UPPER,
-    GEOMETRY_SHAPES,
-    LOD_FORMATS_UPPER,
-)
-from .resource import odf_resource_download_url, odf_resource_has_map_view
+from .constants import GEOMETRY_SHAPES, LOD_FORMATS_UPPER
+from .map import odf_format_is_geo
+from .resource import odf_resource_download_url
 
 
 def odf_pkg_extra(pkg, key, default=None):
@@ -50,11 +46,6 @@ def odf_dataset_formats(pkg):
     return formats
 
 
-def odf_format_is_geo(fmt):
-    """True se il formato ha un'anteprima su mappa (chip "geo")."""
-    return (fmt or "").strip().upper() in GEO_FORMATS_UPPER
-
-
 def odf_dataset_is_lod(pkg):
     """True se il dataset pubblica almeno una risorsa RDF.
 
@@ -67,33 +58,6 @@ def odf_dataset_is_lod(pkg):
 def odf_dataset_is_series(pkg):
     """True se il dataset dichiara l'extra `serie` (badge e filtro "Serie")."""
     return bool(odf_pkg_extra(pkg, "serie"))
-
-
-def odf_dataset_map_resource(pkg):
-    """Risorsa per il pulsante "Vedi su mappa", preferendo GeoJSON con vista.
-
-    Prima cerca un GeoJSON che abbia davvero una vista mappa, poi una qualsiasi
-    risorsa geo con vista, infine un GeoJSON/geo anche senza vista (fallback per
-    non far sparire il pulsante su dati vecchi o non ancora indicizzati).
-    """
-    resources = [
-        res for res in (pkg.get("resources") or []) if odf_format_is_geo(res.get("format"))
-    ]
-    has_view = {id(res): odf_resource_has_map_view(res) for res in resources}
-
-    def is_geojson(res):
-        return (res.get("format") or "").strip().upper() in GEOJSON_FORMATS_UPPER
-
-    for res in resources:
-        if is_geojson(res) and has_view[id(res)]:
-            return res
-    for res in resources:
-        if has_view[id(res)]:
-            return res
-    for res in resources:
-        if is_geojson(res):
-            return res
-    return resources[0] if resources else None
 
 
 def odf_index_features(pkg):
@@ -286,7 +250,6 @@ def odf_datastore_resource_id(pkg):
 HELPERS = {
     "odf_pkg_extra": odf_pkg_extra,
     "odf_dataset_formats": odf_dataset_formats,
-    "odf_format_is_geo": odf_format_is_geo,
     "odf_dataset_is_lod": odf_dataset_is_lod,
     "odf_dataset_is_hvd": odf_dataset_is_hvd,
     "odf_dataset_is_realtime": odf_dataset_is_realtime,

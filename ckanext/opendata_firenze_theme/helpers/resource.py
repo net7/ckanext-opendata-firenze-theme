@@ -98,6 +98,17 @@ def _resource_views(res):
     return views or []
 
 
+def odf_resource_views_by_id(pkg):
+    """Viste di ogni risorsa, acquisite una sola volta per la scheda dataset.
+
+    La scheda usa le stesse viste per la riga risorsa e per il pulsante "Vedi
+    su mappa": risolverle qui evita una `resource_view_list` per consumer.
+    """
+    return {
+        res["id"]: _resource_views(res) for res in (pkg.get("resources") or []) if res.get("id")
+    }
+
+
 def _is_datatable_view(view):
     return (view.get("view_type") or "").lower() in ("datatables_view", "datastore")
 
@@ -126,11 +137,11 @@ def _datastore_available(res):
         return False
 
 
-def odf_resource_has_map_view(res):
+def odf_resource_has_map_view(res, views=None):
     """True se la risorsa ha almeno una vista mappa (geo/geojson/wmts/shp)."""
-    return any(
-        (view.get("view_type") or "").lower() in MAP_VIEW_TYPES for view in _resource_views(res)
-    )
+    if views is None:
+        views = _resource_views(res)
+    return any((view.get("view_type") or "").lower() in MAP_VIEW_TYPES for view in views)
 
 
 def odf_resource_views(res, views):
@@ -199,17 +210,6 @@ def odf_resource_preview_url(pkg, res):
     return odf_resource_preview(pkg, res)["url"]
 
 
-def odf_views_map_first(views):
-    """Viste della risorsa con la mappa per prima (poi l'ordine originale)."""
-    if not views:
-        return []
-
-    def _is_map(view):
-        return (view.get("view_type") or "").lower() in MAP_VIEW_TYPES
-
-    return sorted(views, key=lambda view: 0 if _is_map(view) else 1)
-
-
 # Estensioni di script lato server: un URL che termina cosi' non e' un nome di
 # file da mostrare (es. `download.php?id=…` del vecchio portale).
 _NON_FILE_EXTENSIONS = frozenset(("php", "asp", "aspx", "jsp", "cgi", "pl", "do"))
@@ -264,5 +264,4 @@ HELPERS = {
     "odf_resource_views": odf_resource_views,
     "odf_resource_filename": odf_resource_filename,
     "odf_resource_separator": odf_resource_separator,
-    "odf_views_map_first": odf_views_map_first,
 }

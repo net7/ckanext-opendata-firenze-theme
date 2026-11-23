@@ -82,9 +82,16 @@ VIEW_TITLES = {
 }
 
 
-# Tipi di vista che rappresentano una mappa (titolo "Mappa" in VIEW_TITLES).
-MAP_VIEW_TYPES = frozenset(name for name, title in VIEW_TITLES.items() if title == "Mappa")
-
-# Viewer generico OpenLayers: quando c'e' anche `geojson_view` (dedicato, con
-# supporto CRS) non va mostrato due volte sulla stessa risorsa.
-GENERIC_MAP_VIEW_TYPES = frozenset(("geo_view", "geoview", "recline_map_view"))
+# Tipi di vista che rappresentano una mappa. Elenco esplicito: non derivarlo
+# dal titolo di `VIEW_TITLES`, altrimenti rinominare un'etichetta cambierebbe
+# in silenzio la semantica di mappa.
+MAP_VIEW_TYPES = frozenset(
+    (
+        "recline_map_view",
+        "geoview",
+        "geo_view",
+        "geojson_view",
+        "wmts_view",
+        "shp_view",
+    )
+)

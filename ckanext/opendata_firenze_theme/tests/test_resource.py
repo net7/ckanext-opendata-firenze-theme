@@ -123,6 +123,21 @@ PKG = {"name": "demo", "type": "dataset"}
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_resource_views_by_id_acquires_once(with_plugins, with_request_context):
+    """La scheda acquisisce le viste una volta per risorsa, non per consumer."""
+    from unittest import mock
+
+    from ckanext.opendata_firenze_theme.helpers import resource
+
+    pkg = {"resources": [{"id": "r1"}, {"id": "r2"}]}
+    with mock.patch.object(resource, "_resource_views", return_value=[{"id": "v"}]) as views:
+        snapshot = resource.odf_resource_views_by_id(pkg)
+
+    assert views.call_count == 2
+    assert snapshot == {"r1": [{"id": "v"}], "r2": [{"id": "v"}]}
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_resource_preview_table(with_plugins, with_request_context):
     """Una vista tabellare utilizzabile finisce nella modale larga."""
     from ckanext.opendata_firenze_theme import helpers

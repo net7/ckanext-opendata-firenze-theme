@@ -15,6 +15,7 @@ from . import (  # noqa: F401
     home,
     home_blocks,
     home_sections,
+    map,
     navigation,
     resource,
 )
@@ -47,11 +48,9 @@ from .dataset import (
     odf_dataset_is_lod,
     odf_dataset_is_realtime,
     odf_dataset_is_series,
-    odf_dataset_map_resource,
     odf_dataset_openness,
     odf_dataset_related,
     odf_datastore_resource_id,
-    odf_format_is_geo,
     odf_index_features,
     odf_index_series,
     odf_pkg_extra,
@@ -81,6 +80,11 @@ from .home import (
 )
 from .home_blocks import entries_from_form, odf_home_blocks, odf_home_blocks_admin
 from .home_sections import odf_home_sections
+from .map import (
+    odf_dataset_map_resource,
+    odf_format_is_geo,
+    odf_views_map_first,
+)
 from .navigation import odf_breadcrumbs
 from .query import FACET_ORDER
 from .resource import (
@@ -91,7 +95,6 @@ from .resource import (
     odf_resource_separator,
     odf_resource_view_title,
     odf_resource_views,
-    odf_views_map_first,
 )
 from .series import (
     odf_dataset_revisions,
@@ -114,6 +117,7 @@ HELPER_MODULES = (
     home,
     home_blocks,
     home_sections,
+    map,
     navigation,
     resource,
     _common,

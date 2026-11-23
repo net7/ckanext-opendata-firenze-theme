@@ -5,7 +5,7 @@ from ckan import model
 from ckan.lib.datapreview import get_view_plugin
 from ckan.plugins import toolkit
 
-from ckanext.opendata_firenze_theme.helpers.constants import GENERIC_MAP_VIEW_TYPES
+from ckanext.opendata_firenze_theme.helpers.map import GENERIC_MAP_VIEW_TYPES
 
 
 def _duplicate_map_views(resource_id=None):

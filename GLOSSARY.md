@@ -19,6 +19,16 @@ Alfanumerici, High Value Dataset o Linked Open Data. Nel codice è il campo Solr
 spaziale dichiarata, oppure almeno una risorsa in un formato con anteprima su
 mappa. Regola unica in `odf_dataset_facts` (ADR 0009).
 
+**Vista mappa** — vista risorsa che rappresenta una mappa (`geo_view`,
+`geojson_view`, `wmts_view`, `shp_view`, `recline_map_view`). Alimenta il
+pulsante “Vedi su mappa”, il titolo “Mappa” dei pannelli e l'ordinamento
+mappa-prima.
+
+**Viewer dedicato / generico** — `geojson_view` è il viewer dedicato ai
+GeoJSON (con supporto CRS); `geo_view`, `geoview` e `recline_map_view` sono i
+viewer generici, che non vanno mostrati quando il dedicato è presente sulla
+stessa risorsa.
+
 **Serie** — insieme di dataset collegati da un indicatore comune, dichiarato
 dall'extra `serie`. Scelta provvisoria in attesa di DP07 (ADR 0012 nel repo
 `opendata-firenze-config`). Nel catalogo è la faccetta “Serie” (campo

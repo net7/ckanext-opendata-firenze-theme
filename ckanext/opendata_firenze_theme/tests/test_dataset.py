@@ -532,11 +532,11 @@ def test_resource_filename_and_separator(with_plugins, with_request_context):
 def test_map_resource_and_views_order(with_plugins, with_request_context):
     """ "Vedi su mappa": GeoJSON con vista, poi qualsiasi mappa, poi fallback."""
     from ckanext.opendata_firenze_theme import helpers
-    from ckanext.opendata_firenze_theme.helpers import dataset as dataset_helpers
+    from ckanext.opendata_firenze_theme.helpers import map as map_helpers
 
     def with_views(*ids):
         return mock.patch.object(
-            dataset_helpers,
+            map_helpers,
             "odf_resource_has_map_view",
             side_effect=lambda res: res.get("id") in set(ids),
         )
@@ -579,12 +579,78 @@ def test_map_resource_and_views_order(with_plugins, with_request_context):
     with with_views():
         assert helpers.odf_dataset_map_resource(pkg)["id"] == "geo"
 
+    # l'ordinamento mappa-prima non dipende dalle viste CKAN
     views = [{"view_type": "datatables_view"}, {"view_type": "geojson_view"}]
     assert [view["view_type"] for view in helpers.odf_views_map_first(views)] == [
         "geojson_view",
         "datatables_view",
     ]
     assert helpers.odf_views_map_first([]) == []
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_map_resource_uses_views_snapshot(with_plugins, with_request_context):
+    """La scelta del target mappa usa lo snapshot, senza action per risorsa."""
+    from ckanext.opendata_firenze_theme import helpers
+
+    pkg = {
+        "resources": [
+            {"id": "wms", "format": "WMS"},
+            {"id": "geo", "format": "GeoJSON"},
+        ]
+    }
+    snapshot = {
+        "wms": [{"view_type": "geo_view"}],
+        "geo": [{"view_type": "geojson_view"}],
+    }
+    assert helpers.odf_dataset_map_resource(pkg, snapshot)["id"] == "geo"
+
+    # il GeoJSON non ha viste: si usa il WMS, che ce l'ha
+    assert (
+        helpers.odf_dataset_map_resource(pkg, {"wms": [{"view_type": "geo_view"}]})["id"] == "wms"
+    )
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_page_advanced_uses_geo_path(with_plugins, with_request_context):
+    """Sulla tab avanzata non ci sono righe: niente snapshot di tutte le viste."""
+    from ckanext.opendata_firenze_theme.helpers import dataset_page
+
+    pkg = {"id": "x", "name": "x", "resources": [{"id": "r1", "format": "GeoJSON"}]}
+    info = {"serie": None, "count": 0, "members": []}
+    with (
+        mock.patch.object(dataset_page.series, "odf_series_info", return_value=info),
+        mock.patch.object(dataset_page.series, "odf_series_context", return_value=None),
+        mock.patch.object(dataset_page.resource, "odf_resource_views_by_id") as views,
+        mock.patch.object(dataset_page.map_helpers, "odf_dataset_map_resource") as map_resource,
+    ):
+        page = dataset_page.odf_dataset_page(pkg, "avanzata")
+
+    views.assert_not_called()
+    map_resource.assert_called_once_with(pkg)
+    assert page["views_by_resource"] == {}
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_dataset_page_passes_views_snapshot(with_plugins, with_request_context):
+    """La scheda acquisisce le viste una volta e le passa a righe e pulsante."""
+    from ckanext.opendata_firenze_theme.helpers import dataset_page
+
+    pkg = {"id": "x", "name": "x", "resources": [{"id": "r1", "format": "GeoJSON"}]}
+    snapshot = {"r1": [{"view_type": "geojson_view"}]}
+    info = {"serie": None, "count": 0, "members": []}
+    with (
+        mock.patch.object(dataset_page.series, "odf_series_info", return_value=info),
+        mock.patch.object(dataset_page.series, "odf_series_context", return_value=None),
+        mock.patch.object(dataset_page.resource, "odf_resource_views_by_id", return_value=snapshot),
+        mock.patch.object(
+            dataset_page.map_helpers, "odf_dataset_map_resource", return_value=None
+        ) as map_resource,
+    ):
+        page = dataset_page.odf_dataset_page(pkg)
+
+    map_resource.assert_called_once_with(pkg, snapshot)
+    assert page["views_by_resource"] is snapshot
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

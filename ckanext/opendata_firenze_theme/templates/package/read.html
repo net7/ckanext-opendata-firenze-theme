@@ -20,6 +20,7 @@
 {% set downloads = dataset_page.downloads %}
 {% set quality = dataset_page.quality %}
 {% set map_res = dataset_page.map_resource %}
+{% set views_by_resource = dataset_page.views_by_resource %}
 {% set serie = dataset_page.serie %}
 {% set serie_total = dataset_page.serie_total %}
 {% set contact = dataset_page.contact %}
@@ -114,7 +115,7 @@
         {% endif %}
         {% if pkg.resources %}
         <ul class="rtt-reslist">
-          {% for res in pkg.resources %}{{ resource_row(pkg, res) }}{% endfor %}
+          {% for res in pkg.resources %}{{ resource_row(pkg, res, views_by_resource.get(res.id)) }}{% endfor %}
         </ul>
         {% else %}
         <p class="rtt-body">{{ _('Questo dataset non ha risorse.') }}</p>
