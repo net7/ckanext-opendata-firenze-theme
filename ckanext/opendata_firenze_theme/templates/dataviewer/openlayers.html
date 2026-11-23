@@ -1,0 +1,19 @@
+{#
+  Il viewer WMS di ckanext-geoview seleziona il layer dal fragment `#layer`
+  dell'URL oppure, per i dati del vecchio portale, dal pattern
+  "Il Layer di riferimento è ..." nella descrizione. La risoluzione sta
+  nell'helper Python `h.odf_wms_layer`, così è testabile e la patch JS legge
+  solo il valore già risolto (ADR 0018 nel repo opendata-firenze-config).
+#}
+{% ckan_extends %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    (function () {
+      if (window.preload_resource) {
+        window.preload_resource.wms_layer = {{ h.odf_wms_layer(resource or c.resource) | tojson }};
+      }
+    })();
+  </script>
+{% endblock %}

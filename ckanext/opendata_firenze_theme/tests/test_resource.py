@@ -74,6 +74,25 @@ def test_shp_view_defaults_to_windows_1252(app):
     assert "windows-1252" in body
 
 
+@pytest.mark.skipif(not HAS_GEOVIEW, reason="ckanext-geoview non installato")
+@pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} geo_view resource_proxy")
+@pytest.mark.usefixtures("with_plugins")
+def test_openlayers_view_injects_wms_layer(app):
+    """Il tema risolve il layer WMS e lo passa al viewer (ADR 0018)."""
+    pkg = factories.Dataset(title="Dataset di prova")
+    res = factories.Resource(
+        package_id=pkg["id"],
+        name="WMS di prova",
+        format="WMS",
+        url="https://example.com/wms?request=GetCapabilities",
+        description="Il Layer di riferimento è mobilita:tram",
+    )
+    view = factories.ResourceView(resource_id=res["id"], title="Mappa", view_type="geo_view")
+
+    body = _body(app.get(f"/dataset/{pkg['name']}/resource/{res['id']}/view/{view['id']}"))
+    assert 'wms_layer = "mobilita:tram"' in body
+
+
 @pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} datatables_view")
 @pytest.mark.usefixtures("with_plugins")
 def test_resource_page_skips_datatables_view_without_datastore(app):

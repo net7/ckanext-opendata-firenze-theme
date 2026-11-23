@@ -24,6 +24,11 @@ mappa. Regola unica in `odf_dataset_facts` (ADR 0009).
 pulsante “Vedi su mappa”, il titolo “Mappa” dei pannelli e l'ordinamento
 mappa-prima.
 
+**Layer WMS** — nome del layer che una risorsa WMS mostra. Si legge dal
+fragment `#layer` dell'URL, altrimenti dalla descrizione legacy
+(“Il Layer di riferimento è ...”), e il tema lo passa già risolto al viewer
+(`odf_wms_layer`, ADR 0018 nel repo config).
+
 **Viewer dedicato / generico** — `geojson_view` è il viewer dedicato ai
 GeoJSON (con supporto CRS); `geo_view`, `geoview` e `recline_map_view` sono i
 viewer generici, che non vanno mostrati quando il dedicato è presente sulla

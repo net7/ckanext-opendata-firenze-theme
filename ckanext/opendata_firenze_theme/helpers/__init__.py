@@ -84,6 +84,7 @@ from .map import (
     odf_dataset_map_resource,
     odf_format_is_geo,
     odf_views_map_first,
+    odf_wms_layer,
 )
 from .navigation import odf_breadcrumbs
 from .query import FACET_ORDER

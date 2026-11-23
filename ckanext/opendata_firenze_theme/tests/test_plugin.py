@@ -95,6 +95,7 @@ def test_template_helpers_registered():
         "odf_pkg_extra",
         "odf_dataset_formats",
         "odf_format_is_geo",
+        "odf_wms_layer",
         "odf_breadcrumbs",
         "odf_dataset_page",
         "odf_dataset_is_geo",

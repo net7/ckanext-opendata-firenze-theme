@@ -1,4 +1,13 @@
-"""Helper della mappa: predicati di formato, vista e risorsa."""
+"""Helper della mappa: layer WMS e predicati di formato, vista e risorsa.
+
+Il viewer WMS di `ckanext-geoview` accetta un fragment `#layer` sull'URL della
+risorsa; i WMS del vecchio portale dichiarano il layer solo nella descrizione
+("Il Layer di riferimento è ..."). La risoluzione sta qui, in Python, così è
+testabile senza un browser e la patch JS si limita a leggere il valore già
+risolto (vedi ADR 0018 nel repo `opendata-firenze-config`).
+"""
+
+import re
 
 from .constants import GEO_FORMATS_UPPER, GEOJSON_FORMATS_UPPER, MAP_VIEW_TYPES
 from .resource import odf_resource_has_map_view
@@ -7,6 +16,11 @@ from .resource import odf_resource_has_map_view
 # supporto CRS) non va mostrato due volte sulla stessa risorsa. Usato dal
 # comando di migrazione, non dai template.
 GENERIC_MAP_VIEW_TYPES = frozenset(("geo_view", "geoview", "recline_map_view"))
+
+WMS_LAYER_RE = re.compile(
+    r"Layer di riferimento\s*(?:è|e'|:)\s*([A-Za-z0-9_.:-]+)",
+    re.IGNORECASE,
+)
 
 
 def odf_format_is_geo(fmt):
@@ -61,9 +75,27 @@ def odf_views_map_first(views):
     return sorted(views, key=lambda view: 0 if is_map(view) else 1)
 
 
+def odf_wms_layer(res):
+    """Layer WMS della risorsa: fragment `#layer`, poi descrizione legacy.
+
+    Il fragment ha la precedenza perché è una scelta esplicita sull'URL; la
+    descrizione è l'adattatore per i dati harvestati dal vecchio portale.
+    Restituisce None quando la risorsa non dichiara un layer.
+    """
+    url = (res or {}).get("url") or ""
+    if "#" in url:
+        layer = url.split("#", 1)[1].strip()
+        if layer:
+            return layer
+
+    match = WMS_LAYER_RE.search((res or {}).get("description") or "")
+    return match.group(1).rstrip(".,;") if match else None
+
+
 # Nomi esposti ai template (`h.<nome>`); il registro in __init__ è
 # derivato da questi mapping.
 HELPERS = {
+    "odf_wms_layer": odf_wms_layer,
     "odf_format_is_geo": odf_format_is_geo,
     "odf_views_map_first": odf_views_map_first,
 }
