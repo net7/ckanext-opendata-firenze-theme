@@ -530,12 +530,54 @@ def test_resource_filename_and_separator(with_plugins, with_request_context):
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_map_resource_and_views_order(with_plugins, with_request_context):
-    """ "Vedi su mappa": prima risorsa geografica e mappa prima delle altre viste."""
+    """ "Vedi su mappa": GeoJSON con vista, poi qualsiasi mappa, poi fallback."""
     from ckanext.opendata_firenze_theme import helpers
+    from ckanext.opendata_firenze_theme.helpers import dataset as dataset_helpers
+
+    def with_views(*ids):
+        return mock.patch.object(
+            dataset_helpers,
+            "odf_resource_has_map_view",
+            side_effect=lambda res: res.get("id") in set(ids),
+        )
 
     pkg = {"resources": [{"id": "csv", "format": "CSV"}, {"id": "geo", "format": "GeoJSON"}]}
-    assert helpers.odf_dataset_map_resource(pkg)["id"] == "geo"
+    with with_views("geo"):
+        assert helpers.odf_dataset_map_resource(pkg)["id"] == "geo"
     assert helpers.odf_dataset_map_resource({"resources": [{"format": "CSV"}]}) is None
+
+    # il WMS non deve avere la precedenza sul GeoJSON
+    pkg = {
+        "resources": [
+            {"id": "wms", "format": "WMS"},
+            {"id": "geo", "format": "GeoJSON"},
+        ]
+    }
+    with with_views("wms", "geo"):
+        assert helpers.odf_dataset_map_resource(pkg)["id"] == "geo"
+
+    # se il GeoJSON non ha vista, si usa il WMS che ce l'ha
+    with with_views("wms"):
+        assert helpers.odf_dataset_map_resource(pkg)["id"] == "wms"
+
+    # senza GeoJSON si usa il primo geo con vista
+    pkg_wms = {"resources": [{"id": "wms", "format": "WMS"}]}
+    with with_views("wms"):
+        assert helpers.odf_dataset_map_resource(pkg_wms)["id"] == "wms"
+
+    # GJSON è un alias GeoJSON e va preferito
+    pkg_gjson = {
+        "resources": [
+            {"id": "wms", "format": "WMS"},
+            {"id": "gjson", "format": "GJSON"},
+        ]
+    }
+    with with_views("wms", "gjson"):
+        assert helpers.odf_dataset_map_resource(pkg_gjson)["id"] == "gjson"
+
+    # senza viste resta il fallback GeoJSON (il pulsante non sparisce)
+    with with_views():
+        assert helpers.odf_dataset_map_resource(pkg)["id"] == "geo"
 
     views = [{"view_type": "datatables_view"}, {"view_type": "geojson_view"}]
     assert [view["view_type"] for view in helpers.odf_views_map_first(views)] == [

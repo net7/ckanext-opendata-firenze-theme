@@ -24,13 +24,16 @@ THEME_CODES = frozenset(code for code, _, _ in THEME_REGISTRY)
 
 
 # Formati con anteprima su mappa (per il chip "geo").
-GEO_FORMATS = frozenset(("GeoJSON", "SHP", "KML", "WMS", "WFS"))
+GEO_FORMATS = frozenset(("GeoJSON", "GJSON", "SHP", "KML", "WMS", "WFS"))
+# Alias che usano il viewer dedicato `geojson_view`.
+GEOJSON_FORMATS = frozenset(("GeoJSON", "GJSON"))
 # Serializzazioni RDF: un dataset con almeno una risorsa di questo tipo è
 # "Linked Open Data" (badge e filtro "Caratteristiche", come nel mockup).
 LOD_FORMATS = frozenset(("RDF", "RDF/XML", "TTL", "N3"))
 
 
 GEO_FORMATS_UPPER = frozenset(fmt.upper() for fmt in GEO_FORMATS)
+GEOJSON_FORMATS_UPPER = frozenset(fmt.upper() for fmt in GEOJSON_FORMATS)
 LOD_FORMATS_UPPER = frozenset(fmt.upper() for fmt in LOD_FORMATS)
 
 
@@ -81,3 +84,7 @@ VIEW_TITLES = {
 
 # Tipi di vista che rappresentano una mappa (titolo "Mappa" in VIEW_TITLES).
 MAP_VIEW_TYPES = frozenset(name for name, title in VIEW_TITLES.items() if title == "Mappa")
+
+# Viewer generico OpenLayers: quando c'e' anche `geojson_view` (dedicato, con
+# supporto CRS) non va mostrato due volte sulla stessa risorsa.
+GENERIC_MAP_VIEW_TYPES = frozenset(("geo_view", "geoview", "recline_map_view"))

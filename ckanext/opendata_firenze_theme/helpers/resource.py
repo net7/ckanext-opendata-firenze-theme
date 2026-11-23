@@ -126,6 +126,13 @@ def _datastore_available(res):
         return False
 
 
+def odf_resource_has_map_view(res):
+    """True se la risorsa ha almeno una vista mappa (geo/geojson/wmts/shp)."""
+    return any(
+        (view.get("view_type") or "").lower() in MAP_VIEW_TYPES for view in _resource_views(res)
+    )
+
+
 def odf_resource_views(res, views):
     """Viste utilizzabili nella pagina/modale: scarta le tabelle senza DataStore."""
     usable = []

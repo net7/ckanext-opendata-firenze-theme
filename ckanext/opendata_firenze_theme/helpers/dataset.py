@@ -5,8 +5,13 @@ import ckan.plugins.toolkit as toolkit
 
 from . import _common, query
 from .catalog import odf_package_theme
-from .constants import GEO_FORMATS_UPPER, GEOMETRY_SHAPES, LOD_FORMATS_UPPER
-from .resource import odf_resource_download_url
+from .constants import (
+    GEO_FORMATS_UPPER,
+    GEOJSON_FORMATS_UPPER,
+    GEOMETRY_SHAPES,
+    LOD_FORMATS_UPPER,
+)
+from .resource import odf_resource_download_url, odf_resource_has_map_view
 
 
 def odf_pkg_extra(pkg, key, default=None):
@@ -65,11 +70,30 @@ def odf_dataset_is_series(pkg):
 
 
 def odf_dataset_map_resource(pkg):
-    """Prima risorsa con anteprima su mappa, o None (pulsante "Vedi su mappa")."""
-    for res in pkg.get("resources") or []:
-        if odf_format_is_geo(res.get("format")):
+    """Risorsa per il pulsante "Vedi su mappa", preferendo GeoJSON con vista.
+
+    Prima cerca un GeoJSON che abbia davvero una vista mappa, poi una qualsiasi
+    risorsa geo con vista, infine un GeoJSON/geo anche senza vista (fallback per
+    non far sparire il pulsante su dati vecchi o non ancora indicizzati).
+    """
+    resources = [
+        res for res in (pkg.get("resources") or []) if odf_format_is_geo(res.get("format"))
+    ]
+    has_view = {id(res): odf_resource_has_map_view(res) for res in resources}
+
+    def is_geojson(res):
+        return (res.get("format") or "").strip().upper() in GEOJSON_FORMATS_UPPER
+
+    for res in resources:
+        if is_geojson(res) and has_view[id(res)]:
             return res
-    return None
+    for res in resources:
+        if has_view[id(res)]:
+            return res
+    for res in resources:
+        if is_geojson(res):
+            return res
+    return resources[0] if resources else None
 
 
 def odf_index_features(pkg):

@@ -3,7 +3,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.logic.action.get import package_search as core_package_search
 
-from ckanext.opendata_firenze_theme import helpers, views
+from ckanext.opendata_firenze_theme import cli, helpers, views
 from ckanext.opendata_firenze_theme.helpers import home_blocks, query
 
 # Favicon di CKAN (default di ckan.favicon): il tema la sostituisce con il giglio del Comune,
@@ -89,6 +89,7 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IFacets, inherit=True)
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.IActions)
+    plugins.implements(plugins.IClick)
 
     # IConfigurer
 
@@ -122,6 +123,11 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
 
     def get_blueprint(self):
         return [views.pages, views.admin]
+
+    # IClick
+
+    def get_commands(self):
+        return [cli.cleanup_map_views]
 
     # IAuthFunctions
 
