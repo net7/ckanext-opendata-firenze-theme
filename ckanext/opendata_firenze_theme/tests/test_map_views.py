@@ -49,6 +49,18 @@ def test_geo_view_keeps_the_other_formats(with_request_context):
     view.proxy_enabled = True
     assert view.can_view(_resource(f"{SITE_URL}/a", "Esri Rest")) is True
     assert view.can_view(_resource(f"{SITE_URL}/a.wms", "WMS")) is True
+
+
+@pytest.mark.ckan_config("ckan.site_url", SITE_URL)
+@requires_patch_0003
+def test_geo_view_guesses_the_format_from_the_url(with_request_context):
+    """Il fallback dall'estensione URL fa parte del viewer specializzato.
+
+    Nell'upstream installato dalla CI del tema questa parte del viewer non
+    c'e': il test si salta insieme agli altri che dipendono dalla patch 0003.
+    """
+    view = OLGeoView()
+    view.proxy_enabled = True
     assert view.can_view(_resource(f"{SITE_URL}/a.wms")) is True
 
 
