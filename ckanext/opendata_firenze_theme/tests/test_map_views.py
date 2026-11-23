@@ -17,6 +17,16 @@ from ckanext.geoview.plugin import GeoJSONView, OLGeoView  # noqa: E402
 
 SITE_URL = "http://test.ckan.net"
 
+# La specializzazione GeoJSON vive nella patch 0003 di opendata-firenze-config,
+# non nell'estensione upstream: la CI del tema installa `ckanext-geoview` non
+# patchato. I test che asseriscono il comportamento specializzato si saltano
+# quando la patch non c'e' (in locale c'e', perche' lo stack dev la applica).
+GEOVIEW_PATCHED = "geojson" not in OLGeoView.GEOVIEW_FORMATS
+requires_patch_0003 = pytest.mark.skipif(
+    not GEOVIEW_PATCHED,
+    reason="richiede la patch 0003 di opendata-firenze-config",
+)
+
 
 def _resource(url, fmt=None):
     resource = {"url": url}
@@ -26,6 +36,7 @@ def _resource(url, fmt=None):
 
 
 @pytest.mark.ckan_config("ckan.site_url", SITE_URL)
+@requires_patch_0003
 def test_geo_view_does_not_claim_geojson(with_request_context):
     """Il viewer generico lascia i GeoJSON a `geojson_view`."""
     assert OLGeoView().can_view(_resource(f"{SITE_URL}/a.geojson")) is False
@@ -42,6 +53,7 @@ def test_geo_view_keeps_the_other_formats(with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.site_url", SITE_URL)
+@requires_patch_0003
 def test_geojson_view_infers_the_format_from_the_url(with_request_context):
     """Un GeoJSON senza `format` ma con URL `.geojson` ha comunque la mappa."""
     view = GeoJSONView()
@@ -70,7 +82,10 @@ def test_default_views_config_lists_both_plugins(monkeypatch):
 @pytest.mark.usefixtures("with_plugins", "with_request_context")
 @pytest.mark.parametrize(
     ("fmt", "expected"),
-    (("GeoJSON", "geojson_view"), ("WMS", "geo_view")),
+    (
+        pytest.param("GeoJSON", "geojson_view", marks=requires_patch_0003),
+        ("WMS", "geo_view"),
+    ),
 )
 def test_default_views_creates_the_specialized_view(fmt, expected):
     """Il percorso di creazione crea una sola vista per formato."""
