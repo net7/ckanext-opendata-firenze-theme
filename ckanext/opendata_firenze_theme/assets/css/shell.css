@@ -247,6 +247,12 @@
   -webkit-appearance: none;
 }
 
+/* Il focus della ricerca è indicato dal contenitore: il focus globale
+   aggiungerebbe un secondo alone dentro l'input. */
+.rtt-search__field input:focus-visible {
+  box-shadow: none !important;
+}
+
 .rtt-header__main {
   background: var(--grad-header);
   border-bottom: 1px solid var(--neutral-neutral-300);

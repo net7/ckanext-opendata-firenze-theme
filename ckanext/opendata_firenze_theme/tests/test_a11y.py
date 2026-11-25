@@ -83,6 +83,10 @@ def test_a11y_css_invariants():
     )
     assert "outline" in focus_ring
 
+    # l'anello esterno resta sul contenitore; l'input non deve aggiungere
+    # un secondo alone (rettangolo) dentro il campo.
+    assert "box-shadow: none" in _rule(shell, ".rtt-search__field input:focus-visible")
+
     dots_height = _px(_rule(components, ".rtt-carousel__dots button"), "height")
     assert dots_height is not None and dots_height >= 24
     assert _px(_rule(catalog, ".rtt-facets__remove"), "width") >= 24
