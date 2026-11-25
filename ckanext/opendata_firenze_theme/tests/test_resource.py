@@ -33,6 +33,8 @@ def test_resource_page_renders(app):
     assert "resource-url-analytics" not in body
     # senza viste e senza DataStore: il messaggio dice perché e invita al download
     assert "non è stata caricata nel DataStore" in body
+    # il pulsante non deve stirarsi a tutta larghezza nel pannello flex
+    assert "rtt-resource__download" in body
     # l'azione editor non compare per l'anonimo
     assert "Gestisci" not in body
 

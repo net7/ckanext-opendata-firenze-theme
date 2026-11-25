@@ -73,7 +73,7 @@
       {{ preview_reason_text(h.odf_resource_preview(pkg, res, []).reason) }}
       {% endif %}
       {% if download %}
-      <a class="rtt-btn rtt-btn--primary" href="{{ download }}">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica la risorsa') }}</a>
+      <a class="rtt-btn rtt-btn--primary rtt-resource__download" href="{{ download }}">{{ icon('download', 20, 'rtt-btn__icon') }}{{ _('Scarica la risorsa') }}</a>
       {% endif %}
     {% endcall %}
     {% endif %}

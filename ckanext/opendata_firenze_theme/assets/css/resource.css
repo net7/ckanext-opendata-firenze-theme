@@ -54,6 +54,13 @@
   flex-shrink: 0;
 }
 
+/* Il download dello stato vuoto sta nel pannello flex: senza align-self
+   verrebbe stirato a tutta larghezza. Su mobile torna full-width, come le
+   azioni della modale di anteprima. */
+.rtt-resource__download {
+  align-self: flex-start;
+}
+
 .rtt-resource__body {
   display: flex;
   flex-direction: column;
@@ -118,6 +125,10 @@
 
   .rtt-resource__body {
     padding-bottom: 48px;
+  }
+
+  .rtt-resource__download {
+    align-self: stretch;
   }
 
   .rtt-resource__iframe {
