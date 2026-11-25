@@ -61,6 +61,19 @@ ANNUARIO_CHAPTERS = (
 )
 
 
+# Periodi del blocco "I più consultati": codice -> (giorni, etichetta).
+# Il default è 12 mesi; la scala copre 6/3 mesi, 1 mese, 1 settimana e oggi.
+MOST_VIEWED_PERIODS = {
+    "year": (365, "Ultimi 12 mesi"),
+    "half": (180, "Ultimi 6 mesi"),
+    "quarter": (90, "Ultimi 3 mesi"),
+    "month": (30, "Ultimo mese"),
+    "week": (7, "Ultima settimana"),
+    "today": (1, "Oggi"),
+}
+DEFAULT_MOST_VIEWED_PERIOD = "year"
+
+
 # Titoli dei pannelli della scheda risorsa, per tipo di vista CKAN.
 VIEW_TITLES = {
     "datatables_view": "Anteprima dei dati",

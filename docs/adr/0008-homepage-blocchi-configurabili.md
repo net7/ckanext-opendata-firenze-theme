@@ -25,8 +25,10 @@ Vincoli:
 ## Decisione
 
 1. **Registro dei blocchi nel tema** (`helpers/home_blocks.py`): `BLOCKS`
-   elenca, per ogni blocco, id, etichetta, template e campi tipizzati (`text` o
-   `url`) con il proprio default. Aggiungere un blocco = una voce qui + un
+   elenca, per ogni blocco, id, etichetta, template e campi tipizzati (`text`,
+   `url` o `select`) con il proprio default. Il blocco "I più consultati" ha
+   anche il periodo di riferimento (`year` di default, poi 6, 3, 1 mese,
+   1 settimana e oggi), gestito dallo stesso form. Aggiungere un blocco = una voce qui + un
    template in `templates/home/blocks/` + un builder nel collettore dei dati
    (ADR 0010).
 2. **Configurazione runtime standard CKAN**: ordine, blocchi attivi e testi
@@ -35,7 +37,8 @@ Vincoli:
    dichiarata in `IConfigurer.update_config_schema`/`IConfigDeclaration` e
    scritta con l'azione `config_option_update`, che la salva in `system_info`
    (nessuna migrazione, nessun file da toccare). Ogni voce è
-   `{"id", "enabled", "title", "subtitle", "cta_label", "cta_url"}`. I default
+   `{"id", "enabled", "title", "subtitle", "cta_label", "cta_url", "period"}`
+   (`period` solo per "I più consultati"). I default
    stanno nel registro e il form parte da quelli; un campo vuoto significa "non
    mostrare quel testo/link", mentre un campo assente da una config
    parziale/vecchia usa il default. Il vecchio formato (lista di soli id) resta

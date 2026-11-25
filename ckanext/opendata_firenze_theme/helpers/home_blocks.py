@@ -13,7 +13,7 @@ Formato del valore (lista ordinata; ordine = posizione nell'array):
     [{"id": "featured", "enabled": true, "title": "", "subtitle": "",
       "cta_label": "", "cta_url": ""}, ...]
 
-I campi hanno un tipo (`text` o `url`) e un default dichiarati nel registro
+I campi hanno un tipo (`text`, `url` o `select`) e un default dichiarati nel registro
 (`BLOCKS`). Il form parte dai default; un campo vuoto significa "non mostrare
 quel testo/link". Un campo assente da un valore salvato (config parziale o
 vecchia) usa il default. Supporta anche il vecchio formato (lista di soli id).
@@ -29,6 +29,7 @@ from urllib.parse import urlparse
 import ckan.plugins.toolkit as toolkit
 
 from . import query
+from .constants import DEFAULT_MOST_VIEWED_PERIOD, MOST_VIEWED_PERIODS
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +42,7 @@ FIELD_LABELS = {
     "subtitle": "Sottotitolo",
     "cta_label": "Testo del link",
     "cta_url": "URL del link",
+    "period": "Periodo",
 }
 
 # id, etichetta per l'admin, template da includere in home/index.html,
@@ -125,6 +127,11 @@ BLOCKS = (
             "subtitle": {"type": "text", "default": ""},
             "cta_label": {"type": "text", "default": "Tutto il catalogo"},
             "cta_url": {"type": "url", "default": "/dataset"},
+            "period": {
+                "type": "select",
+                "default": DEFAULT_MOST_VIEWED_PERIOD,
+                "options": {code: label for code, (_, label) in MOST_VIEWED_PERIODS.items()},
+            },
         },
     },
     {
@@ -151,6 +158,14 @@ def _default_entry(block_id):
         meta = block["fields"].get(field)
         default = meta["default"] if meta else ""
         entry[field] = toolkit._(default) if default else ""
+    # Campi tipizzati aggiuntivi (es. il periodo de "I più consultati").
+    for field, meta in block["fields"].items():
+        if field in ENTRY_FIELDS:
+            continue
+        default = meta.get("default", "")
+        entry[field] = (
+            default if meta["type"] == "select" else (toolkit._(default) if default else "")
+        )
     return entry
 
 
@@ -164,6 +179,11 @@ def _normalize_entry(item):
             continue
         value = item[field]
         value = value.strip() if isinstance(value, str) else ""
+        if meta["type"] == "select":
+            if value not in meta["options"]:
+                value = meta["default"]
+            entry[field] = value
+            continue
         if meta["type"] == "url" and value and not _valid_url(value):
             # difesa in profondita': un valore scritto direttamente via API o
             # da un override di config non deve finire in un href.
@@ -255,13 +275,19 @@ def _valid_url(value):
 
 
 def validate_entries(entries):
-    """Errori per blocco/campo (solo campi `url` non validi)."""
+    """Errori per blocco/campo (URL non validi e select fuori elenco)."""
     errors = {}
     for entry in entries:
         for field, meta in _BY_ID[entry["id"]]["fields"].items():
+            value = entry.get(field, "")
+            if meta["type"] == "select":
+                if value not in meta["options"]:
+                    errors.setdefault(entry["id"], {})[field] = toolkit._(
+                        "Scegli un periodo valido."
+                    )
+                continue
             if meta["type"] != "url":
                 continue
-            value = entry.get(field, "")
             if value and not _valid_url(value):
                 errors.setdefault(entry["id"], {})[field] = toolkit._(
                     "Inserisci un percorso che inizia con / oppure un URL http(s)."
@@ -270,10 +296,13 @@ def validate_entries(entries):
 
 
 def _field_meta(block_id):
-    return {
-        name: {"type": meta["type"], "label": toolkit._(FIELD_LABELS[name])}
-        for name, meta in _BY_ID[block_id]["fields"].items()
-    }
+    fields = {}
+    for name, meta in _BY_ID[block_id]["fields"].items():
+        field = {"type": meta["type"], "label": toolkit._(FIELD_LABELS[name])}
+        if meta["type"] == "select":
+            field["options"] = {code: toolkit._(label) for code, label in meta["options"].items()}
+        fields[name] = field
+    return fields
 
 
 def admin_blocks(entries):
@@ -289,6 +318,7 @@ def admin_blocks(entries):
             "subtitle": entry.get("subtitle", ""),
             "cta_label": entry.get("cta_label", ""),
             "cta_url": entry.get("cta_url", ""),
+            "values": {name: entry.get(name, "") for name in _BY_ID[entry["id"]]["fields"]},
         }
         for position, entry in enumerate(entries)
     ]
@@ -304,6 +334,7 @@ def odf_home_blocks():
             "subtitle": entry.get("subtitle", ""),
             "cta_label": entry.get("cta_label", ""),
             "cta_url": entry.get("cta_url", ""),
+            **{name: entry.get(name, "") for name in _BY_ID[entry["id"]]["fields"]},
         }
         for entry in _entries()
         if entry["enabled"]
@@ -335,9 +366,18 @@ def entries_from_form(enabled_ids, order_values, text_values, current_ids):
         entry = _default_entry(block_id)
         entry["enabled"] = block_id in enabled
         texts = text_values.get(block_id) or {}
-        for field in _BY_ID[block_id]["fields"]:
+        for field, meta in _BY_ID[block_id]["fields"].items():
             value = texts.get(field)
-            entry[field] = value.strip() if isinstance(value, str) else ""
+            if meta["type"] == "select":
+                # Campo assente (POST parziale): default. Valore presente ma
+                # fuori elenco: lo segnala validate_entries, non lo salviamo.
+                entry[field] = (
+                    meta["default"]
+                    if value is None
+                    else (value.strip() if isinstance(value, str) else "")
+                )
+            else:
+                entry[field] = value.strip() if isinstance(value, str) else ""
         rows.append((order, position.get(block_id, len(current)), block_id, entry))
     rows.sort()
     return [row[3] for row in rows]

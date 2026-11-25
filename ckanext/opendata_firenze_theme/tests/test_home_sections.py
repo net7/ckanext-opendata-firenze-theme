@@ -30,6 +30,7 @@ def test_sections_payload_for_every_block(with_plugins):
         mock.patch.object(home, "odf_themes_visible", return_value=["t"]) as themes,
         mock.patch.object(home, "odf_lod_datasets", return_value=["o"]) as lod,
         mock.patch.object(home, "odf_most_viewed", return_value=["v"]) as viewed,
+        mock.patch.object(home, "odf_most_viewed_label", return_value="periodo") as label,
         mock.patch.object(home, "odf_news", return_value=["n"]) as news,
     ):
         got = home_sections.odf_home_sections([{"id": b["id"]} for b in home_blocks.BLOCKS])
@@ -40,15 +41,50 @@ def test_sections_payload_for_every_block(with_plugins):
     assert got["latest"] == {"datasets": ["l"]}
     assert got["themes"] == {"themes": ["t"]}
     assert got["lod"] == {"datasets": ["o"]}
-    assert got["most_viewed"] == {"datasets": ["v"]}
+    assert got["most_viewed"] == {"datasets": ["v"], "period_label": "periodo"}
     assert got["news"] == {"news": ["n"]}
     kpi.assert_called_once_with(total=7)
     featured.assert_called_once_with(7)
     latest.assert_called_once_with(6)
     lod.assert_called_once_with(6)
-    viewed.assert_called_once_with(4)
+    viewed.assert_called_once_with(4, "year")
+    label.assert_called_once_with("year")
     news.assert_called_once_with(3)
     themes.assert_called_once_with()
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_most_viewed_period_comes_from_block(with_plugins):
+    from ckanext.opendata_firenze_theme.helpers import home, home_sections
+
+    with (
+        mock.patch.object(home, "odf_most_viewed", return_value=["v"]) as viewed,
+        mock.patch.object(home, "odf_most_viewed_label", return_value="settimana") as label,
+    ):
+        got = home_sections.odf_home_sections([{"id": "most_viewed", "period": "week"}])
+
+    assert got["most_viewed"] == {"datasets": ["v"], "period_label": "settimana"}
+    viewed.assert_called_once_with(4, "week")
+    label.assert_called_once_with("week")
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_most_viewed_falls_back_without_period_label(with_plugins):
+    """Se il tracking non risponde si mostrano i recenti, senza etichetta."""
+    from ckanext.opendata_firenze_theme.helpers import home, home_sections
+
+    recent = [{"id": "recent"}]
+    with (
+        mock.patch.object(home, "odf_most_viewed", return_value=None),
+        mock.patch.object(home, "odf_most_viewed_fallback", return_value=recent) as latest,
+        mock.patch.object(home, "odf_most_viewed_label") as label,
+    ):
+        got = home_sections.odf_home_sections([{"id": "most_viewed"}])
+
+    latest.assert_called_once_with(4)
+    label.assert_not_called()
+    assert got["most_viewed"] == {"datasets": recent, "period_label": ""}
+    assert recent[0]["views_period"] == 0
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

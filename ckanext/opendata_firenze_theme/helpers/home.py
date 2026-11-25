@@ -1,11 +1,18 @@
 """Helper della home: KPI, temi, dataset in evidenza/consultati, news."""
 
 import logging
+from datetime import date, timedelta
 
 import ckan.plugins.toolkit as toolkit
+from sqlalchemy import func
 
 from . import _common, query
-from .constants import ANNUARIO_CHAPTERS, THEMES
+from .constants import (
+    ANNUARIO_CHAPTERS,
+    DEFAULT_MOST_VIEWED_PERIOD,
+    MOST_VIEWED_PERIODS,
+    THEMES,
+)
 
 log = logging.getLogger(__name__)
 
@@ -119,18 +126,101 @@ def odf_featured_datasets(limit=3):
     return featured[:limit]
 
 
-def odf_most_viewed(limit=4):
-    """Dataset più consultati: per viste se il tracking ha dati, altrimenti recenti.
+def odf_most_viewed_label(period):
+    """Etichetta traducibile del periodo del blocco."""
+    if period not in MOST_VIEWED_PERIODS:
+        period = DEFAULT_MOST_VIEWED_PERIOD
+    return toolkit._(MOST_VIEWED_PERIODS[period][1])
 
-    Il criterio è la presenza di visualizzazioni in `tracking_summary` (il
-    plugin `tracking` la aggiunge ai risultati), non il numero di risultati:
-    un catalogo non vuoto restituisce comunque righe anche senza viste.
-    L'ordinamento resta sulle viste recenti mentre la card mostra il totale:
-    è la nota aperta con l'Ente in `docs/decisions.md`.
+
+def _period_views(period, limit):
+    """(package_id, visualizzazioni) del periodo, dal DB di tracking.
+
+    CKAN espone in Solr solo il totale e i 14 giorni: per gli altri periodi
+    si sommano i conteggi giornalieri di `tracking_summary` (solo page view,
+    non le risorse). None = tracking non disponibile; [] = nessuna vista.
     """
-    results = _common._search(rows=limit, sort="views_recent desc")["results"]
-    if any((result.get("tracking_summary") or {}).get("total") for result in results):
-        return results
+    if period not in MOST_VIEWED_PERIODS:
+        period = DEFAULT_MOST_VIEWED_PERIOD
+    days = MOST_VIEWED_PERIODS[period][0]
+    cutoff = date.today() - timedelta(days=days - 1)
+    from ckan import model
+
+    try:
+        from ckanext.tracking.model import TrackingSummary
+
+        rows = (
+            model.Session.query(
+                TrackingSummary.package_id,
+                func.sum(TrackingSummary.count).label("views"),
+            )
+            .filter(TrackingSummary.tracking_date >= cutoff)
+            .filter(TrackingSummary.tracking_type == "page")
+            .filter(TrackingSummary.package_id.isnot(None))
+            .filter(TrackingSummary.package_id != "~~not~found~~")
+            .group_by(TrackingSummary.package_id)
+            .order_by(func.sum(TrackingSummary.count).desc(), TrackingSummary.package_id)
+            .limit(limit)
+            .all()
+        )
+        return [(row[0], int(row[1] or 0)) for row in rows]
+    except Exception:
+        log.warning("tracking non disponibile per I più consultati", exc_info=True)
+        # Un errore DB lascia la sessione in una transazione fallita: senza
+        # rollback il fallback sui recenti farebbe fallire il resto della home.
+        try:
+            model.Session.rollback()
+        except Exception:
+            log.warning("rollback tracking fallito", exc_info=True)
+        return None
+
+
+def odf_most_viewed(limit=4, period=DEFAULT_MOST_VIEWED_PERIOD):
+    """Dataset più consultati nel periodo scelto.
+
+    Il conteggio mostrato è quello del periodo (non il totale storico), così
+    ordinamento e card usano la stessa grandezza. `None` = tracking non
+    disponibile (il collettore ripiega sui più aggiornati); `[]` = nessuna
+    vista nel periodo (il blocco si nasconde).
+
+    Si leggono più candidati del necessario: i primi in classifica possono non
+    essere più in Solr (dataset cancellati o privati) e verrebbero scartati da
+    `package_search`, lasciando il blocco incompleto.
+    """
+    if limit <= 0:
+        return []
+    if period not in MOST_VIEWED_PERIODS:
+        period = DEFAULT_MOST_VIEWED_PERIOD
+    candidate_limit = max(limit * 5, limit)
+    ranked = _period_views(period, candidate_limit)
+    if ranked is None:
+        return None
+    if not ranked:
+        return []
+
+    # Si interroga Solr a blocchi di `limit`: nel caso normale basta una sola
+    # ricerca da `limit` risultati (e quindi l'hook tracking lavora su pochi
+    # dataset); se qualcuno è stato cancellato/privato si passa al blocco
+    # successivo invece di mostrare un blocco incompleto.
+    results = []
+    for start in range(0, len(ranked), limit):
+        chunk = ranked[start : start + limit]
+        fq = "id:(" + " OR ".join(f'"{pkg_id}"' for pkg_id, _ in chunk) + ")"
+        found = _common._search(rows=len(chunk), fq=fq)["results"]
+        by_id = {pkg["id"]: pkg for pkg in found}
+        for pkg_id, count in chunk:
+            pkg = by_id.get(pkg_id)
+            if pkg is None:
+                continue
+            pkg["views_period"] = count
+            results.append(pkg)
+            if len(results) >= limit:
+                return results
+    return results
+
+
+def odf_most_viewed_fallback(limit=4):
+    """Dataset aggiornati di recente, se il tracking non è disponibile."""
     return _common._search(rows=limit, sort="metadata_modified desc")["results"]
 
 

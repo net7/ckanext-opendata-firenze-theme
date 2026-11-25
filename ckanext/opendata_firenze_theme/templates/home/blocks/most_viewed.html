@@ -3,6 +3,7 @@
 {% set viewed = block_data.datasets %}
 {% if viewed %}
 {% call home_block(block, tone='consultati') %}
+  {% if block_data.period_label %}<p class="rtt-body rtt-section__intro">{{ block_data.period_label }}</p>{% endif %}
   <div class="rtt-grid rtt-grid--2 rtt-stagger">
     {% for pkg in viewed %}{{ consultati_card(pkg) }}{% endfor %}
   </div>

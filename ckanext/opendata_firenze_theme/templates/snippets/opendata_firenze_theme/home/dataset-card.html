@@ -63,12 +63,12 @@
 {%- set tema = h.odf_package_theme(pkg) -%}
 {%- set freq_code = h.odf_pkg_extra(pkg, 'frequency') or pkg.get('frequency') -%}
 {%- set freq = h.odf_frequency_label(freq_code) -%}
-{#- I campi `views_total`/`views_recent` esistono solo su Solr e NON sono
-    stored: `package_search` non li restituisce (arrivano sempre `None`). Il
-    numero di visualizzazioni sta in `tracking_summary`, che il plugin
-    `tracking` aggiunge a ogni risultato di ricerca. #}
+{#- `views_period` è il conteggio del periodo scelto per "I più consultati"
+    (dal DB di tracking); se manca si ricade sul totale di `tracking_summary`,
+    che il plugin `tracking` aggiunge a ogni risultato di ricerca. #}
 {%- set ts = pkg.get('tracking_summary') or {} -%}
-{%- set views = ts.get('total') or ts.get('recent') -%}
+{%- set period_views = pkg.get('views_period') -%}
+{%- set views = period_views if period_views is not none else (ts.get('total') or ts.get('recent')) -%}
 {%- set geo = h.odf_dataset_is_geo(pkg) -%}
 {%- set is_rt = h.odf_dataset_is_realtime(pkg) -%}
 {%- set updated = _('Aggiornato pochi minuti fa') if is_rt else (_('Aggiornato il {date}').format(date=h.render_datetime(pkg.metadata_modified, date_format='%d/%m/%Y')) if pkg.metadata_modified else '') -%}

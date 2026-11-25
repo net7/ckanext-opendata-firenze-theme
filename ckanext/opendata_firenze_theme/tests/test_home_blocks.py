@@ -51,6 +51,7 @@ def test_default_order_and_texts():
     assert blocks["themes"]["subtitle"].startswith("Sfoglia i dati per argomento")
     assert blocks["news"]["cta_url"] == "/blog"
     assert blocks["hero"]["title"] == ""
+    assert blocks["most_viewed"]["period"] == "year"
 
 
 def test_configured_order_disabled_and_texts():
@@ -172,6 +173,7 @@ def test_entries_from_form():
     assert by_id["hero"]["enabled"] is True
     assert by_id["hero"]["title"] == ""
     assert by_id["kpi"]["enabled"] is False
+    assert by_id["most_viewed"]["period"] == "year"
     assert len(entries) == len(hb.DEFAULT_IDS)
 
 
@@ -193,10 +195,31 @@ def test_validate_entries():
         [
             {"id": "featured", "cta_url": "javascript:alert(1)"},
             {"id": "news", "cta_url": "//evil.example"},
+            {"id": "most_viewed", "period": "decade"},
         ]
     )
     assert "cta_url" in errors["featured"]
     assert "cta_url" in errors["news"]
+    assert "period" in errors["most_viewed"]
+
+
+def test_invalid_stored_period_uses_default():
+    hb = _hb()
+    raw = json.dumps([{"id": "most_viewed", "enabled": True, "period": "decade"}])
+    with mock.patch.object(hb, "_raw_value", return_value=raw):
+        block = hb.odf_home_blocks()[0]
+    assert block["period"] == "year"
+
+
+def test_entries_from_form_saves_period():
+    hb = _hb()
+    entries = hb.entries_from_form(
+        ["most_viewed"],
+        {"most_viewed": "0"},
+        {"most_viewed": {"period": "week"}},
+        ["most_viewed"],
+    )
+    assert entries[0]["period"] == "week"
 
 
 def test_invalid_stored_url_is_dropped():
@@ -247,6 +270,71 @@ def test_admin_homepage_rejects_invalid_cta_url(app):
     assert response.status_code == 200
     assert "Inserisci un percorso" in body
     assert 'aria-invalid="true"' in body
+
+    from ckan import model
+
+    assert model.get_system_info(_hb().OPTION) is None
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+def test_admin_homepage_period_select_and_save(app):
+    user = factories.Sysadmin()
+    app.set_session_user(user["name"])
+    page = app.get("/ckan-admin/homepage", base_url=_TEST_BASE_URL)
+    body = _response_body(page)
+    assert 'name="period_most_viewed"' in body
+    assert '<option value="week"' in body
+    # il form parte dai default, non da campi vuoti
+    assert 'value="I più consultati"' in body
+    assert '<option value="year" selected>' in body
+    for earlier, later in (
+        ("year", "half"),
+        ("half", "quarter"),
+        ("quarter", "month"),
+        ("month", "week"),
+        ("week", "today"),
+    ):
+        assert body.index(f'<option value="{earlier}"') < body.index(f'<option value="{later}"')
+
+    response = app.post(
+        "/ckan-admin/homepage",
+        base_url=_TEST_BASE_URL,
+        data={
+            "enabled": "most_viewed",
+            "order_most_viewed": "0",
+            "period_most_viewed": "week",
+            "save": "1",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+
+    from ckan import model
+
+    saved = json.loads(model.get_system_info(_hb().OPTION))
+    entry = next(item for item in saved if item["id"] == "most_viewed")
+    assert entry["period"] == "week"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+def test_admin_homepage_rejects_invalid_period(app):
+    user = factories.Sysadmin()
+    app.set_session_user(user["name"])
+    response = app.post(
+        "/ckan-admin/homepage",
+        base_url=_TEST_BASE_URL,
+        data={
+            "enabled": "most_viewed",
+            "order_most_viewed": "0",
+            "period_most_viewed": "decade",
+            "save": "1",
+        },
+    )
+    body = _response_body(response)
+    assert response.status_code == 200
+    assert "Scegli un periodo" in body
 
     from ckan import model
 

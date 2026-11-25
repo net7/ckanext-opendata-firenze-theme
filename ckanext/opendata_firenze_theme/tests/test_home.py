@@ -1,6 +1,7 @@
 """Rendering della home e helper del tema."""
 
 import re
+from datetime import date, timedelta
 from unittest import mock
 
 import pytest
@@ -136,12 +137,12 @@ def test_home_helpers(with_plugins, with_request_context):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
-def test_consultati_card_shows_views_from_tracking_summary(with_plugins, app):
-    """La card "I più consultati" prende le visualizzazioni da `tracking_summary`.
+def test_consultati_card_uses_period_views(with_plugins, app):
+    """La card "I più consultati" mostra il conteggio del periodo scelto.
 
-    `views_total`/`views_recent` esistono solo su Solr e non sono *stored*:
-    `package_search` non li restituisce. Se la card li legge da li' (come faceva
-    prima) il contatore "N visualizzazioni" non compare mai.
+    `views_period` arriva dal DB di tracking; se manca (card usata altrove) si
+    ricade su `tracking_summary`. `views_total`/`views_recent` di Solr non sono
+    *stored* e non vanno letti da `package_search`.
     """
     from flask import render_template_string
 
@@ -153,13 +154,17 @@ def test_consultati_card_shows_views_from_tracking_summary(with_plugins, app):
         with app.flask_app.test_request_context("/"):
             return render_template_string(src, pkg=pkg)
 
-    assert "1.234 visualizzazioni" in render(tracking_summary={"total": 1234, "recent": 10})
+    # il conteggio del periodo vince sul totale storico
+    html = render(views_period=8, tracking_summary={"total": 1234, "recent": 10})
+    assert "8 visualizzazioni" in html
+    assert "1.234 visualizzazioni" not in html
     # il link-card ha come nome accessibile il titolo, non tutta la card
-    html = render(tracking_summary={"total": 1234, "recent": 10})
     assert 'aria-labelledby="consultati-title-x"' in html
     assert 'id="consultati-title-x"' in html
-    # senza visualizzazioni la riga sparisce
-    assert "visualizzazioni" not in render(tracking_summary={"total": 0, "recent": 0})
+    # zero viste nel periodo: niente riga, anche se il totale storico esiste
+    assert "visualizzazioni" not in render(views_period=0, tracking_summary={"total": 1234})
+    # senza `views_period` (card riusata fuori dal blocco) si usa il totale
+    assert "1.234 visualizzazioni" in render(tracking_summary={"total": 1234, "recent": 10})
     # il campo Solr (indicizzato ma non stored) non basta piu'
     assert "visualizzazioni" not in render(views_total=5)
 
@@ -277,8 +282,103 @@ def test_search_form_submit_text_has_no_conflicting_label(with_plugins, with_req
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
-def test_most_viewed_uses_tracking_when_present(with_plugins, with_request_context):
-    from ckanext.opendata_firenze_theme import helpers
+def test_period_views_aggregates_page_views_in_window(with_plugins):
+    from ckan.tests import factories
+
+    from ckanext.opendata_firenze_theme.helpers import home
+    from ckanext.tracking.model import TrackingSummary
+
+    pkg = factories.Dataset()
+    package_id = pkg["id"]
+    today = date.today()
+
+    def add(url, day, count, tracking_type="page", pid=package_id):
+        TrackingSummary.create(
+            url=f"{url}-{pid}-{day}",
+            package_id=pid,
+            tracking_type=tracking_type,
+            count=count,
+            running_total=count,
+            recent_views=count,
+            tracking_date=day,
+        )
+
+    add("demo-window", today, 10)
+    add("demo-window", today - timedelta(days=5), 20)
+    add("demo-window", today - timedelta(days=20), 30)
+    add("demo-window", today - timedelta(days=200), 40)
+    # né le resource view né le righe "not found" entrano nel conteggio
+    add("demo-window-resource", today, 100, tracking_type="resource")
+    add("demo-window-nf", today, 100, pid="~~not~found~~")
+
+    # il DB di test può contenere righe di run precedenti: valuto solo il
+    # pacchetto creato qui, non l'ordine globale.
+    def views(period):
+        return dict(home._period_views(period, 100)).get(package_id)
+
+    assert views("today") == 10
+    assert views("week") == 30
+    assert views("month") == 60
+    assert views("quarter") == 60
+    assert views("half") == 60
+    assert views("year") == 100
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_period_views_window_boundaries(with_plugins):
+    """Fissa i confini delle finestre: 7 giorni e 365 giorni esclusi."""
+    from ckan.tests import factories
+
+    from ckanext.opendata_firenze_theme.helpers import home
+    from ckanext.tracking.model import TrackingSummary
+
+    pkg = factories.Dataset()
+    package_id = pkg["id"]
+    today = date.today()
+
+    for label, day, count in (
+        ("today", today, 5),
+        ("six-days", today - timedelta(days=6), 1),
+        ("seven-days", today - timedelta(days=7), 10),
+        ("364-days", today - timedelta(days=364), 100),
+        ("365-days", today - timedelta(days=365), 1000),
+    ):
+        TrackingSummary.create(
+            url=f"demo-boundary-{package_id}-{label}",
+            package_id=package_id,
+            tracking_type="page",
+            count=count,
+            running_total=count,
+            recent_views=count,
+            tracking_date=day,
+        )
+
+    def views(period):
+        return dict(home._period_views(period, 100)).get(package_id)
+
+    assert views("today") == 5
+    assert views("week") == 6  # oggi + 6 giorni fa, non 7
+    assert views("month") == 16  # include anche la riga di 7 giorni fa
+    assert views("year") == 116  # fino a 364 giorni fa, non 365
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_period_views_rolls_back_on_error(with_plugins):
+    from ckan import model
+    from sqlalchemy import text
+
+    from ckanext.opendata_firenze_theme.helpers import home
+
+    with mock.patch.object(model.Session, "query", side_effect=RuntimeError("boom")):
+        assert home._period_views("week", 4) is None
+
+    # se la sessione fosse rimasta abortita questa query fallirebbe
+    assert model.Session.execute(text("SELECT 1")).scalar() == 1
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_most_viewed_uses_period_views(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme.helpers import home
 
     calls = []
 
@@ -289,28 +389,65 @@ def test_most_viewed_uses_tracking_when_present(with_plugins, with_request_conte
             "count": 1,
         }
 
-    with mock.patch.object(helpers._common, "_search", side_effect=fake_search):
-        viewed = helpers.odf_most_viewed(4)
+    with (
+        mock.patch.object(home, "_period_views", return_value=[("a", 7)]) as period,
+        mock.patch.object(home._common, "_search", side_effect=fake_search),
+    ):
+        viewed = home.odf_most_viewed(4, "week")
 
     assert [pkg["id"] for pkg in viewed] == ["a"]
+    assert viewed[0]["views_period"] == 7
+    # si leggono più candidati del limite per scartare quelli non più in Solr
+    period.assert_called_once_with("week", 20)
     assert len(calls) == 1
-    assert calls[0]["sort"] == "views_recent desc"
+    assert calls[0]["fq"].startswith('id:("a"')
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
-def test_most_viewed_falls_back_without_views(with_plugins, with_request_context):
-    from ckanext.opendata_firenze_theme import helpers
+def test_most_viewed_skips_packages_missing_from_solr(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme.helpers import home
 
-    calls = []
+    ranked = [("cancellato", 99), ("a", 7)]
 
     def fake_search(**params):
-        calls.append(params)
-        if params.get("sort") == "views_recent desc":
-            return {"results": [{"id": "a", "tracking_summary": {"total": 0}}], "count": 1}
-        return {"results": [{"id": "recent"}], "count": 1}
+        # il dataset cancellato/privato non è più nei risultati di ricerca
+        return {"results": [{"id": "a"}], "count": 1}
 
-    with mock.patch.object(helpers._common, "_search", side_effect=fake_search):
-        viewed = helpers.odf_most_viewed(4)
+    with (
+        mock.patch.object(home, "_period_views", return_value=ranked) as period,
+        mock.patch.object(home._common, "_search", side_effect=fake_search),
+    ):
+        viewed = home.odf_most_viewed(1, "year")
 
-    assert [pkg["id"] for pkg in viewed] == ["recent"]
-    assert calls[-1]["sort"] == "metadata_modified desc"
+    assert [pkg["id"] for pkg in viewed] == ["a"]
+    assert viewed[0]["views_period"] == 7
+    period.assert_called_once_with("year", 5)
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_most_viewed_hides_when_period_has_no_views(with_plugins, with_request_context):
+    from ckanext.opendata_firenze_theme.helpers import home
+
+    with mock.patch.object(home, "_period_views", return_value=[]):
+        assert home.odf_most_viewed(4, "today") == []
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_most_viewed_returns_none_when_tracking_unavailable(with_plugins):
+    from ckanext.opendata_firenze_theme.helpers import home
+
+    with mock.patch.object(home, "_period_views", return_value=None):
+        assert home.odf_most_viewed(4, "year") is None
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_most_viewed_period_label(with_plugins):
+    from ckanext.opendata_firenze_theme.helpers import home
+
+    assert home.odf_most_viewed_label("year") == "Ultimi 12 mesi"
+    assert home.odf_most_viewed_label("half") == "Ultimi 6 mesi"
+    assert home.odf_most_viewed_label("quarter") == "Ultimi 3 mesi"
+    assert home.odf_most_viewed_label("month") == "Ultimo mese"
+    assert home.odf_most_viewed_label("week") == "Ultima settimana"
+    assert home.odf_most_viewed_label("today") == "Oggi"
+    assert home.odf_most_viewed_label("bogus") == "Ultimi 12 mesi"

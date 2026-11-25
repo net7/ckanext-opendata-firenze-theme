@@ -8,7 +8,7 @@
 {% block primary_content_inner %}
   <h1 class="page-heading">{{ _('Blocchi della homepage') }}</h1>
   <p class="helper-text">
-    {{ _("Attiva i blocchi e indica l'ordine (numeri più bassi compaiono prima). I testi sono precompilati con i valori predefiniti: puoi modificarli o svuotarli per non mostrarli. I blocchi senza contenuto (es. News senza post) restano nascosti.") }}
+    {{ _("Attiva i blocchi e indica l'ordine (numeri più bassi compaiono prima). I testi sono precompilati con i valori predefiniti: puoi modificarli o svuotarli per non mostrarli. Per «I più consultati» scegli anche il periodo di riferimento (default: ultimi 12 mesi). I blocchi senza contenuto (es. News senza post) restano nascosti.") }}
   </p>
   {% if summary %}<div class="alert alert-danger">{{ summary }}</div>{% endif %}
   <form method="post" action="">
@@ -33,7 +33,15 @@
             {% set field_error = form_errors.get(b.id, {}).get(name, '') %}
             <div class="form-group{% if field_error %} has-error{% endif %}">
               <label for="{{ name }}-{{ b.id }}">{{ meta.label }}</label>
-              <input type="text" id="{{ name }}-{{ b.id }}" class="form-control input-sm" name="{{ name }}_{{ b.id }}" value="{{ b[name] }}"{% if meta.type == 'url' %} inputmode="url" placeholder="{{ _('es. /dataset?q=... oppure https://...') }}"{% endif %}{% if field_error %} aria-invalid="true" aria-describedby="error-{{ name }}-{{ b.id }}"{% endif %}>
+              {% if meta.type == 'select' %}
+              <select id="{{ name }}-{{ b.id }}" class="form-control input-sm" name="{{ name }}_{{ b.id }}"{% if field_error %} aria-invalid="true" aria-describedby="error-{{ name }}-{{ b.id }}"{% endif %}>
+                {% for value, label in meta.options.items() %}
+                <option value="{{ value }}"{% if b['values'][name] == value %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              {% else %}
+              <input type="text" id="{{ name }}-{{ b.id }}" class="form-control input-sm" name="{{ name }}_{{ b.id }}" value="{{ b['values'][name] }}"{% if meta.type == 'url' %} inputmode="url" placeholder="{{ _('es. /dataset?q=... oppure https://...') }}"{% endif %}{% if field_error %} aria-invalid="true" aria-describedby="error-{{ name }}-{{ b.id }}"{% endif %}>
+              {% endif %}
               {% if field_error %}<span class="error-block" id="error-{{ name }}-{{ b.id }}">{{ field_error }}</span>{% endif %}
             </div>
             {% endfor %}

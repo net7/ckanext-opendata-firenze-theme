@@ -28,8 +28,15 @@ incluso ne chiamava un altro. Ne seguivano tre problemi:
    leggono `block_data`. Lo snippet della hero riceve `count`, quello dei KPI
    `kpis`, quello dei temi `themes`; i caroselli ricevono le liste di dataset.
 3. **Limiti nel collettore**: 7 in evidenza, 6 ultimi, 6 LOD, 4 più consultati,
-   3 news. Il registro dei blocchi (ordine, stato, testi) resta in
-   `home_blocks.BLOCKS` e la configurazione resta quella di ADR 0008.
+   3 news. Il registro dei blocchi (ordine, stato, testi, periodo de "I più
+   consultati") resta in `home_blocks.BLOCKS` e la configurazione resta quella
+   di ADR 0008. Il periodo passa al costruttore: il ranking e il conteggio
+   mostrato vengono dalla stessa finestra su `tracking_summary` (non dal solo
+   `views_recent` di Solr), così ordinamento e numero sono coerenti. Le
+   finestre sono 12/6/3 mesi, 1 mese, 1 settimana e oggi. Se la
+   query tracking fallisce, `_period_views` fa rollback della sessione e il
+   collettore mostra i dataset più aggiornati, senza etichetta di periodo (il
+   ranking non è quello scelto) e senza abortire il resto della home.
 4. **Conteggio condiviso**: il totale del catalogo è calcolato al massimo una
    volta per render e passato a hero e KPI (`odf_home_kpis(total=…)`).
 5. **Copertura obbligatoria**: un test verifica che ogni id di `BLOCKS` abbia un
