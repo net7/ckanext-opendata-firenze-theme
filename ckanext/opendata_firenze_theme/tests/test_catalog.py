@@ -32,6 +32,9 @@ def test_catalog_no_results(app):
     assert "Nessun dataset per" in body
     assert "Svuota la ricerca" in body
     assert "Chiedi un dato mancante" in body
+    # niente suggerimenti sotto il messaggio di "nessun risultato"
+    assert "I dataset più richiesti" not in body
+    assert "rtt-noresults__top" not in body
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

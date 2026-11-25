@@ -453,17 +453,6 @@
   margin-top: 6px;
 }
 
-.rtt-noresults__top {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.rtt-noresults__top-title {
-  margin: 0;
-  color: var(--neutral-neutral-900);
-}
-
 /* Pagina di errore (404 e altri codici): card di stato a tutta larghezza, con
    le stesse proporzioni della card "nessun risultato" del catalogo. */
 .rtt-status {

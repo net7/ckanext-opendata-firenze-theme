@@ -1,8 +1,7 @@
 {#
   Stato "nessun risultato" del catalogo (come noresults.jsx del mockup): card
   con icona, titolo (per query o per filtri), chip dei filtri attivi rimovibili,
-  messaggio e azioni, seguita da "I dataset più richiesti". Nessuna dipendenza
-  da JS.
+  messaggio e azioni. Nessuna dipendenza da JS.
 
   q        - query di ricerca corrente ('' se assente)
   filters  - filtri attivi (h.odf_active_filters): chip rimovibili. Presi dai
@@ -10,7 +9,6 @@
              risultati).
 #}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
-{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
 {% set has_filters = filters|length > 0 %}
 <div class="rtt-noresults">
   <div class="rtt-noresults__card">
@@ -40,13 +38,4 @@
       <a class="rtt-btn rtt-btn--primary" href="{{ h.url_for('/contact') }}">{{ _('Chiedi un dato mancante') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
     </div>
   </div>
-  {% set top = h.odf_most_viewed(3) %}
-  {% if top %}
-  <div class="rtt-noresults__top">
-    <h3 class="rtt-h5 rtt-noresults__top-title">{{ _('I dataset più richiesti') }}</h3>
-    <div class="rtt-grid rtt-grid--3">
-      {% for pkg in top %}{{ dataset_card(pkg, compact=True) }}{% endfor %}
-    </div>
-  </div>
-  {% endif %}
 </div>
