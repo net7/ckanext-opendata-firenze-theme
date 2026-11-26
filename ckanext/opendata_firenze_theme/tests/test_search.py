@@ -1,6 +1,5 @@
 """Ricerca fuzzy del catalogo e pagina di ricerca site-wide."""
 
-import importlib.util
 import re
 from unittest import mock
 
@@ -9,11 +8,10 @@ from ckan.tests import factories
 
 from ckanext.opendata_firenze_theme import plugin
 from ckanext.opendata_firenze_theme.helpers import catalog_search as catalog_search_helpers
-from ckanext.opendata_firenze_theme.helpers import editorial, fuzzy, search
+from ckanext.opendata_firenze_theme.helpers import content, fuzzy, search
 from ckanext.opendata_firenze_theme.helpers.query import fuzzy_query
 
 PLUGIN = "opendata_firenze_theme"
-PAGES_INSTALLED = importlib.util.find_spec("ckanext.pages") is not None
 
 
 def _body(response):
@@ -85,27 +83,30 @@ def test_catalog_search_keeps_api_exact():
     assert len(calls) == 1
 
 
-@pytest.mark.skipif(not PAGES_INSTALLED, reason="ckanext-pages non installato")
 def test_recent_news_normalizes_posts(monkeypatch):
-    monkeypatch.setattr(
-        "ckanext.pages.plugin.get_recent_blog_posts",
-        lambda number=3: [
+    calls = []
+
+    def load_pages(page_type=None):
+        calls.append(page_type)
+        return [
             {
                 "name": "news-recente",
                 "title": "News recente",
                 "publish_date": "2026-11-25",
                 "content": "<p>Testo della news.</p>",
             }
-        ],
-    )
+        ]
+
+    source = content.ContentSource(load_pages)
     monkeypatch.setattr(
-        editorial.toolkit,
+        content.toolkit,
         "url_for",
         lambda endpoint, **kwargs: f"/{endpoint}/{kwargs.get('page', '')}",
     )
 
-    items = editorial.recent_news(2)
+    items = content.recent_news(2, source=source)
 
+    assert calls == ["blog"]
     assert items[0]["kind"] == "news"
     assert items[0]["title"] == "News recente"
     assert items[0]["url"] == "/pages.blog_show/news-recente"
@@ -159,11 +160,12 @@ def test_site_search_collects_datasets(app):
     assert "Nessun risultato" not in body
 
 
-def test_editorial_search_content_filters_news_and_pages(monkeypatch):
-    monkeypatch.setattr(
-        editorial,
-        "_pages",
-        lambda: [
+def test_content_search_filters_news_and_pages(monkeypatch):
+    calls = []
+
+    def load_pages(page_type=None):
+        calls.append(page_type)
+        return [
             {
                 "name": "news-unica",
                 "title": "News unica",
@@ -185,33 +187,33 @@ def test_editorial_search_content_filters_news_and_pages(monkeypatch):
                 "page_type": "page",
                 "publish_date": None,
             },
-        ],
-    )
+        ]
+
+    source = content.ContentSource(load_pages)
     monkeypatch.setattr(
-        editorial.toolkit,
+        content.toolkit,
         "url_for",
         lambda endpoint, **kwargs: f"/{endpoint}/{kwargs.get('page', '')}",
     )
 
-    items = editorial.search_content("unica")
+    items = content.search_content("unica", source=source)
 
+    assert calls == [None]
     assert [item["name"] for item in items] == ["news-unica", "pagina-unica"]
     assert [item["kind"] for item in items] == ["news", "page"]
     assert items[0]["url"] == "/pages.blog_show/news-unica"
     assert items[1]["url"] == "/pages.show/pagina-unica"
 
 
-def test_editorial_matches_handles_apostrophes():
-    assert editorial.matches("Qualità dell'aria", "Qualità dell'arie") is True
-    assert editorial.matches("Qualità dell'aria", "Qualità dell'aria") is True
-    assert editorial.matches("Qualità dell'aria", "Qualità dell'acqua") is False
+def test_content_matches_handles_apostrophes():
+    assert content.matches("Qualità dell'aria", "Qualità dell'arie") is True
+    assert content.matches("Qualità dell'aria", "Qualità dell'aria") is True
+    assert content.matches("Qualità dell'aria", "Qualità dell'acqua") is False
 
 
-def test_editorial_search_content_tolerates_typo(monkeypatch):
-    monkeypatch.setattr(
-        editorial,
-        "_pages",
-        lambda: [
+def test_content_search_tolerates_typo(monkeypatch):
+    source = content.ContentSource(
+        lambda page_type=None: [
             {
                 "name": "news-recente",
                 "title": "Nuovi dataset nel catalogo Open Data",
@@ -219,15 +221,15 @@ def test_editorial_search_content_tolerates_typo(monkeypatch):
                 "page_type": "blog",
                 "publish_date": "2026-11-25",
             }
-        ],
+        ]
     )
     monkeypatch.setattr(
-        editorial.toolkit,
+        content.toolkit,
         "url_for",
         lambda endpoint, **kwargs: f"/{endpoint}/{kwargs.get('page', '')}",
     )
 
-    items = editorial.search_content("Nuovi dataset nel catalogo Open Datt")
+    items = content.search_content("Nuovi dataset nel catalogo Open Datt", source=source)
 
     assert [item["name"] for item in items] == ["news-recente"]
     assert items[0]["kind"] == "news"
@@ -242,7 +244,7 @@ def test_site_search_filters_news_and_pages(monkeypatch):
 
     monkeypatch.setattr(search._common, "_search", fake_search)
     monkeypatch.setattr(
-        editorial,
+        content,
         "search_content",
         lambda query: [
             {"name": "news-unica", "title": "News unica", "kind": "news", "url": "/blog/n"},
@@ -260,8 +262,7 @@ def test_site_search_filters_news_and_pages(monkeypatch):
     assert calls[0]["view"] is True
 
 
-@pytest.mark.skipif(not PAGES_INSTALLED, reason="ckanext-pages non installato")
-@pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} pages")
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.usefixtures("with_plugins")
 def test_site_search_page_renders_news_and_pages(app):
     payload = {

@@ -1,9 +1,8 @@
-import ckan.model as model
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 from ckanext.opendata_firenze_theme import cli, helpers, views
-from ckanext.opendata_firenze_theme.helpers import home_blocks, query
+from ckanext.opendata_firenze_theme.helpers import home_blocks, quality, query
 
 from .helpers.catalog_search import catalog_search
 
@@ -15,58 +14,9 @@ THEME_FAVICON = "/brand/favicon.ico"
 QUALITY_AUTH = "odf_quality_view"
 
 
-def _can_view_quality(context, pkg_id):
-    """Qualita' del metadato: solo uso interno.
-
-    Ammessi sysadmin e chi puo' modificare un dataset di un'organizzazione
-    (editor/admin dell'org). I dataset senza organizzazione restano visibili
-    solo ai sysadmin: il default CKAN di `package_update` per i package non
-    posseduti sarebbe troppo permissivo.
-    """
-    # Stessa semantica di `check_access`: i contesti interni (report, task,
-    # export) con `ignore_auth` non sono soggetti alla policy.
-    if context.get("ignore_auth"):
-        return True
-    user = context.get("auth_user_obj") or context.get("user")
-    if isinstance(user, str):
-        user = model.User.get(user)
-    if user is None:
-        return False
-    if not getattr(user, "is_authenticated", True):
-        return False
-    if getattr(user, "sysadmin", False):
-        return True
-    if not pkg_id:
-        return False
-    pkg = model.Package.get(pkg_id)
-    if pkg is None or not pkg.owner_org:
-        return False
-    try:
-        return bool(toolkit.check_access("package_update", context, {"id": pkg_id}))
-    except toolkit.NotAuthorized:
-        return False
-
-
 def odf_quality_view(context, data_dict):
     """Auth function: chi puo' vedere il punteggio di qualita' del dataset."""
-    return {"success": _can_view_quality(context, (data_dict or {}).get("id"))}
-
-
-def _strip_quality(pkg_dict):
-    """Rimuove i dati QA da un package (API pubblica, search, pagina)."""
-    pkg_dict.pop("qa", None)
-    extras = pkg_dict.get("extras")
-    if isinstance(extras, dict):
-        extras.pop("openness_score", None)
-    elif isinstance(extras, list):
-        pkg_dict["extras"] = [
-            extra
-            for extra in extras
-            if not (isinstance(extra, dict) and extra.get("key") == "openness_score")
-        ]
-    for resource in pkg_dict.get("resources") or []:
-        if isinstance(resource, dict):
-            resource.pop("qa", None)
+    return {"success": quality.can_view(context, (data_dict or {}).get("id"))}
 
 
 @toolkit.side_effect_free
@@ -80,8 +30,8 @@ def odf_package_search(context, data_dict):
     result = catalog_search(context, data_dict)
 
     for pkg in result.get("results", []):
-        if not _can_view_quality(context, pkg.get("id")):
-            _strip_quality(pkg)
+        if not quality.can_view(context, pkg.get("id")):
+            quality.strip(pkg)
     return result
 
 
@@ -168,8 +118,8 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
 
     def after_dataset_show(self, context, pkg_dict):
         """Rimuove la qualita' dai package non visibili agli utenti interni."""
-        if not _can_view_quality(context, pkg_dict.get("id")):
-            _strip_quality(pkg_dict)
+        if not quality.can_view(context, pkg_dict.get("id")):
+            quality.strip(pkg_dict)
         return pkg_dict
 
     # IPackageController

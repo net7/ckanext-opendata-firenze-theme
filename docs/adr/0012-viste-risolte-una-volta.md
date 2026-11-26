@@ -22,7 +22,7 @@ contratto esiste, manca solo alla scheda dataset.
 
 - `helpers/resource.odf_resource_views_by_id(pkg)` acquisisce le viste di ogni
   risorsa una volta sola.
-- `odf_dataset_page` mette lo snapshot in `views_by_resource` e lo passa a
+- `odf_dataset_page` mette lo snapshot in `resources.views_by_resource` e lo passa a
   `odf_dataset_map_resource`; `resource_row(pkg, res, views=None)` lo passa a
   `odf_resource_preview`.
 - Sulla tab avanzata le righe risorsa non sono renderizzate: il pulsante mappa

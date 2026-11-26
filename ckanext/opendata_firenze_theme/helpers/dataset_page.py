@@ -1,8 +1,8 @@
 """Contesto della scheda dataset: un solo punto che compone i dati della pagina.
 
-La scheda (`templates/package/read.html`) non chiama più una decina di helper
-in Jinja: riceve i dati già composti. La ricerca della serie è fatta una volta
-e riusata dal contesto (prima era una convenzione del template).
+La scheda (`templates/package/read.html`) riceve un valore con quattro
+sotto-contesti: `header`, `resources`, `aside` e `series`. Ogni pannello legge
+solo il proprio, invece di destrutturare un dict piatto da 18 chiavi.
 """
 
 from . import dataset, resource, series
@@ -28,22 +28,27 @@ def odf_dataset_page(pkg, tab="essenziale"):
         views_by_resource = resource.odf_resource_views_by_id(pkg)
         map_resource = map_helpers.odf_dataset_map_resource(pkg, views_by_resource)
     return {
-        "theme": facts["theme"],
-        "facts": facts,
-        "badges": badges,
-        "is_realtime": facts["is_realtime"],
-        "is_geo": facts["is_geo"],
-        "downloads": dataset.odf_dataset_downloads(pkg),
-        "quality": dataset.odf_dataset_openness(pkg),
-        "map_resource": map_resource,
-        "views_by_resource": views_by_resource,
+        "header": {
+            "theme": facts["theme"],
+            "badges": badges,
+            "is_realtime": facts["is_realtime"],
+            "is_geo": facts["is_geo"],
+            "serie": info["serie"],
+            "serie_total": info["count"],
+            "geometry": facts["geometry"],
+            "uso": dataset.odf_pkg_extra(pkg, "uso"),
+        },
+        "resources": {
+            "downloads": dataset.odf_dataset_downloads(pkg),
+            "map_resource": map_resource,
+            "views_by_resource": views_by_resource,
+        },
+        "aside": {
+            "quality": dataset.odf_dataset_openness(pkg),
+            "contact": dataset.odf_dataset_contact(pkg),
+            "related": dataset.odf_dataset_related(pkg, theme=facts["theme"]),
+        },
         "series": context,
-        "serie": info["serie"],
-        "serie_total": info["count"],
-        "contact": dataset.odf_dataset_contact(pkg),
-        "related": dataset.odf_dataset_related(pkg, theme=facts["theme"]),
-        "geometry": facts["geometry"],
-        "uso": dataset.odf_pkg_extra(pkg, "uso"),
         "tab": tab,
         "advanced": tab == "avanzata",
     }

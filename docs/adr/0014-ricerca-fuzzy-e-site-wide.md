@@ -35,7 +35,7 @@ cercava solo i dataset e non news o pagine.
    view lo passa al template come `results` e il template itera i gruppi.
    I gruppi aggregano:
    - dataset, via `_common._search(view=True)` (con il fallback fuzzy);
-   - news e pagine, via `helpers/editorial` (unico adapter a
+   - news e pagine, via `helpers/content` (`ContentSource`, unico adapter a
      `ckanext-pages`), filtrate per titolo/contenuto con la stessa policy
      fuzzy per parola (`helpers.fuzzy.within_distance`).
    I dataset restano nella site-wide perché sono la parte “evidenze” (oltre

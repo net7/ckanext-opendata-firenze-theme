@@ -11,7 +11,7 @@ import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
 from . import _common
-from .constants import GEO_FORMATS_UPPER, MAP_VIEW_TYPES, VIEW_TITLES
+from .constants import VIEW_TITLES
 
 
 def odf_resource_download_url(pkg, res):
@@ -39,54 +39,6 @@ def odf_resource_view_title(view):
     return view.get("title") or toolkit._("Anteprima")
 
 
-# Formati tabellari che datatables_view sa leggere dal DataStore.
-TABULAR_FORMATS = frozenset(("CSV", "TSV"))
-# Formati che sono un collegamento a una pagina/servizio, non un file.
-EXTERNAL_FORMATS = frozenset(("URL", "HTML", "WEB"))
-
-
-def _preview_kind(view_type):
-    """Famiglia della vista: decide il titolo e la larghezza della modale."""
-    view_type = (view_type or "").lower()
-    if view_type in ("datatables_view", "datastore"):
-        return "table"
-    if view_type in MAP_VIEW_TYPES:
-        return "map"
-    if view_type in ("webpage_view", "web_view", "html_view"):
-        return "web"
-    if view_type in ("text_view", "officedocs_view", "pdf_view"):
-        return "doc"
-    if view_type in ("image_view", "audio_view", "video_view"):
-        return "media"
-    return "file"
-
-
-def _preview_format_kind(res):
-    """Famiglia della risorsa quando non c'è una vista da cui dedurla."""
-    fmt = ((res or {}).get("format") or "").strip().upper()
-    if (res or {}).get("datastore_active") or fmt in TABULAR_FORMATS:
-        return "table"
-    if fmt in GEO_FORMATS_UPPER:
-        return "map"
-    if fmt in EXTERNAL_FORMATS:
-        return "web"
-    return "file"
-
-
-def _preview_reason(res):
-    """Perché una risorsa senza viste non ha l'anteprima, per il messaggio."""
-    fmt = ((res or {}).get("format") or "").strip().upper()
-    if (res or {}).get("datastore_active"):
-        return "no-view"
-    if fmt in TABULAR_FORMATS:
-        return "datastore"
-    if fmt in GEO_FORMATS_UPPER:
-        return "geo"
-    if fmt in EXTERNAL_FORMATS:
-        return "external"
-    return "unsupported"
-
-
 def _resource_views(res):
     res_id = (res or {}).get("id")
     if not res_id:
@@ -96,6 +48,20 @@ def _resource_views(res):
     except Exception:
         return []
     return views or []
+
+
+def odf_resource_has_map_view(res, views=None):
+    """True se la risorsa ha almeno una vista mappa (geo/geojson/wmts/shp).
+
+    L'implementazione resta qui, accanto a `_resource_views`: `map.py` la
+    importa per esporre l'interface completa senza che questo module dipenda
+    da `map` a livello di import (ADR 0013).
+    """
+    from .map import is_map_view
+
+    if views is None:
+        views = _resource_views(res)
+    return any(is_map_view(view.get("view_type")) for view in views)
 
 
 def odf_resource_views_by_id(pkg):
@@ -137,13 +103,6 @@ def _datastore_available(res):
         return False
 
 
-def odf_resource_has_map_view(res, views=None):
-    """True se la risorsa ha almeno una vista mappa (geo/geojson/wmts/shp)."""
-    if views is None:
-        views = _resource_views(res)
-    return any((view.get("view_type") or "").lower() in MAP_VIEW_TYPES for view in views)
-
-
 def odf_resource_views(res, views):
     """Viste utilizzabili nella pagina/modale: scarta le tabelle senza DataStore."""
     usable = []
@@ -172,6 +131,10 @@ def odf_resource_preview(pkg, res, views=None):
     `unsupported` (formato senza visualizzatore). Le viste `datatables_view`
     senza DataStore non vengono incorporate: mostrerebbero un errore CKAN.
     """
+    # Import locale: `map` importa `odf_resource_has_map_view` da questo module,
+    # quindi un import a livello di module creerebbe un ciclo.
+    from .map import preview_format_kind, preview_kind, preview_reason
+
     if views is None:
         views = _resource_views(res)
 
@@ -182,8 +145,8 @@ def odf_resource_preview(pkg, res, views=None):
         return {
             "url": "",
             "view_type": "",
-            "kind": _preview_format_kind(res),
-            "reason": _preview_reason(res),
+            "kind": preview_format_kind(res),
+            "reason": preview_reason(res),
         }
 
     view = usable[0]
@@ -200,7 +163,7 @@ def odf_resource_preview(pkg, res, views=None):
     return {
         "url": url,
         "view_type": view_type,
-        "kind": _preview_kind(view_type),
+        "kind": preview_kind(view_type),
         "reason": "" if url else "generic",
     }
 

@@ -12,9 +12,9 @@ TEMPLATES = Path(__file__).resolve().parents[1] / "templates"
 
 def test_every_block_has_a_builder():
     """Un blocco senza dati romperebbe la home: il test lo blocca prima."""
-    from ckanext.opendata_firenze_theme.helpers import home_blocks, home_sections
+    from ckanext.opendata_firenze_theme.helpers import home_blocks
 
-    assert {block["id"] for block in home_blocks.BLOCKS} == set(home_sections._BUILDERS)
+    assert all(callable(block.get("builder")) for block in home_blocks.BLOCKS)
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

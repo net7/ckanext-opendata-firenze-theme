@@ -1,21 +1,12 @@
-"""Helper delle pagine editoriali: Annuario, news e ricerca nei contenuti.
+"""Helper dell'Annuario Statistico: capitoli, conteggi e pagina.
 
-`recent_news` e `search_content` sono l'unico adapter a `ckanext-pages`: la
-home e la ricerca site-wide leggono lo stesso CMS con le stesse regole di
-privacy, ordine e forma della voce.
+News e pagine vivono in `helpers/content.py`: l'Annuario interroga Solr, il CMS
+ha un adapter separato. Tenere i due concetti nello stesso module rendeva
+l'interfaccia larga e i test dei contenuti dipendenti da `ckanext-pages`.
 """
 
-import logging
-import re
-import unicodedata
-
-import ckan.plugins.toolkit as toolkit
-
 from . import _common, query
-from . import fuzzy as fuzzy_policy
 from .constants import ANNUARIO_CHAPTERS
-
-log = logging.getLogger(__name__)
 
 
 def odf_annuario_chapters():
@@ -71,118 +62,6 @@ def odf_annuario_page(chapter=None):
         "count": count,
         "datasets": odf_annuario_datasets(selected, limit=count),
     }
-
-
-def _normalize(text):
-    """Minuscolo e senza accenti, per confronti semplici tra testi."""
-    text = unicodedata.normalize("NFKD", str(text or ""))
-    return "".join(char for char in text if not unicodedata.combining(char)).casefold()
-
-
-def _terms(text):
-    """Termini normalizzati; l'apostrofo separa le parole come fa il tokenizer."""
-    return [term for term in re.split(r"[\s'’]+", _normalize(text)) if term]
-
-
-def matches(text, query):
-    """True se ogni termine della query compare nel testo (case/accenti).
-
-    Prima si cerca la sottostringa esatta; se non c'è, si accetta una parola
-    entro la distanza fuzzy del termine (1 per 4-5 caratteri, 2 per 6+). Così
-    "Datt" trova "Data" e "Farenze" trova "Firenze" anche nelle news/pagine;
-    l'apostrofo separa i termini come nel tokenizer ("dell'arie" → "dell",
-    "arie").
-    """
-    terms = _terms(query)
-    if not terms:
-        return False
-    haystack = _normalize(text)
-    words = re.findall(r"\w+", haystack)
-    for term in terms:
-        if term in haystack:
-            continue
-        distance = fuzzy_policy.distance_for(term)
-        if not distance:
-            return False
-        if not any(fuzzy_policy.within_distance(term, word, distance) for word in words):
-            return False
-    return True
-
-
-def _plain_text(value):
-    """Testo senza markup, per cercare nelle pagine e mostrare un estratto."""
-    return re.sub(r"<[^>]+>", " ", value or "")
-
-
-def _pages():
-    """Tutte le pagine pubbliche di ckanext-pages, o [] se il plugin manca."""
-    try:
-        return (
-            toolkit.get_action("ckanext_pages_list")(
-                {"ignore_auth": True},
-                {"private": False, "order_publish_date": True},
-            )
-            or []
-        )
-    except Exception:
-        log.warning("ckanext-pages non disponibile per la ricerca", exc_info=True)
-        return []
-
-
-def recent_news(limit=3):
-    """Ultime news dal blog di ckanext-pages (vuoto se non disponibile)."""
-    try:
-        from ckanext.pages.plugin import get_recent_blog_posts
-
-        posts = get_recent_blog_posts(number=limit) or []
-    except Exception:
-        log.warning("ckanext-pages non disponibile per le news", exc_info=True)
-        return []
-
-    items = []
-    for post in posts:
-        item = dict(post)
-        item["kind"] = "news"
-        try:
-            item["url"] = toolkit.url_for("pages.blog_show", page=post.get("name"))
-        except Exception:
-            item["url"] = ""
-        items.append(item)
-    return items
-
-
-def search_content(query):
-    """News e pagine che contengono tutti i termini della query.
-
-    Ritorna voci omogenee (`kind`, `name`, `title`, `content`, `publish_date`,
-    `url`), nell'ordine di pubblicazione di `ckanext_pages_list`. Il limite per
-    tipo lo applica il chiamante, perché news e pagine sono sezioni distinte.
-    """
-    if not _terms(query):
-        return []
-
-    items = []
-    for page in _pages():
-        content = _plain_text(page.get("content"))
-        if not matches(f"{page.get('title', '')} {content}", query):
-            continue
-        is_news = page.get("page_type") == "blog"
-        name = page.get("name")
-        try:
-            url = toolkit.url_for("pages.blog_show" if is_news else "pages.show", page=name)
-        except Exception:
-            continue
-        items.append(
-            {
-                "kind": "news" if is_news else "page",
-                "name": name,
-                "title": page.get("title") or name or "",
-                "content": content,
-                "publish_date": page.get("publish_date"),
-                "url": url,
-            }
-        )
-    return items
 
 
 # Nomi esposti ai template (`h.<nome>`); il registro in __init__ è

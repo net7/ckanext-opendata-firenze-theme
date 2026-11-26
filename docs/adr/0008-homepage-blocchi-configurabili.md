@@ -29,7 +29,7 @@ Vincoli:
    `url` o `select`) con il proprio default. Il blocco "I più consultati" ha
    anche il periodo di riferimento (`year` di default, poi 6, 3, 1 mese,
    1 settimana e oggi), gestito dallo stesso form. Aggiungere un blocco = una voce qui + un
-   template in `templates/home/blocks/` + un builder nel collettore dei dati
+   template in `templates/home/blocks/` + un builder nel registro del blocco
    (ADR 0010).
 2. **Configurazione runtime standard CKAN**: ordine, blocchi attivi e testi
    (titolo, sottotitolo, testo e URL del link) sono una **lista ordinata** in

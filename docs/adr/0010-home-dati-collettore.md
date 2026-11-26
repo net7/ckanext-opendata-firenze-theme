@@ -27,8 +27,8 @@ incluso ne chiamava un altro. Ne seguivano tre problemi:
 2. **Blocchi renderer**: i template dei blocchi non chiamano più `h.odf_*`;
    leggono `block_data`. Lo snippet della hero riceve `count`, quello dei KPI
    `kpis`, quello dei temi `themes`; i caroselli ricevono le liste di dataset.
-3. **Limiti nel collettore**: 7 in evidenza, 6 ultimi, 6 LOD, 4 più consultati,
-   3 news. Il registro dei blocchi (ordine, stato, testi, periodo de "I più
+3. **Limiti nel registro**: 7 in evidenza, 6 ultimi, 6 LOD, 4 più consultati,
+   3 news, accanto al builder del blocco. Il registro dei blocchi (ordine, stato, testi, periodo de "I più
    consultati") resta in `home_blocks.BLOCKS` e la configurazione resta quella
    di ADR 0008. Il periodo passa al costruttore: il ranking e il conteggio
    mostrato vengono dalla stessa finestra su `tracking_summary` (non dal solo
@@ -45,8 +45,8 @@ incluso ne chiamava un altro. Ne seguivano tre problemi:
 
 ## Conseguenze
 
-- Aggiungere un blocco richiede: voce in `BLOCKS`, template e builder in
-  `home_sections._BUILDERS` (e il test lo impone).
+- Aggiungere un blocco richiede: voce in `BLOCKS` con builder e limite,
+  template in `templates/home/blocks/` e nessun secondo mapping nel collector.
 - Le query della home scendono di una (hero + KPI condividono il totale); le
   altre restano, perché i conteggi di capitoli e serie sono `[* TO *]` su campi
   tokenizzati e non si possono ricavare da una faccetta.

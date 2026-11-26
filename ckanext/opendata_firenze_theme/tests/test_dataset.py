@@ -628,7 +628,7 @@ def test_dataset_page_advanced_uses_geo_path(with_plugins, with_request_context)
 
     views.assert_not_called()
     map_resource.assert_called_once_with(pkg)
-    assert page["views_by_resource"] == {}
+    assert page["resources"]["views_by_resource"] == {}
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
@@ -650,7 +650,7 @@ def test_dataset_page_passes_views_snapshot(with_plugins, with_request_context):
         page = dataset_page.odf_dataset_page(pkg)
 
     map_resource.assert_called_once_with(pkg, snapshot)
-    assert page["views_by_resource"] is snapshot
+    assert page["resources"]["views_by_resource"] is snapshot
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
@@ -782,6 +782,28 @@ def test_package_search_strips_quality_for_public(monkeypatch):
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_quality_module_strip_and_score(with_plugins, with_request_context):
+    """La policy qualità è testabile senza ckanext-qa."""
+    from ckanext.opendata_firenze_theme.helpers import quality
+
+    pkg = {
+        "qa": {"openness_score": 2},
+        "extras": [{"key": "openness_score", "value": "2"}],
+        "resources": [{"qa": {"openness_score": 2}}],
+    }
+    quality.strip(pkg)
+    assert "qa" not in pkg
+    assert pkg["extras"] == []
+    assert "qa" not in pkg["resources"][0]
+    assert quality.openness({"qa": {"openness_score": 4}}) == {
+        "score": 4,
+        "label": "Alta",
+        "tier": "high",
+    }
+    assert quality.openness({"extras": [{"key": "openness_score", "value": "2"}]})["tier"] == "low"
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 def test_series_info_single_search(with_plugins, with_request_context):
     """Conteggio e membri della serie con una sola ricerca (scheda dataset)."""
     from ckanext.opendata_firenze_theme import helpers
@@ -848,6 +870,6 @@ def test_dataset_page_advanced_skips_series_context(with_plugins, with_request_c
 
     series_context.assert_not_called()
     assert page["series"] is None
-    assert page["serie"] == "S"
-    assert page["serie_total"] == 2
+    assert page["header"]["serie"] == "S"
+    assert page["header"]["serie_total"] == 2
     assert page["advanced"] is True

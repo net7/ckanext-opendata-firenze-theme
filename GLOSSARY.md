@@ -9,7 +9,8 @@ Nel codice è il dict che arriva dai template: la sua forma cambia fra
 `package_show`, `package_search` e l'indicizzazione (vedi ADR 0009).
 
 **Scheda** — la pagina di un dataset (`templates/package/read.html`), distinta
-dal catalogo e dalla scheda risorsa.
+dal catalogo e dalla scheda risorsa. Il contesto è diviso in `header`,
+`resources`, `aside` e `series`.
 
 **Caratteristiche** — la faccetta che classifica un dataset come Geodati,
 Alfanumerici, High Value Dataset o Linked Open Data. Nel codice è il campo Solr
@@ -48,8 +49,8 @@ API). Il pannello serie/revisioni riceve un contesto già risolto e si limita a
 renderizzarlo.
 
 **Blocco della home** — sezione configurabile della homepage (hero, KPI, in
-evidenza, temi, LOD, più consultati, news), con id, ordine, stato e testi
-salvati in `system_info` (ADR 0008).
+evidenza, temi, LOD, più consultati, news), con id, ordine, stato, testi e
+builder dei dati nel registro `home_blocks.BLOCKS` (ADR 0008/0010).
 
 **Ricerca del catalogo** — la policy di ricerca dei dataset: query esatta di
 CKAN e, solo per le viste web, fallback fuzzy. Vive in
@@ -70,4 +71,12 @@ già pronto (`facts`) invece di ricalcolarlo per ogni predicato.
 se è vuota, i termini di 4-5 caratteri tollerano una modifica e quelli di 6+
 due (Damerau-Levenshtein). L'apostrofo separa i termini come nel tokenizer.
 La policy vive in `helpers/fuzzy.py` ed è usata da `query.fuzzy_query` per
-Solr e da `editorial.matches` per news e pagine (ADR 0014).
+Solr e da `content.matches` per news e pagine (ADR 0014).
+
+**Contenuto editoriale** — news e pagine gestite da `ckanext-pages`. Vivono
+dietro `ContentSource` in `helpers/content.py`: l'adapter di produzione usa il
+plugin, quello dei test è in-memory.
+
+**Qualità interna** — punteggio QA del metadato e regola di visibilità
+(sysadmin o editor dell'organizzazione). Vive in `helpers/quality.py` e il
+plugin la usa come adapter CKAN.

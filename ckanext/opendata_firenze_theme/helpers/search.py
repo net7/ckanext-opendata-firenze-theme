@@ -9,7 +9,7 @@ di `helpers.catalog_search`.
 
 import ckan.plugins.toolkit as toolkit
 
-from . import _common, editorial
+from . import _common, content
 
 
 def _dataset_group(query, data):
@@ -60,7 +60,7 @@ def odf_site_search(query, dataset_limit=12, content_limit=6):
     """Risultati della ricerca site-wide per `query`.
 
     I dataset passano da `package_search` (con fallback fuzzy nel wrapper
-    dell'azione); news e pagine dall'adapter editoriale.
+    dell'azione); news e pagine dall'adapter `content`.
     """
     query = (query or "").strip()
     if not query:
@@ -73,11 +73,11 @@ def odf_site_search(query, dataset_limit=12, content_limit=6):
         facet=False,
         sort="score desc, metadata_modified desc",
     )
-    content = editorial.search_content(query)
+    items = content.search_content(query)
     groups = [
         _dataset_group(query, datasets),
-        _news_group([item for item in content if item["kind"] == "news"][:content_limit]),
-        _pages_group([item for item in content if item["kind"] == "page"][:content_limit]),
+        _news_group([item for item in items if item["kind"] == "news"][:content_limit]),
+        _pages_group([item for item in items if item["kind"] == "page"][:content_limit]),
     ]
     return {"q": query, "groups": [group for group in groups if group]}
 

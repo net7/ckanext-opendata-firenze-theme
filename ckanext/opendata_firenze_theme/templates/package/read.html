@@ -14,25 +14,25 @@
 
 {% block content %}
 {% set dataset_page = h.odf_dataset_page(pkg, request.args.get('tab', 'essenziale')) %}
-{% set tema = dataset_page.theme %}
-{% set badges = dataset_page.badges %}
-{% set is_realtime = dataset_page.is_realtime %}
-{% set downloads = dataset_page.downloads %}
-{% set quality = dataset_page.quality %}
-{% set map_res = dataset_page.map_resource %}
-{% set views_by_resource = dataset_page.views_by_resource %}
-{% set serie = dataset_page.serie %}
-{% set serie_total = dataset_page.serie_total %}
-{% set contact = dataset_page.contact %}
-{% set related = dataset_page.related %}
+{% set tema = dataset_page.header.theme %}
+{% set badges = dataset_page.header.badges %}
+{% set is_realtime = dataset_page.header.is_realtime %}
+{% set downloads = dataset_page.resources.downloads %}
+{% set quality = dataset_page.aside.quality %}
+{% set map_res = dataset_page.resources.map_resource %}
+{% set views_by_resource = dataset_page.resources.views_by_resource %}
+{% set serie = dataset_page.header.serie %}
+{% set serie_total = dataset_page.header.serie_total %}
+{% set contact = dataset_page.aside.contact %}
+{% set related = dataset_page.aside.related %}
 {% set notes = h.get_translated(pkg, 'notes') %}
-{% set uso = dataset_page.uso %}
+{% set uso = dataset_page.header.uso %}
 {% set tab = dataset_page.tab %}
 {% set avanzata = dataset_page.advanced %}
 {% set tags = pkg.tags|map(attribute='display_name')|join(', ') %}
-{% set geometria = dataset_page.geometry %}
+{% set geometria = dataset_page.header.geometry %}
 {% set geo_shapes = {'punto': _('Punto'), 'area': _('Area'), 'linea': _('Linea')} %}
-{% set is_geo = dataset_page.is_geo %}
+{% set is_geo = dataset_page.header.is_geo %}
 {% set extra_rows = [] %}
 {% for e in pkg.extras %}{% set _ = extra_rows.append((e.key, e.value)) %}{% endfor %}
 {% set meta_action %}<span class="rtt-body-sm">{{ _('Profilo italiano del vocabolario DCAT') }}</span>{% endset %}

@@ -18,8 +18,8 @@ I campi hanno un tipo (`text`, `url` o `select`) e un default dichiarati nel reg
 quel testo/link". Un campo assente da un valore salvato (config parziale o
 vecchia) usa il default. Supporta anche il vecchio formato (lista di soli id).
 
-I blocchi sono definiti qui: aggiungerne uno richiede solo una voce in `BLOCKS`
-e il template relativo.
+I blocchi sono definiti qui: aggiungerne uno richiede una voce in `BLOCKS`
+(builder, limite e campi) e il template relativo.
 """
 
 import json
@@ -28,7 +28,7 @@ from urllib.parse import urlparse
 
 import ckan.plugins.toolkit as toolkit
 
-from . import query
+from . import dataset, home, query
 from .constants import DEFAULT_MOST_VIEWED_PERIOD, MOST_VIEWED_PERIODS
 
 log = logging.getLogger(__name__)
@@ -45,25 +45,96 @@ FIELD_LABELS = {
     "period": "Periodo",
 }
 
+
+# Costruttori dei dati dei blocchi. Il descriptor in `BLOCKS` li possiede,
+# insieme al limite: aggiungere un blocco significa una voce nel registro (più
+# il template), senza un secondo mapping nel collector.
+def _datasets(pkgs, cache):
+    """Lista + fatti, condivisi fra i blocchi dello stesso render."""
+    cached = cache.setdefault("facts", {})
+    block_facts = {}
+    for pkg in pkgs or []:
+        if isinstance(pkg, dict):
+            pkg_id = pkg.get("id")
+            if pkg_id:
+                if pkg_id not in cached:
+                    cached[pkg_id] = dataset.odf_dataset_facts(pkg)
+                block_facts[pkg_id] = cached[pkg_id]
+    return {"datasets": pkgs, "facts": block_facts}
+
+
+def _total(cache):
+    if "total" not in cache:
+        cache["total"] = home.odf_dataset_count()
+    return cache["total"]
+
+
+def _hero(cache, block):
+    return {"count": _total(cache)}
+
+
+def _kpi(cache, block):
+    return {"kpis": home.odf_home_kpis(total=_total(cache))}
+
+
+def _featured(cache, block):
+    return _datasets(home.odf_featured_datasets(block["limit"]), cache)
+
+
+def _latest(cache, block):
+    return _datasets(home.odf_latest_datasets(block["limit"]), cache)
+
+
+def _themes(cache, block):
+    return {"themes": home.odf_themes_visible()}
+
+
+def _lod(cache, block):
+    return _datasets(home.odf_lod_datasets(block["limit"]), cache)
+
+
+def _most_viewed(cache, block):
+    """Dati di "I più consultati", con fallback se il tracking non risponde."""
+    period = block.get("period", DEFAULT_MOST_VIEWED_PERIOD)
+    datasets = home.odf_most_viewed(block["limit"], period)
+    if datasets is None:
+        datasets = home.odf_most_viewed_fallback(block["limit"])
+        for pkg in datasets:
+            pkg["views_period"] = 0
+        return {**_datasets(datasets, cache), "period_label": ""}
+    return {
+        **_datasets(datasets, cache),
+        "period_label": home.odf_most_viewed_label(period),
+    }
+
+
+def _news(cache, block):
+    return {"news": home.odf_news(block["limit"])}
+
+
 # id, etichetta per l'admin, template da includere in home/index.html,
-# campi modificabili (nome -> tipo + default).
+# builder/limite dei dati e campi modificabili (nome -> tipo + default).
 BLOCKS = (
     {
         "id": "hero",
         "label": "Ricerca e introduzione",
         "template": "home/blocks/hero.html",
+        "builder": _hero,
         "fields": {},
     },
     {
         "id": "kpi",
         "label": "Indicatori di sintesi",
         "template": "home/blocks/kpi.html",
+        "builder": _kpi,
         "fields": {},
     },
     {
         "id": "featured",
         "label": "Dataset in evidenza",
         "template": "home/blocks/featured.html",
+        "builder": _featured,
+        "limit": 7,
         "fields": {
             "title": {"type": "text", "default": "In evidenza"},
             "subtitle": {"type": "text", "default": ""},
@@ -75,6 +146,8 @@ BLOCKS = (
         "id": "latest",
         "label": "Ultimi pubblicati",
         "template": "home/blocks/latest.html",
+        "builder": _latest,
+        "limit": 6,
         "fields": {
             "title": {"type": "text", "default": "Ultimi pubblicati"},
             "subtitle": {
@@ -89,6 +162,7 @@ BLOCKS = (
         "id": "themes",
         "label": "Esplora per tema",
         "template": "home/blocks/themes.html",
+        "builder": _themes,
         "fields": {
             "title": {"type": "text", "default": "Esplora per tema"},
             "subtitle": {
@@ -105,6 +179,8 @@ BLOCKS = (
         "id": "lod",
         "label": "Linked Open Data",
         "template": "home/blocks/lod.html",
+        "builder": _lod,
+        "limit": 6,
         "fields": {
             "title": {"type": "text", "default": "Linked Open Data"},
             "subtitle": {
@@ -122,6 +198,8 @@ BLOCKS = (
         "id": "most_viewed",
         "label": "I più consultati",
         "template": "home/blocks/most_viewed.html",
+        "builder": _most_viewed,
+        "limit": 4,
         "fields": {
             "title": {"type": "text", "default": "I più consultati"},
             "subtitle": {"type": "text", "default": ""},
@@ -138,6 +216,8 @@ BLOCKS = (
         "id": "news",
         "label": "News",
         "template": "home/blocks/news.html",
+        "builder": _news,
+        "limit": 3,
         "fields": {
             "title": {"type": "text", "default": "News"},
             "subtitle": {"type": "text", "default": ""},

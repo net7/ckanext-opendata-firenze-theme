@@ -3,7 +3,7 @@
 import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
-from . import _common, query
+from . import _common, quality, query
 from .catalog import odf_package_theme
 from .constants import GEOMETRY_SHAPES, LOD_FORMATS_UPPER
 from .map import odf_format_is_geo
@@ -178,26 +178,8 @@ def odf_dataset_badges(pkg, facts=None):
 
 
 def odf_dataset_openness(pkg):
-    """Openness di ckanext-qa (0-5) con etichetta/tono, o None.
-
-    `qa` è il dict che ckanext-qa aggiunge al package in after_show; assente
-    finché il task di QA non è stato eseguito.
-    """
-    qa = pkg.get("qa") or {}
-    raw = qa.get("openness_score")
-    if raw is None:
-        raw = odf_pkg_extra(pkg, "openness_score")
-    try:
-        score = int(raw)
-    except (TypeError, ValueError):
-        return None
-    if score >= 4:
-        label, tier = toolkit._("Alta"), "high"
-    elif score == 3:
-        label, tier = toolkit._("Buona"), "medium"
-    else:
-        label, tier = toolkit._("Bassa"), "low"
-    return {"score": score, "label": label, "tier": tier}
+    """Openness di ckanext-qa, delegato al module qualità."""
+    return quality.openness(pkg)
 
 
 def odf_dataset_related(pkg, limit=3, theme=None):
