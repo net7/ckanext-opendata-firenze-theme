@@ -1,5 +1,6 @@
 """Ricerca fuzzy del catalogo e pagina di ricerca site-wide."""
 
+import importlib.util
 import re
 from unittest import mock
 
@@ -12,6 +13,7 @@ from ckanext.opendata_firenze_theme.helpers import editorial, fuzzy, search
 from ckanext.opendata_firenze_theme.helpers.query import fuzzy_query
 
 PLUGIN = "opendata_firenze_theme"
+PAGES_INSTALLED = importlib.util.find_spec("ckanext.pages") is not None
 
 
 def _body(response):
@@ -83,6 +85,7 @@ def test_catalog_search_keeps_api_exact():
     assert len(calls) == 1
 
 
+@pytest.mark.skipif(not PAGES_INSTALLED, reason="ckanext-pages non installato")
 def test_recent_news_normalizes_posts(monkeypatch):
     monkeypatch.setattr(
         "ckanext.pages.plugin.get_recent_blog_posts",
@@ -257,6 +260,7 @@ def test_site_search_filters_news_and_pages(monkeypatch):
     assert calls[0]["view"] is True
 
 
+@pytest.mark.skipif(not PAGES_INSTALLED, reason="ckanext-pages non installato")
 @pytest.mark.ckan_config("ckan.plugins", f"{PLUGIN} pages")
 @pytest.mark.usefixtures("with_plugins")
 def test_site_search_page_renders_news_and_pages(app):
