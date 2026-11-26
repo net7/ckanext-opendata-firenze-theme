@@ -1,0 +1,61 @@
+{% extends "page.html" %}
+{% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
+{% from 'snippets/opendata_firenze_theme/page-head.html' import breadcrumbs %}
+{% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
+
+{% block subtitle %}{{ _('Ricerca') }}{% endblock %}
+
+{% block content %}
+{% set q = results.q %}
+<main class="rtt-catalog rtt-site-search" id="content" tabindex="-1">
+  <div class="rtt-container rtt-catalog__inner">
+    {{ breadcrumbs(h.odf_breadcrumbs(_('Ricerca'))) }}
+
+    <div class="rtt-catalog__head">
+      <div class="rtt-catalog__titles">
+        <h1 class="rtt-h1 rtt-catalog__title">{{ _('Ricerca') }}</h1>
+        {% if q %}<span class="rtt-catalog__count">{{ _('Risultati per') }} &laquo;{{ q }}&raquo;</span>{% endif %}
+      </div>
+    </div>
+
+    {% if not q %}
+    <div class="rtt-panel">
+      <p class="rtt-body">{{ _('Inserisci un termine per cercare dataset, news e pagine nel sito.') }}</p>
+    </div>
+    {% elif not results.groups %}
+    <div class="rtt-panel">
+      <h2 class="rtt-h4">{{ _('Nessun risultato per') }} &laquo;{{ q }}&raquo;</h2>
+      <p class="rtt-body">{{ _('Prova con parole più generiche o cerca direttamente nel catalogo.') }}</p>
+      <a class="rtt-btn rtt-btn--primary" href="{{ h.url_for('dataset.search', q=q) }}">{{ _('Cerca nel catalogo') }}{{ icon('arrow-right', 20, 'rtt-btn__icon') }}</a>
+    </div>
+    {% else %}
+
+    {% for group in results.groups %}
+    <section class="rtt-site-search__section" aria-labelledby="site-search-{{ group.id }}">
+      <div class="rtt-site-search__section-head">
+        <h2 class="rtt-h3" id="site-search-{{ group.id }}">{{ group.title }}{% if group.count is defined and group.count %} <span class="rtt-site-search__count">{{ group.count }}</span>{% endif %}</h2>
+        {% if group.all_url %}<a class="rtt-actionlink" href="{{ group.all_url }}">{{ group.all_label }}{{ icon('arrow-right', 18) }}</a>{% endif %}
+      </div>
+      {% if group.note %}<p class="rtt-body-sm">{{ group.note }}</p>{% endif %}
+
+      {% if group.kind == 'dataset' %}
+      {% set facts_map = h.odf_dataset_views(group.entries) %}
+      <div class="rtt-grid rtt-grid--2">
+        {% for pkg in group.entries %}{{ dataset_card(pkg, facts=facts_map.get(pkg.id)) }}{% endfor %}
+      </div>
+      {% elif group.kind == 'news' %}
+      {% snippet 'snippets/opendata_firenze_theme/home/news.html', news=group.entries %}
+      {% else %}
+      <ul class="rtt-site-search__list">
+        {% for item in group.entries %}
+        <li><a href="{{ item.url }}">{{ item.title }}</a>{% if item.meta %}<span class="rtt-site-search__meta">{{ item.meta }}</span>{% endif %}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </section>
+    {% endfor %}
+
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

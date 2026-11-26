@@ -1,10 +1,11 @@
 import ckan.model as model
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from ckan.logic.action.get import package_search as core_package_search
 
 from ckanext.opendata_firenze_theme import cli, helpers, views
 from ckanext.opendata_firenze_theme.helpers import home_blocks, query
+
+from .helpers.catalog_search import catalog_search
 
 # Favicon di CKAN (default di ckan.favicon): il tema la sostituisce con il giglio del Comune,
 # ma solo se la configurazione non ne indica gia' un'altra.
@@ -70,8 +71,14 @@ def _strip_quality(pkg_dict):
 
 @toolkit.side_effect_free
 def odf_package_search(context, data_dict):
-    """`package_search` con filtro qualità sui risultati (API e catalogo)."""
-    result = core_package_search(context, data_dict)
+    """`package_search` con filtro qualità e fallback fuzzy.
+
+    La policy di ricerca (esatta, poi fuzzy solo per le viste) sta nel module
+    `helpers.catalog_search`; qui restano l'adapter CKAN e la visibilità della
+    qualità.
+    """
+    result = catalog_search(context, data_dict)
+
     for pkg in result.get("results", []):
         if not _can_view_quality(context, pkg.get("id")):
             _strip_quality(pkg)

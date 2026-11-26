@@ -26,12 +26,20 @@ def odf_number(value):
         return ""
 
 
-def _search(**params):
-    """package_search difensivo (Solr spento/non configurato -> risultato vuoto)."""
+def _search(view=False, **params):
+    """package_search difensivo (Solr spento/non configurato -> risultato vuoto).
+
+    `view=True` è il contesto delle viste web (catalogo e `/search`): abilita
+    il fallback fuzzy di `plugin.odf_package_search`. Gli helper della home e
+    delle pagine editoriali restano sulla query esatta.
+    """
+    context = {"ignore_auth": True}
+    if view:
+        context["for_view"] = True
     try:
-        return toolkit.get_action("package_search")({"ignore_auth": True}, params)
+        return toolkit.get_action("package_search")(context, params)
     except Exception:
-        log.warning("package_search non disponibile per la home", exc_info=True)
+        log.warning("package_search non disponibile", exc_info=True)
         return {"count": 0, "results": [], "search_facets": {}}
 
 

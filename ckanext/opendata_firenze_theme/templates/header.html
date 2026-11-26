@@ -33,7 +33,7 @@
           {% endfor %}
         </ul>
         {% snippet 'snippets/opendata_firenze_theme/account_menu.html' %}
-        {% snippet 'snippets/opendata_firenze_theme/search_form.html', id='rtt-header-search' %}
+        {% snippet 'snippets/opendata_firenze_theme/search_form.html', id='rtt-header-search', action=h.url_for('odf_pages.site_search') %}
       </div>
     </div>
   </div>
@@ -64,7 +64,7 @@
 
   <nav class="rtt-mobile-nav" id="rtt-mobile-nav" data-rtt-mobile-nav aria-label="{{ _('Menu') }}">
     <div class="rtt-mobile-nav__search">
-      {% snippet 'snippets/opendata_firenze_theme/search_form.html', id='rtt-mobile-search' %}
+      {% snippet 'snippets/opendata_firenze_theme/search_form.html', id='rtt-mobile-search', action=h.url_for('odf_pages.site_search') %}
     </div>
     {% for item in nav_items %}
     <a class="rtt-mobile-nav__link{{ ' is-active' if current_path.startswith(item.match) }}" href="{{ item.href }}"{% if current_path.startswith(item.match) %} aria-current="page"{% endif %}>{{ item.label }}</a>

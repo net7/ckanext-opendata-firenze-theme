@@ -774,7 +774,7 @@ def test_package_search_strips_quality_for_public(monkeypatch):
             }
         ]
     }
-    monkeypatch.setattr(plugin, "core_package_search", lambda context, data_dict: results)
+    monkeypatch.setattr(plugin, "catalog_search", lambda context, data_dict: results)
     pkg = plugin.odf_package_search({"user": "", "auth_user_obj": None}, {})["results"][0]
     assert "qa" not in pkg
     assert not _has_openness(pkg)

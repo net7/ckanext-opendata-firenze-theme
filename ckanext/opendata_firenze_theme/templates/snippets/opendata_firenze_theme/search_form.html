@@ -2,6 +2,7 @@
   Form di ricerca (GET verso il catalogo), autonomo (funziona senza JS).
 
   id                - id del campo di input (default 'rtt-search')
+  action            - URL del form (default: ricerca nel catalogo)
   size              - 'sm' (default), 'md' o 'lg'
   placeholder       - testo del placeholder (default "Cerca nel sito…")
   aria_label        - nome accessibile del landmark di ricerca (default "Cerca nel sito")
@@ -11,6 +12,7 @@
 #}
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% set field_id = id|default('rtt-search') %}
+{% set form_action = action|default(h.url_for('dataset.search')) %}
 {% set size = size|default('sm') %}
 {% set icon_size = 24 if size == 'lg' else 20 %}
 {% set aria_label = aria_label|default(_('Cerca nel sito')) %}
@@ -18,7 +20,7 @@
 {% set placeholder_text = placeholder|default(_('Cerca nel sito…')) %}
 {% set submit_text = submit_text|default('') %}
 {% set submit_text_short = submit_text_short|default('') %}
-<form class="rtt-search{% if size == 'sm' %} rtt-search--sm{% elif size == 'lg' %} rtt-search--lg{% endif %}" role="search" aria-label="{{ aria_label }}" action="{{ h.url_for('dataset.search') }}" method="get">
+<form class="rtt-search{% if size == 'sm' %} rtt-search--sm{% elif size == 'lg' %} rtt-search--lg{% endif %}" role="search" aria-label="{{ aria_label }}" action="{{ form_action }}" method="get">
   <label class="rtt-visually-hidden" for="{{ field_id }}">{{ label }}</label>
   <div class="rtt-search__field">
     <span class="rtt-search__icon" aria-hidden="true">{{ icon('search', icon_size) }}</span>

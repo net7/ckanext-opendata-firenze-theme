@@ -6,7 +6,18 @@ la regola "le revisioni temporali non compaiono in catalogo" e le faccette
 aggiunte dal tema non vivono più sparse fra plugin, helper e template.
 """
 
+import re
+
 import ckan.plugins.toolkit as toolkit
+
+from . import fuzzy as fuzzy_policy
+
+# Solo query "semplici": niente operatori/campi Solr, che vanno lasciati
+# intatti. Il fuzzy è un fallback, non il parser principale.
+_SIMPLE_QUERY_RE = re.compile(r"^[\w\s'’]+$", re.UNICODE)
+_OPERATORS = frozenset(("AND", "OR", "NOT", "TO"))
+_FUZZY_MAX_TERMS = 8
+_FUZZY_TERM_RE = re.compile(r"^\w+$", re.UNICODE)
 
 # Campi indicizzati dal tema (creati da `08_solr_dcatapit_fields.sh`) e campi
 # CKAN/dcatapit usati dalle query.
@@ -58,6 +69,33 @@ FACET_LABELS = {facet["name"]: facet["label"] for facet in FACET_TABLE}
 EXTRA_FACETS = tuple(
     (facet["name"], facet["label"]) for facet in FACET_TABLE if "insert_after" in facet
 )
+
+
+def fuzzy_query(query):
+    """Query eDisMax fuzzy per una ricerca semplice, o None.
+
+    La distanza segue `fuzzy_policy.distance_for`: 1 per i termini di 4-5
+    caratteri, 2 per quelli di 6+. I termini più corti restano esatti. Query
+    con operatori, campi (`tags:`), frasi o wildcard non vengono toccate.
+    """
+    query = (query or "").strip()
+    if not query or len(query) > 200 or not _SIMPLE_QUERY_RE.match(query):
+        return None
+    terms = [term for term in re.split(r"[\s'’]+", query) if term]
+    if not terms or len(terms) > _FUZZY_MAX_TERMS:
+        return None
+    if any(term.upper() in _OPERATORS for term in terms):
+        return None
+    fuzzy = []
+    changed = False
+    for term in terms:
+        distance = fuzzy_policy.distance_for(term)
+        if distance and _FUZZY_TERM_RE.match(term):
+            fuzzy.append(f"{term}~{distance}")
+            changed = True
+        else:
+            fuzzy.append(term)
+    return " ".join(fuzzy) if changed else None
 
 
 def features(value):

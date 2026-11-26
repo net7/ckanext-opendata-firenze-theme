@@ -10,8 +10,9 @@
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 <div class="rtt-stagger rtt-grid rtt-grid--3">
   {% for n in news %}
+  {% set news_url = n.url or h.url_for('pages.blog_show', page=n.name) %}
   <div class="rtt-dcard-wrap rtt-reveal">
-    <a class="rtt-dcard rtt-ncard" href="{{ h.url_for('pages.blog_show', page=n.name) }}" aria-labelledby="news-title-{{ n.name }}">
+    <a class="rtt-dcard rtt-ncard" href="{{ news_url }}" aria-labelledby="news-title-{{ n.name }}">
       <span class="rtt-dcard__arrow" aria-hidden="true">{{ icon('arrow-right', 16) }}</span>
       {% if n.publish_date %}<p class="rtt-ncard__date">{{ h.render_datetime(n.publish_date, date_format='%d/%m/%Y') }}</p>{% endif %}
       <h3 class="rtt-dcard__title" id="news-title-{{ n.name }}">{{ n.title }}</h3>

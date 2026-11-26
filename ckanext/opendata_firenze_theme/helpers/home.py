@@ -6,7 +6,7 @@ from datetime import date, timedelta
 import ckan.plugins.toolkit as toolkit
 from sqlalchemy import func
 
-from . import _common, query
+from . import _common, editorial, query
 from .constants import (
     ANNUARIO_CHAPTERS,
     DEFAULT_MOST_VIEWED_PERIOD,
@@ -260,14 +260,8 @@ def odf_geo_search_query():
 
 
 def odf_news(limit=3):
-    """Ultime news dal blog di ckanext-pages (vuoto se non disponibile)."""
-    try:
-        from ckanext.pages.plugin import get_recent_blog_posts
-
-        return get_recent_blog_posts(number=limit) or []
-    except Exception:
-        log.warning("ckanext-pages non disponibile per le news", exc_info=True)
-        return []
+    """Ultime news dal blog di ckanext-pages (alias di `editorial.recent_news`)."""
+    return editorial.recent_news(limit)
 
 
 # Nomi esposti ai template (`h.<nome>`); il registro in __init__ è

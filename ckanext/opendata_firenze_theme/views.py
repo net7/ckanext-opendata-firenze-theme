@@ -15,6 +15,7 @@ import ckan.plugins.toolkit as toolkit
 from flask import Blueprint, request
 
 from ckanext.opendata_firenze_theme.helpers import home_blocks
+from ckanext.opendata_firenze_theme.helpers import search as search_helpers
 
 pages = Blueprint("odf_pages", __name__)
 admin = Blueprint("odf_admin", __name__)
@@ -28,8 +29,16 @@ def sviluppatori():
     return toolkit.render("sviluppatori/index.html")
 
 
+def site_search():
+    """Ricerca site-wide: dataset, news, pagine e organizzazioni."""
+    query = (request.args.get("q") or "").strip()
+    results = search_helpers.odf_site_search(query)
+    return toolkit.render("search/index.html", extra_vars={"results": results})
+
+
 pages.add_url_rule("/annuario-statistico", "annuario", annuario)
 pages.add_url_rule("/sviluppatori-e-lod", "sviluppatori", sviluppatori)
+pages.add_url_rule("/search", "site_search", site_search)
 
 
 @admin.route("/ckan-admin/homepage", methods=["GET", "POST"], endpoint="homepage_blocks")
