@@ -671,6 +671,26 @@ html.rtt-nav-open {
   color: var(--basics-white-100);
 }
 
+/* Le varianti outline/text e le tab sono link: senza override `a:visited`
+   (0,1,1) le batte e testo/icona diventano quasi neri dopo la visita
+   (es. "Vedi su mappa" e la tab "Servizi geografici"). */
+.rtt-btn--outline:visited,
+.rtt-btn--text:visited {
+  color: var(--lilac-700);
+}
+
+.rtt-dataset__tab:visited {
+  color: var(--neutral-neutral-800);
+}
+
+.rtt-dataset__tab:hover:visited {
+  color: var(--neutral-neutral-900);
+}
+
+.rtt-dataset__tab.is-active:visited {
+  color: var(--neutral-neutral-900);
+}
+
 .rtt-footer__social-link:visited {
   color: var(--basics-white-100);
 }

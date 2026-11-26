@@ -77,6 +77,17 @@ def test_sviluppatori_page(app):
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)
 @pytest.mark.usefixtures("with_plugins")
+def test_sviluppatori_geo_tab_uses_outline_map(app):
+    """La tab "Servizi geografici" usa la variante outline del mockup."""
+    body = _body(app.get("/sviluppatori-e-lod?tab=api"))
+    nav = re.search(r'<nav class="rtt-dataset__tabs".*?</nav>', body, re.S)
+    assert nav, "barra dei tab non trovata"
+    assert "M 5.497 15.119" in nav.group(0)  # HeroiconsOutlineMap
+    assert "M 6.157 0.114" not in nav.group(0)  # niente mini map piena
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+@pytest.mark.usefixtures("with_plugins")
 def test_editorial_wrapper_does_not_use_ds_type_class(app):
     # `.rtt-editorial` è uno stile tipografico del design system (Titillium bold
     # 700, 36/48): usarlo come wrapper di pagina rendeva tutto il contenuto in
