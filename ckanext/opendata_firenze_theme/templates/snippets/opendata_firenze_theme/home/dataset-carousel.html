@@ -9,11 +9,11 @@
 {% from 'snippets/opendata_firenze_theme/icon.html' import icon %}
 {% from 'snippets/opendata_firenze_theme/home/dataset-card.html' import dataset_card %}
 
-{% macro dataset_carousel(pkgs, label, date_field='metadata_modified', date_prefix=None) -%}
+{% macro dataset_carousel(pkgs, label, date_field='metadata_modified', date_prefix=None, facts=None) -%}
 {%- set date_prefix = date_prefix if date_prefix is not none else _('Ultima modifica') -%}
 <div class="rtt-carousel rtt-stagger" data-rtt-carousel data-dot-label="{{ _('Vai a') }}">
   <div class="rtt-carousel__track" role="group" tabindex="0" aria-label="{{ label }}">
-    {% for pkg in pkgs %}<div class="rtt-carousel__item">{{ dataset_card(pkg, show_hvd=True, date_field=date_field, date_prefix=date_prefix) }}</div>{% endfor %}
+    {% for pkg in pkgs %}<div class="rtt-carousel__item">{{ dataset_card(pkg, show_hvd=True, date_field=date_field, date_prefix=date_prefix, facts=(facts or {}).get(pkg.id)) }}</div>{% endfor %}
   </div>
   <div class="rtt-carousel__footer">
     <div class="rtt-carousel__dots" data-rtt-carousel-dots></div>

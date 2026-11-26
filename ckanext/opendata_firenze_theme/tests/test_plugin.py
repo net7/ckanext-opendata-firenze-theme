@@ -93,6 +93,8 @@ def test_template_helpers_registered():
         "odf_home_blocks",
         "odf_annuario_page",
         "odf_pkg_extra",
+        "odf_dataset_facts",
+        "odf_dataset_views",
         "odf_dataset_formats",
         "odf_format_is_geo",
         "odf_wms_layer",

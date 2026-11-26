@@ -21,22 +21,25 @@
    il tema non e' un campo diretto (sta negli extras: vedi h.odf_package_theme) e
    i formati stanno nelle risorse, non in res_format. `show_hvd` aggiunge il chip
    "High Value Dataset" (usato nelle card "In evidenza", come nel mockup). #}
-{% macro dataset_card(pkg, compact=False, show_hvd=False, show_realtime=False, show_serie=False, date_field='metadata_modified', date_prefix=None, series_counts=None) %}
+{% macro dataset_card(pkg, compact=False, show_hvd=False, show_realtime=False, show_serie=False, date_field='metadata_modified', date_prefix=None, series_counts=None, facts=None) %}
 {%- set title_id = 'dcard-title-' ~ (pkg.id or pkg.name or 'dataset') -%}
-{%- set tema = h.odf_package_theme(pkg) -%}
-{%- set is_hvd = h.odf_dataset_is_hvd(pkg) -%}
-{%- set is_rt = show_realtime and h.odf_dataset_is_realtime(pkg) -%}
+{#- Un solo calcolo dei fatti: il chiamante può passarli già pronti
+    (`h.odf_dataset_views`), altrimenti la card li calcola una volta. #}
+{%- set facts = facts or h.odf_dataset_facts(pkg) -%}
+{%- set tema = facts.theme -%}
+{%- set is_hvd = facts.is_hvd -%}
+{%- set is_rt = show_realtime and facts.is_realtime -%}
 {%- set date_prefix = date_prefix if date_prefix is not none else _('Ultimo aggiornamento:') -%}
 {#- Il prototipo mostra il badge "Serie · N dataset" accanto al tema; il numero
     arriva dal facet `odf_series` della pagina corrente (`series_counts`), quindi
     senza filtri attivi coincide col totale della serie. #}
-{%- set serie_name = h.odf_pkg_extra(pkg, 'serie') -%}
+{%- set serie_name = facts.series -%}
 {%- set is_serie = serie_name -%}
 {%- set serie_n = (series_counts or {}).get(serie_name, 0) if serie_name else 0 -%}
-{%- set is_lod = h.odf_dataset_is_lod(pkg) -%}
+{%- set is_lod = facts.is_lod -%}
 {#- Formati deduplicati (case-insensitive) dallo stesso helper della scheda:
     niente seconda lista di formati geo qui dentro. #}
-{%- set formats = h.odf_dataset_formats(pkg) -%}
+{%- set formats = facts.formats -%}
 {% call card_shell(pkg, 'compact' if compact else 'default', title_id) %}
     {% if tema or is_rt or (show_serie and is_serie) %}<div class="rtt-dcard__overline">{% if tema %}{{ tema_overline(tema) }}{% endif %}{% if is_rt %}<span class="rtt-live rtt-live--plain"><span class="rtt-live__dot" aria-hidden="true"></span>{{ _('in tempo reale') }}</span>{% endif %}{% if show_serie and is_serie %}{{ status_chip(_('Serie · {num} dataset').format(num=serie_n) if serie_n else _('Serie'), 'serie', 'rectangle-stack') }}{% endif %}</div>{% endif %}
     <h3 class="rtt-dcard__title" id="{{ title_id }}">{{ pkg.title or pkg.name }}</h3>
@@ -58,9 +61,10 @@
    riga di meta con data di aggiornamento, frequenza, visualizzazioni e chip
    "Geodati" per i dataset con contenuto geografico. Senza tracking (views a zero
    o assenti) la sezione visualizzazioni sparisce e resta solo ciò che c'è. #}
-{% macro consultati_card(pkg) %}
+{% macro consultati_card(pkg, facts=None) %}
 {%- set title_id = 'consultati-title-' ~ (pkg.id or pkg.name or 'dataset') -%}
-{%- set tema = h.odf_package_theme(pkg) -%}
+{%- set facts = facts or h.odf_dataset_facts(pkg) -%}
+{%- set tema = facts.theme -%}
 {%- set freq_code = h.odf_pkg_extra(pkg, 'frequency') or pkg.get('frequency') -%}
 {%- set freq = h.odf_frequency_label(freq_code) -%}
 {#- `views_period` è il conteggio del periodo scelto per "I più consultati"
@@ -69,8 +73,8 @@
 {%- set ts = pkg.get('tracking_summary') or {} -%}
 {%- set period_views = pkg.get('views_period') -%}
 {%- set views = period_views if period_views is not none else (ts.get('total') or ts.get('recent')) -%}
-{%- set geo = h.odf_dataset_is_geo(pkg) -%}
-{%- set is_rt = h.odf_dataset_is_realtime(pkg) -%}
+{%- set geo = facts.is_geo -%}
+{%- set is_rt = facts.is_realtime -%}
 {%- set updated = _('Aggiornato pochi minuti fa') if is_rt else (_('Aggiornato il {date}').format(date=h.render_datetime(pkg.metadata_modified, date_format='%d/%m/%Y')) if pkg.metadata_modified else '') -%}
 {% call card_shell(pkg, 'consultati', title_id) %}
     {% if tema %}

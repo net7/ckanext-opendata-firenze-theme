@@ -12,8 +12,27 @@ Il conteggio dei dataset è condiviso fra hero e KPI: senza il collettore erano
 due `package_search` identici.
 """
 
-from . import home
+from . import dataset, home
 from .constants import DEFAULT_MOST_VIEWED_PERIOD
+
+
+def _datasets(pkgs, cache):
+    """Dati di un blocco a card: lista + fatti, condivisi fra i blocchi.
+
+    La `cache` del collector conserva i fatti per id: un dataset che compare in
+    più blocchi (es. "In evidenza" e "Ultimi pubblicati") viene calcolato una
+    volta sola per render.
+    """
+    cached = cache.setdefault("facts", {})
+    block_facts = {}
+    for pkg in pkgs or []:
+        if isinstance(pkg, dict):
+            pkg_id = pkg.get("id")
+            if pkg_id:
+                if pkg_id not in cached:
+                    cached[pkg_id] = dataset.odf_dataset_facts(pkg)
+                block_facts[pkg_id] = cached[pkg_id]
+    return {"datasets": pkgs, "facts": block_facts}
 
 
 def _most_viewed(cache, block):
@@ -31,9 +50,9 @@ def _most_viewed(cache, block):
         datasets = home.odf_most_viewed_fallback(4)
         for pkg in datasets:
             pkg["views_period"] = 0
-        return {"datasets": datasets, "period_label": ""}
+        return {**_datasets(datasets, cache), "period_label": ""}
     return {
-        "datasets": datasets,
+        **_datasets(datasets, cache),
         "period_label": home.odf_most_viewed_label(period),
     }
 
@@ -46,10 +65,10 @@ def _most_viewed(cache, block):
 _BUILDERS = {
     "hero": lambda cache, block: {"count": _total(cache)},
     "kpi": lambda cache, block: {"kpis": home.odf_home_kpis(total=_total(cache))},
-    "featured": lambda cache, block: {"datasets": home.odf_featured_datasets(7)},
-    "latest": lambda cache, block: {"datasets": home.odf_latest_datasets(6)},
+    "featured": lambda cache, block: _datasets(home.odf_featured_datasets(7), cache),
+    "latest": lambda cache, block: _datasets(home.odf_latest_datasets(6), cache),
     "themes": lambda cache, block: {"themes": home.odf_themes_visible()},
-    "lod": lambda cache, block: {"datasets": home.odf_lod_datasets(6)},
+    "lod": lambda cache, block: _datasets(home.odf_lod_datasets(6), cache),
     "most_viewed": _most_viewed,
     "news": lambda cache, block: {"news": home.odf_news(3)},
 }

@@ -5,13 +5,14 @@ in Jinja: riceve i dati già composti. La ricerca della serie è fatta una volta
 e riusata dal contesto (prima era una convenzione del template).
 """
 
-from . import catalog, dataset, resource, series
+from . import dataset, resource, series
 from . import map as map_helpers
 
 
 def odf_dataset_page(pkg, tab="essenziale"):
     """Dati della scheda dataset per la vista `tab` ("essenziale"/"avanzata")."""
-    badges = dataset.odf_dataset_badges(pkg)
+    facts = dataset.odf_dataset_facts(pkg)
+    badges = dataset.odf_dataset_badges(pkg, facts=facts)
     info = series.odf_series_info(pkg)
     # Il pannello serie/revisioni esiste solo nella vista essenziale: sulla
     # tab avanzata non si pagano le ricerche delle revisioni.
@@ -27,10 +28,11 @@ def odf_dataset_page(pkg, tab="essenziale"):
         views_by_resource = resource.odf_resource_views_by_id(pkg)
         map_resource = map_helpers.odf_dataset_map_resource(pkg, views_by_resource)
     return {
-        "theme": catalog.odf_package_theme(pkg),
+        "theme": facts["theme"],
+        "facts": facts,
         "badges": badges,
-        "is_realtime": any(badge["kind"] == "realtime" for badge in badges),
-        "is_geo": any(badge["kind"] == "geo" for badge in badges),
+        "is_realtime": facts["is_realtime"],
+        "is_geo": facts["is_geo"],
         "downloads": dataset.odf_dataset_downloads(pkg),
         "quality": dataset.odf_dataset_openness(pkg),
         "map_resource": map_resource,
@@ -39,8 +41,8 @@ def odf_dataset_page(pkg, tab="essenziale"):
         "serie": info["serie"],
         "serie_total": info["count"],
         "contact": dataset.odf_dataset_contact(pkg),
-        "related": dataset.odf_dataset_related(pkg),
-        "geometry": dataset.odf_dataset_geometry(pkg),
+        "related": dataset.odf_dataset_related(pkg, theme=facts["theme"]),
+        "geometry": facts["geometry"],
         "uso": dataset.odf_pkg_extra(pkg, "uso"),
         "tab": tab,
         "advanced": tab == "avanzata",

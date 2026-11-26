@@ -1,2 +1,2 @@
 {% from 'snippets/opendata_firenze_theme/home/block.html' import carousel_block %}
-{{ carousel_block(block, block_data.datasets, date_field='metadata_created', date_prefix=_('Pubblicato il')) }}
+{{ carousel_block(block, block_data.datasets, date_field='metadata_created', date_prefix=_('Pubblicato il'), facts=block_data.facts) }}

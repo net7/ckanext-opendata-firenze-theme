@@ -35,8 +35,9 @@
     {% for item in (search_facets or {}).get('odf_series', {}).get('items', []) %}
       {% set _ = series_counts.update({item.name: item.count}) %}
     {% endfor %}
+    {% set facts_map = h.odf_dataset_views(page.items) %}
     <div class="rtt-grid rtt-grid--2 rtt-catalog__results">
-      {% for pkg in page.items %}{{ dataset_card(pkg, show_realtime=True, show_serie=True, series_counts=series_counts) }}{% endfor %}
+      {% for pkg in page.items %}{{ dataset_card(pkg, show_realtime=True, show_serie=True, series_counts=series_counts, facts=facts_map.get(pkg.id)) }}{% endfor %}
     </div>
     <div class="rtt-catalog__pager">{{ pager(page) }}</div>
     {% else %}

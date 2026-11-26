@@ -17,7 +17,7 @@
     </div>
     {% if featured|length > 1 %}
     {# Stesso carosello degli altri blocchi: un solo markup per tutti. #}
-    {{ dataset_carousel(featured[1:], _('Dataset in evidenza'), date_prefix=_('Ultima modifica')) }}
+    {{ dataset_carousel(featured[1:], _('Dataset in evidenza'), date_prefix=_('Ultima modifica'), facts=block_data.facts) }}
     {% endif %}
   </div>
 {% endcall %}

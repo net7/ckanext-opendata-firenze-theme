@@ -118,6 +118,21 @@ def odf_dataset_facts(pkg):
     }
 
 
+def odf_dataset_views(pkgs):
+    """Fatti per id, calcolati una volta per una lista di card.
+
+    I template passano il valore alla card (`facts=…`) invece di lasciarle
+    chiamare quattro predicati che ricalcolano gli stessi fatti.
+    """
+    views = {}
+    for pkg in pkgs or []:
+        if isinstance(pkg, dict):
+            pkg_id = pkg.get("id")
+            if pkg_id:
+                views[pkg_id] = odf_dataset_facts(pkg)
+    return views
+
+
 def odf_dataset_is_geo(pkg):
     """True se il dataset ha contenuto geografico.
 
@@ -138,14 +153,15 @@ def odf_dataset_is_realtime(pkg):
     return odf_dataset_facts(pkg)["is_realtime"]
 
 
-def odf_dataset_badges(pkg):
+def odf_dataset_badges(pkg, facts=None):
     """Badge della testata del dataset: HVD, geodati, aggiornamento continuo.
 
     Legge i fatti da `odf_dataset_facts`, la stessa fonte della faccetta
     "Caratteristiche": HVD/geometria/realtime sono extras custom
     (ckanext-scheming non installato), la geometria si deduce anche dai formati.
+    `facts` evita di ricalcolarli quando il chiamante li ha già.
     """
-    facts = odf_dataset_facts(pkg)
+    facts = facts or odf_dataset_facts(pkg)
     labels = query.feature_labels()
     badges = []
     if facts["is_hvd"]:
@@ -184,9 +200,9 @@ def odf_dataset_openness(pkg):
     return {"score": score, "label": label, "tier": tier}
 
 
-def odf_dataset_related(pkg, limit=3):
+def odf_dataset_related(pkg, limit=3, theme=None):
     """Dataset correlati: stesso tema DCAT-AP_IT, escluso sé stesso."""
-    tema = odf_package_theme(pkg)
+    tema = theme or odf_package_theme(pkg)
     if not tema:
         return []
     data = _common._search(rows=limit + 1, fq=query.theme(tema), sort="metadata_modified desc")
@@ -249,6 +265,8 @@ def odf_datastore_resource_id(pkg):
 # derivato da questi mapping.
 HELPERS = {
     "odf_pkg_extra": odf_pkg_extra,
+    "odf_dataset_facts": odf_dataset_facts,
+    "odf_dataset_views": odf_dataset_views,
     "odf_dataset_formats": odf_dataset_formats,
     "odf_dataset_is_lod": odf_dataset_is_lod,
     "odf_dataset_is_hvd": odf_dataset_is_hvd,

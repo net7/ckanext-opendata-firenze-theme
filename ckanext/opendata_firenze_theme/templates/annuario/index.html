@@ -40,8 +40,9 @@
           <span class="rtt-body-sm">{{ ungettext('{num} dataset pubblicato nel catalogo', '{num} dataset pubblicati nel catalogo', chapter_count).format(num=chapter_count) }}</span>
         </div>
         {% if datasets %}
+        {% set facts_map = h.odf_dataset_views(datasets) %}
         <div class="rtt-grid rtt-grid--2">
-          {% for pkg in datasets %}{{ dataset_card(pkg) }}{% endfor %}
+          {% for pkg in datasets %}{{ dataset_card(pkg, facts=facts_map.get(pkg.id)) }}{% endfor %}
         </div>
         {% else %}
         <div class="rtt-annuario__empty">

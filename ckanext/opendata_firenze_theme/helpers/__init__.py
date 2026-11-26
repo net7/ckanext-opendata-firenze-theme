@@ -50,6 +50,7 @@ from .dataset import (
     odf_dataset_is_series,
     odf_dataset_openness,
     odf_dataset_related,
+    odf_dataset_views,
     odf_datastore_resource_id,
     odf_index_features,
     odf_index_series,
@@ -132,7 +133,6 @@ for _module in HELPER_MODULES:
 # plugin, viste e test.
 _PUBLIC_CONSTANTS = ("THEMES",)
 _PUBLIC_FUNCTIONS = (
-    "odf_dataset_facts",
     "odf_dataset_is_series",
     "odf_dataset_revisions",
     "odf_dataset_series",

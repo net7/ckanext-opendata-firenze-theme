@@ -37,11 +37,11 @@ def test_sections_payload_for_every_block(with_plugins):
 
     assert got["hero"] == {"count": 7}
     assert got["kpi"] == {"kpis": ["kpi"]}
-    assert got["featured"] == {"datasets": ["f"]}
-    assert got["latest"] == {"datasets": ["l"]}
+    assert got["featured"] == {"datasets": ["f"], "facts": {}}
+    assert got["latest"] == {"datasets": ["l"], "facts": {}}
     assert got["themes"] == {"themes": ["t"]}
-    assert got["lod"] == {"datasets": ["o"]}
-    assert got["most_viewed"] == {"datasets": ["v"], "period_label": "periodo"}
+    assert got["lod"] == {"datasets": ["o"], "facts": {}}
+    assert got["most_viewed"] == {"datasets": ["v"], "facts": {}, "period_label": "periodo"}
     assert got["news"] == {"news": ["n"]}
     kpi.assert_called_once_with(total=7)
     featured.assert_called_once_with(7)
@@ -63,7 +63,7 @@ def test_most_viewed_period_comes_from_block(with_plugins):
     ):
         got = home_sections.odf_home_sections([{"id": "most_viewed", "period": "week"}])
 
-    assert got["most_viewed"] == {"datasets": ["v"], "period_label": "settimana"}
+    assert got["most_viewed"] == {"datasets": ["v"], "facts": {}, "period_label": "settimana"}
     viewed.assert_called_once_with(4, "week")
     label.assert_called_once_with("week")
 
@@ -83,7 +83,9 @@ def test_most_viewed_falls_back_without_period_label(with_plugins):
 
     latest.assert_called_once_with(4)
     label.assert_not_called()
-    assert got["most_viewed"] == {"datasets": recent, "period_label": ""}
+    assert got["most_viewed"]["datasets"] is recent
+    assert got["most_viewed"]["period_label"] == ""
+    assert set(got["most_viewed"]["facts"]) == {"recent"}
     assert recent[0]["views_period"] == 0
 
 
@@ -98,10 +100,32 @@ def test_sections_cover_active_blocks_in_order(with_plugins):
         got = home_sections.odf_home_sections([{"id": "latest"}, {"id": "news"}])
 
     assert list(got) == ["latest", "news"]
-    assert got["latest"] == {"datasets": ["a"]}
+    assert got["latest"] == {"datasets": ["a"], "facts": {}}
     assert got["news"] == {"news": ["n"]}
     latest.assert_called_once_with(6)
     news.assert_called_once_with(3)
+
+
+@pytest.mark.ckan_config("ckan.plugins", PLUGIN)
+def test_facts_are_shared_between_blocks(with_plugins):
+    """Un dataset in due blocchi calcola i fatti una volta per render."""
+    from ckanext.opendata_firenze_theme.helpers import dataset, home, home_sections
+
+    pkg = {"id": "a"}
+    calls = []
+    with (
+        mock.patch.object(
+            dataset,
+            "odf_dataset_facts",
+            side_effect=lambda item: calls.append(item["id"]) or {"id": item["id"]},
+        ),
+        mock.patch.object(home, "odf_latest_datasets", return_value=[pkg]),
+        mock.patch.object(home, "odf_lod_datasets", return_value=[pkg]),
+    ):
+        got = home_sections.odf_home_sections([{"id": "latest"}, {"id": "lod"}])
+
+    assert calls == ["a"]
+    assert got["latest"]["facts"]["a"] is got["lod"]["facts"]["a"]
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

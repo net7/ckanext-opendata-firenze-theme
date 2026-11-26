@@ -21,10 +21,10 @@
   Blocco "carosello di dataset": lo usano "Ultimi pubblicati" e "Linked Open
   Data", che differiscono solo per campo/etichetta della data.
 #}
-{% macro carousel_block(block, items, date_field='metadata_modified', date_prefix=None) -%}
+{% macro carousel_block(block, items, date_field='metadata_modified', date_prefix=None, facts=None) -%}
 {% if items %}
 {% call home_block(block) %}
-  {{ dataset_carousel(items, block.title, date_field=date_field, date_prefix=date_prefix) }}
+  {{ dataset_carousel(items, block.title, date_field=date_field, date_prefix=date_prefix, facts=facts) }}
 {% endcall %}
 {% endif %}
 {%- endmacro %}
