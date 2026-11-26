@@ -50,3 +50,24 @@ renderizzarlo.
 **Blocco della home** — sezione configurabile della homepage (hero, KPI, in
 evidenza, temi, LOD, più consultati, news), con id, ordine, stato e testi
 salvati in `system_info` (ADR 0008).
+
+**Ricerca del catalogo** — la policy di ricerca dei dataset: query esatta di
+CKAN e, solo per le viste web, fallback fuzzy. Vive in
+`helpers/catalog_search.py`; `plugin.odf_package_search` è l'adapter CKAN e
+l'API pubblica resta esatta (ADR 0014).
+
+**Ricerca site-wide** — la pagina `/search` e il valore `{q, groups}` che
+aggrega dataset (evidenze), news e pagine; gli enti restano nel catalogo.
+Ogni gruppo ha la stessa forma e il template si limita a iterarlo
+(ADR 0014).
+
+**Fatti del dataset** — il dict con formati, tema, geometria e flag
+(geo/LOD/HVD/realtime/serie) calcolato da `odf_dataset_facts`.
+`odf_dataset_views` lo calcola una volta per una lista e le card lo ricevono
+già pronto (`facts`) invece di ricalcolarlo per ogni predicato.
+
+**Fuzzy** — fallback di ricerca per i refusi: la query esatta resta la prima;
+se è vuota, i termini di 4-5 caratteri tollerano una modifica e quelli di 6+
+due (Damerau-Levenshtein). L'apostrofo separa i termini come nel tokenizer.
+La policy vive in `helpers/fuzzy.py` ed è usata da `query.fuzzy_query` per
+Solr e da `editorial.matches` per news e pagine (ADR 0014).
