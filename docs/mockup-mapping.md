@@ -124,6 +124,9 @@ include `package/snippets/resources_list.html`, `package/snippets/tags.html`,
 - Descrizione → campo `notes`.
 - Risorse scaricabili → `package/snippets/resources_list.html` /
   `resource_item.html`; la riga è `dataset/resource_row.html`.
+- Separatore CSV → extra `separatore` del dataset, mostrato nella riga risorsa
+  e nella scheda risorsa; se manca si legge dalla descrizione, altrimenti non si
+  mostra (ADR 0015).
 - Anteprima risorsa (modale) → `dataset/preview_modal.html` + `preview.js`
   (`initResourcePreview`): il link "Vedi anteprima" (che senza JS resta un
   link alla scheda risorsa) apre un `<dialog>` che incorpora la prima vista

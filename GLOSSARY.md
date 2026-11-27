@@ -80,3 +80,9 @@ plugin, quello dei test è in-memory.
 **Qualità interna** — punteggio QA del metadato e regola di visibilità
 (sysadmin o editor dell'organizzazione). Vive in `helpers/quality.py` e il
 plugin la usa come adapter CKAN.
+
+**Separatore CSV** — campo `separatore` negli extras del dataset (`;`, `,`,
+TAB, `|`), mostrato sulle risorse CSV come nel mockup. Se l'extra manca si legge
+la descrizione (`Il separatore delle risorse CSV è ...`); se nessuno dei due lo
+dichiara, il campo non viene mostrato. L'estrazione vive in
+`helpers/separator.py`; il post-processing dell'harvest la persiste (ADR 0015).

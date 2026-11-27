@@ -5,6 +5,7 @@ from ckan import model
 from ckan.lib.datapreview import get_view_plugin
 from ckan.plugins import toolkit
 
+from ckanext.opendata_firenze_theme.helpers import _common, separator
 from ckanext.opendata_firenze_theme.helpers.map import GENERIC_MAP_VIEW_TYPES
 
 
@@ -105,3 +106,94 @@ def cleanup_map_views(delete_, delete_all, resource_id):
     if skipped:
         click.echo(f"{skipped} viste personalizzate lasciate (usa --all).")
     click.echo(f"Eliminate {len(to_delete)} viste duplicate.")
+
+
+def _extra_value(pkg, key):
+    return separator.normalize(_common.pkg_field(pkg, key))
+
+
+def _candidates(context, dataset):
+    """Package da esaminare: uno solo, oppure quelli con la frase in descrizione."""
+    show = toolkit.get_action("package_show")
+    if dataset:
+        try:
+            yield show(context, {"id": dataset})
+        except toolkit.ObjectNotFound as exc:
+            raise click.ClickException(f"Dataset non trovato: {dataset}") from exc
+        return
+    query = (
+        model.Session.query(model.Package).filter_by(state="active").order_by(model.Package.name)
+    )
+    for pkg in query:
+        if not separator.from_notes(pkg.notes):
+            yield None
+            continue
+        try:
+            yield show(context, {"id": pkg.id})
+        except toolkit.ObjectNotFound:
+            yield None
+
+
+@click.command("odf-extract-separators")
+@click.option(
+    "--apply",
+    "apply_",
+    is_flag=True,
+    help="Scrive l'extra (default: dry-run).",
+)
+@click.option(
+    "--dataset",
+    "dataset",
+    help="Limita a un dataset (nome o id).",
+)
+@click.option(
+    "--limit",
+    type=int,
+    default=0,
+    help="Limita il numero di dataset aggiornati (0 = tutti).",
+)
+def extract_separators(apply_, dataset, limit):
+    """Estrae il separatore CSV dalla descrizione e lo salva in `extras.separatore`.
+
+    Il post-processing dell'harvest lo fa già per i dataset nuovi/aggiornati
+    (package_create/package_update); questo comando serve per il backfill dei
+    dataset già in catalogo. Senza `--apply` è un dry-run.
+    """
+    context = {"ignore_auth": True}
+    patch = toolkit.get_action("package_patch")
+    counts = {"added": 0, "present": 0, "no_note": 0, "errors": 0}
+
+    for pkg in _candidates(context, dataset):
+        if pkg is None:
+            counts["no_note"] += 1
+            continue
+        name = pkg.get("name") or pkg.get("id")
+        sep = separator.from_notes(pkg.get("notes"))
+        if not sep:
+            counts["no_note"] += 1
+            continue
+        if _extra_value(pkg, "separatore"):
+            counts["present"] += 1
+            continue
+
+        if not apply_:
+            counts["added"] += 1
+            click.echo(f"{name}\t{sep}")
+        else:
+            try:
+                # Copia con la stessa forma di extras di package_show.
+                data = {"notes": pkg.get("notes"), "extras": pkg.get("extras") or []}
+                separator.ensure_extra(data, create=True)
+                patch(context, {"id": pkg["id"], "extras": data["extras"]})
+                counts["added"] += 1
+            except Exception as exc:  # noqa: BLE001 - un dataset rotto non ferma il backfill
+                counts["errors"] += 1
+                click.echo(f"Errore su {name}: {exc}", err=True)
+        if limit and counts["added"] >= limit:
+            break
+
+    verb = "Aggiornati" if apply_ else "Da aggiornare"
+    click.echo(
+        f"{verb}: {counts['added']}; già presenti: {counts['present']}; "
+        f"senza nota: {counts['no_note']}; errori: {counts['errors']}."
+    )
