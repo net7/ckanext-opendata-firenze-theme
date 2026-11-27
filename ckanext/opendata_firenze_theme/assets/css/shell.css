@@ -489,7 +489,8 @@
 
 .rtt-footer {
   width: 100%;
-  background: var(--primary-primary-700);
+  /* Rosso di riferimento del Comune (#B30808), più chiaro del 700 usato prima. */
+  background: var(--primary-primary-500-base);
   color: var(--basics-white-100);
   /* sticky footer (vedi body in base.css). Lo spazio libero lo prende il contenuto;
      margin-top: auto resta per le pagine senza main o div.main come figlio del body */
@@ -544,17 +545,18 @@
 .rtt-footer__note {
   margin: 0;
   font-family: var(--rtt-font-text);
-  line-height: 22px;
-  color: var(--primary-primary-100);
+  color: var(--basics-white-100);
   text-wrap: pretty;
 }
 
 .rtt-footer__desc {
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 24px;
 }
 
 .rtt-footer__note {
-  font-size: 13px;
+  font-size: 16px;
+  line-height: 24px;
 }
 
 .rtt-footer__social {
@@ -590,7 +592,7 @@
 
 .rtt-footer__link {
   font-family: var(--rtt-font-text);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 24px;
   color: var(--basics-white-100);
   text-decoration: none;
@@ -607,14 +609,14 @@
   align-items: center;
   gap: 24px;
   padding: 16px 64px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .rtt-footer__legal-link {
   font-family: var(--rtt-font-ui);
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--primary-primary-100);
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--basics-white-100);
   text-decoration: underline;
 }
 
@@ -700,6 +702,6 @@ html.rtt-nav-open {
 }
 
 .rtt-footer__legal-link:visited {
-  color: var(--primary-primary-100);
+  color: var(--basics-white-100);
 }
 
