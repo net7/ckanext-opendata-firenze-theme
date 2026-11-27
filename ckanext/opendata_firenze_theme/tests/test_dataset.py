@@ -521,10 +521,14 @@ def test_resource_filename_and_separator(with_plugins, with_request_context):
     # gli script lato server non sono nomi di file
     assert helpers.odf_resource_filename({"url": "https://example.test/download.php?id=42"}) == ""
 
-    # il separatore arriva solo dall'extra `separatore` e solo sulle risorse CSV
+    # il separatore arriva dall'extra o dalla descrizione; se manca non si inventa
     pkg = {"extras": [{"key": "separatore", "value": ";"}]}
     assert "punto e virgola" in helpers.odf_resource_separator(pkg, {"format": "CSV"})
     assert helpers.odf_resource_separator(pkg, {"format": "SHP"}) == ""
+    assert "punto e virgola" in helpers.odf_resource_separator(
+        {"notes": 'Il separatore delle risorse CSV è ";" (lett. punto e virgola).'},
+        {"format": "CSV"},
+    )
     assert helpers.odf_resource_separator({}, {"format": "CSV"}) == ""
 
 

@@ -10,7 +10,7 @@ from urllib.parse import unquote, urlsplit
 import ckan.lib.helpers as ckan_h
 import ckan.plugins.toolkit as toolkit
 
-from . import _common
+from . import separator
 from .constants import VIEW_TITLES
 
 
@@ -192,29 +192,21 @@ def odf_resource_filename(res):
     return "" if name.rsplit(".", 1)[-1].lower() in _NON_FILE_EXTENSIONS else name
 
 
-# Etichette italiane dei separatori CSV riconosciuti.
-_SEPARATOR_LABELS = {
-    ";": "punto e virgola",
-    ",": "virgola",
-    "\t": "tabulazione",
-    "|": "barra verticale",
-}
-
-
 def odf_resource_separator(pkg, res):
-    """Separatore di campo di una risorsa CSV, dall'extra `separatore` del dataset.
+    """Separatore di campo di una risorsa CSV: extra o descrizione.
 
-    Non si deduce dal contenuto: se il dataset non dichiara l'extra (o la
-    risorsa non è CSV) non si mostra nulla, per non inventare un dato.
+    La policy vive in `helpers/separator.py`: il render usa l'extra e, se
+    manca, la descrizione. Senza dichiarazione non si inventa un valore. Solo
+    le risorse CSV mostrano il campo; gli altri formati non hanno un separatore
+    di campo.
     """
     if ((res or {}).get("format") or "").strip().upper() != "CSV":
         return ""
-    sep = (_common.pkg_field(pkg, "separatore") or "").strip()
+    sep = separator.value(pkg)
     if not sep:
         return ""
-    label = _SEPARATOR_LABELS.get(sep, sep)
     return toolkit._("Separatore di campo: «{sep}» ({label})").format(
-        sep="TAB" if sep == "\t" else sep, label=label
+        sep="TAB" if sep == "\t" else sep, label=separator.label(sep)
     )
 
 

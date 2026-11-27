@@ -2,7 +2,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 from ckanext.opendata_firenze_theme import cli, helpers, views
-from ckanext.opendata_firenze_theme.helpers import home_blocks, quality, query
+from ckanext.opendata_firenze_theme.helpers import home_blocks, quality, query, separator
 
 from .helpers.catalog_search import catalog_search
 
@@ -33,6 +33,21 @@ def odf_package_search(context, data_dict):
         if not quality.can_view(context, pkg.get("id")):
             quality.strip(pkg)
     return result
+
+
+# Post-processing dell'harvest (e di ogni create/update): se la descrizione
+# dichiara il separatore CSV, lo salviamo come extra prima del salvataggio.
+# Il collector CKAN passa da queste action, quindi vale anche per l'harvest.
+@toolkit.chained_action
+def package_create(up_func, context, data_dict):
+    separator.ensure_extra(data_dict, create=True)
+    return up_func(context, data_dict)
+
+
+@toolkit.chained_action
+def package_update(up_func, context, data_dict):
+    separator.ensure_extra(data_dict)
+    return up_func(context, data_dict)
 
 
 class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
@@ -84,7 +99,7 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
     # IClick
 
     def get_commands(self):
-        return [cli.cleanup_map_views]
+        return [cli.cleanup_map_views, cli.extract_separators]
 
     # IAuthFunctions
 
@@ -94,7 +109,11 @@ class OpendataFirenzeThemePlugin(plugins.SingletonPlugin):
     # IActions
 
     def get_actions(self):
-        return {"package_search": odf_package_search}
+        return {
+            "package_search": odf_package_search,
+            "package_create": package_create,
+            "package_update": package_update,
+        }
 
     # IFacets
 
