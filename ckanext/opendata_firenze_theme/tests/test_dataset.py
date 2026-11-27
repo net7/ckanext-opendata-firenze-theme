@@ -39,7 +39,7 @@ def test_dataset_page_renders_essential(app):
     assert "Metadati avanzati" in body
     assert "Risorse scaricabili" in body
     assert "In sintesi" in body
-    assert "Titolare del dato" in body
+    assert "Chi pubblica" in body
 
 
 @pytest.mark.ckan_config("ckan.plugins", PLUGIN)

@@ -4,7 +4,7 @@
 {% from 'snippets/opendata_firenze_theme/tema-overline.html' import tema_label %}
 
 {# Colonna laterale della scheda dataset: "In sintesi", "Dataset correlati",
-   "Titolare del dato". `related` = lista di package, `contact` = dict
+   "Chi pubblica". `related` = lista di package, `contact` = dict
    {holder, structure, email} (helper odf_dataset_contact). #}
 {# is_realtime: se il dataset è "in aggiornamento continuo" (stessa nozione dei
    badge, `odf_dataset_badges`, così la truthiness dell'extra è una sola). #}
@@ -45,7 +45,7 @@
   {% endif %}
 
   {% if contact.holder or contact.structure or contact.email %}
-  {% call panel(_('Titolare del dato')) %}
+  {% call panel(_('Chi pubblica')) %}
     <div class="rtt-contacts">
       {% if contact.holder %}
       <div class="rtt-contact">

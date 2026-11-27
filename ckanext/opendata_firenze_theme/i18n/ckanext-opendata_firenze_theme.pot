@@ -603,7 +603,6 @@ msgid "Tema DCAT-AP_IT"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/package/read.html:134
-#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/aside.html:48
 msgid "Titolare del dato"
 msgstr ""
 
@@ -1455,6 +1454,10 @@ msgid ""
 "Endpoint, API e servizi geografici per consumare il catalogo in modo "
 "programmatico. Tutte le interfacce sono pubbliche, in sola lettura e non "
 "richiedono chiave."
+msgstr ""
+
+#: ckanext/opendata_firenze_theme/templates/snippets/opendata_firenze_theme/dataset/aside.html:48
+msgid "Chi pubblica"
 msgstr ""
 
 #: ckanext/opendata_firenze_theme/templates/sviluppatori/index.html:28
