@@ -1,11 +1,13 @@
 """Comandi di manutenzione del tema."""
 
+import copy
+
 import click
 from ckan import model
 from ckan.lib.datapreview import get_view_plugin
 from ckan.plugins import toolkit
 
-from ckanext.opendata_firenze_theme.helpers import _common, separator
+from ckanext.opendata_firenze_theme.helpers import _common, agents, separator
 from ckanext.opendata_firenze_theme.helpers.map import GENERIC_MAP_VIEW_TYPES
 
 
@@ -196,4 +198,93 @@ def extract_separators(apply_, dataset, limit):
     click.echo(
         f"{verb}: {counts['added']}; già presenti: {counts['present']}; "
         f"senza nota: {counts['no_note']}; errori: {counts['errors']}."
+    )
+
+
+def _package_candidates(context, dataset):
+    """Package da esaminare: uno solo, oppure tutti gli attivi."""
+    show = toolkit.get_action("package_show")
+    if dataset:
+        try:
+            yield show(context, {"id": dataset})
+        except toolkit.ObjectNotFound as exc:
+            raise click.ClickException(f"Dataset non trovato: {dataset}") from exc
+        return
+    query = (
+        model.Session.query(model.Package.id).filter_by(state="active").order_by(model.Package.name)
+    )
+    for (pkg_id,) in query:
+        try:
+            yield show(context, {"id": pkg_id})
+        except toolkit.ObjectNotFound:
+            yield None
+
+
+@click.command("odf-normalize-agents")
+@click.option(
+    "--apply",
+    "apply_",
+    is_flag=True,
+    help="Scrive le modifiche (default: dry-run).",
+)
+@click.option(
+    "--dataset",
+    "dataset",
+    help="Limita a un dataset (nome o id).",
+)
+@click.option(
+    "--limit",
+    type=int,
+    default=0,
+    help="Limita il numero di dataset aggiornati (0 = tutti).",
+)
+def normalize_agents(apply_, dataset, limit):
+    """Toglie "Comune di Firenze - " dai nomi di ente (backfill).
+
+    Il post-processing dell'harvest lo fa già per i dataset nuovi/aggiornati
+    (package_create/package_update); questo comando serve per i dataset già in
+    catalogo. Senza `--apply` è un dry-run.
+    """
+    context = {"ignore_auth": True}
+    patch = toolkit.get_action("package_patch")
+    counts = {"changed": 0, "clean": 0, "errors": 0}
+    keys = ("notes", "author", "maintainer", "holder_name", "publisher_name", "creator")
+
+    for pkg in _package_candidates(context, dataset):
+        if pkg is None:
+            counts["errors"] += 1
+            continue
+        name = pkg.get("name") or pkg.get("id")
+        before = {key: pkg.get(key) for key in keys}
+        extras_before = copy.deepcopy(pkg.get("extras"))
+        agents.normalize_package(pkg)
+
+        data = {"id": pkg["id"]}
+        for key in keys:
+            if pkg.get(key) != before[key]:
+                data[key] = pkg.get(key)
+        if pkg.get("extras") != extras_before:
+            data["extras"] = pkg.get("extras")
+
+        if len(data) == 1:
+            counts["clean"] += 1
+            continue
+
+        if not apply_:
+            changed_keys = ",".join(sorted(set(data) - {"id"}))
+            counts["changed"] += 1
+            click.echo(f"{name}\t{changed_keys}")
+        else:
+            try:
+                patch(context, data)
+                counts["changed"] += 1
+            except Exception as exc:  # noqa: BLE001 - un dataset rotto non ferma il backfill
+                counts["errors"] += 1
+                click.echo(f"Errore su {name}: {exc}", err=True)
+        if limit and counts["changed"] >= limit:
+            break
+
+    verb = "Aggiornati" if apply_ else "Da aggiornare"
+    click.echo(
+        f"{verb}: {counts['changed']}; già puliti: {counts['clean']}; errori: {counts['errors']}."
     )
